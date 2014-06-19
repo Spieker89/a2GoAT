@@ -75,6 +75,48 @@ add_executable(goat
 target_link_libraries(goat ${ROOT_LIBRARIES})
 
 
+add_executable(goat_detailed
+   inc/GTree.h
+   inc/GTreeRawEvent.h
+   inc/GTreeDetectorHits.h
+   inc/GTreeTagger.h
+   inc/GTreeLinPol.h
+   inc/GTreeScaler.h
+   inc/GTreeParticle.h
+   inc/GTreeMeson.h
+   inc/GTreeTrigger.h
+   inc/GTreeEventParameters.h
+   inc/GHistManager.h
+   inc/GTreeManager.h
+   inc/GConfigFile.h
+   inc/GDataChecks.h
+   inc/GParticleReconstruction.h
+   inc/GMesonReconstruction_6and7gamma.h
+   inc/GSort.h
+   inc/GoAT_Detailed.h
+   src/GTree.cc
+   src/GTreeRawEvent.cc
+   src/GTreeDetectorHits.cc
+   src/GTreeTagger.cc
+   src/GTreeLinPol.cc
+   src/GTreeScaler.cc
+   src/GTreeParticle.cc
+   src/GTreeMeson.cc
+   src/GTreeTrigger.cc
+   src/GTreeEventParameters.cc
+   src/GHistManager.cc
+   src/GTreeManager.cc
+   src/GConfigFile.cc
+   src/GDataChecks.cc
+   src/GParticleReconstruction.cc
+   src/GMesonReconstruction_6and7gamma.cc
+   src/GSort.cc
+   src/GoAT_Detailed.cc
+   src/goat_detailed_main.cc
+   )
+target_link_libraries(goat_detailed ${ROOT_LIBRARIES})
+
+
 add_executable(pi0-example
    inc/GTree.h
    inc/GTreeRawEvent.h

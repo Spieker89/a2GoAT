@@ -1,6 +1,6 @@
 #ifndef __CINT__
 
-#include "GoAT.h"
+#include "GoAT_Detailed.h"
 #include "TSystem.h"
 #include "TSystemDirectory.h"
 #include "TSystemFile.h"
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     else serverfile = configfile;
 
     // Create instance of GoAT_Detailed class
-    GTreeManager* goat = new GoAT;
+    GTreeManager* goat = new GoAT_Detailed;
 
     // If unset, scan server or config file for file settings
     if(dir_in.length() == 0)
