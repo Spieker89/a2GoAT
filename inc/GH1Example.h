@@ -7,12 +7,12 @@
 #include <string> 
 
 #include "GTreeManager.h"
-#include "GH1.h"
+#include "GHistEvent.h"
 
 class	GH1Example  : public GTreeManager
 {
 private:
-    GH1     test;
+    GHistEvent     test;
 
 protected:
     virtual Bool_t  Start();

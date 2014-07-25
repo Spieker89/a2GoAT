@@ -158,3 +158,47 @@ add_executable(pi0-example
    src/pi0_example_main.cc
    )
 target_link_libraries(pi0-example ${ROOT_LIBRARIES})
+
+
+
+add_executable(GH1Example
+   inc/GTree.h
+   inc/GTreeRawEvent.h
+   inc/GTreeDetectorHits.h
+   inc/GTreeTagger.h
+   inc/GTreeLinPol.h
+   inc/GTreeScaler.h
+   inc/GTreeParticle.h
+   inc/GTreeMeson.h
+   inc/GTreeTrigger.h
+   inc/GTreeEventParameters.h
+   inc/GHistManager.h
+   inc/GTreeManager.h
+   inc/GConfigFile.h
+   inc/GHistTaggerBinning.h
+   inc/GHistBGSub.h
+   inc/GHistScaCor.h
+   inc/GH1.h
+   inc/GHistEvent.h
+   inc/GH1Example.h
+   src/GTree.cc
+   src/GTreeRawEvent.cc
+   src/GTreeDetectorHits.cc
+   src/GTreeTagger.cc
+   src/GTreeLinPol.cc
+   src/GTreeScaler.cc
+   src/GTreeParticle.cc
+   src/GTreeMeson.cc
+   src/GTreeTrigger.cc
+   src/GTreeEventParameters.cc
+   src/GHistManager.cc
+   src/GTreeManager.cc
+   src/GConfigFile.cc
+   src/GHistTaggerBinning.cc
+   src/GHistBGSub.cc
+   src/GHistScaCor.cc
+   src/GHistEvent.cc
+   src/GH1Example.cc
+   src/GH1_example_main.cc
+   )
+target_link_libraries(GH1Example ${ROOT_LIBRARIES})
