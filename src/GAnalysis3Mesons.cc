@@ -7,7 +7,8 @@
 GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const char* dirName, const Bool_t IsEtap) :
     isEtap(IsEtap),
     hist_raw(TString(name).Append("_Raw"), TString(title).Append(" Raw Data"), TString(dirName).Append("/Raw")),
-    hist_SubImCut(TString(name).Append("_SubImCut"), TString(title).Append(" Sub inv. Mass Cut"), TString(dirName).Append("/IM_Cut"))
+    hist_SubImCut(TString(name).Append("_SubImCut"), TString(title).Append(" Sub inv. Mass Cut"), TString(dirName).Append("/IM_Cut")),
+    hist_MmCut(TString(name).Append("_MmCut"), TString(title).Append(" Sub mis. Mass Cut"), TString(dirName).Append("/MM_Cut"))
 {
     if(IsEtap)
     {
@@ -23,6 +24,9 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const ch
     cutSubIM[3] = 155;
     cutSubIM[4] = 110;
     cutSubIM[5] = 155;
+
+    cutMM[0]    = 850;
+    cutMM[1]    = 1000;
 }
 
 GAnalysis3Mesons::~GAnalysis3Mesons()
@@ -43,6 +47,19 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagge
        (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
     {
         hist_SubImCut.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
+
+        Double_t    mm;
+        for(int i=0; i<tagger.GetNTagged(); i++)
+        {
+            mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
+            if(mm>cutMM[0] && mm<cutMM[1])
+            {
+                if(CreateHistogramsForTaggerBinning)
+                    hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
+            }
+        }
     }
 }
 

@@ -20,6 +20,9 @@ private:
     Double_t            cutSubIM[6];
     GHistEvent3Mesons   hist_SubImCut;
 
+    Double_t            cutMM[2];
+    GHistEvent3Mesons   hist_MmCut;
+
 protected:
 
 public:
