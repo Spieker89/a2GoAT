@@ -182,6 +182,8 @@ add_executable(GH1Example
    inc/GHistEvent.h
    inc/GCheckProton.h
    inc/GAnalysis3Mesons.h
+   inc/GKinFitterParticle.h
+   inc/GKinFitter.h
    inc/GH1Example.h
    src/GTree.cc
    src/GTreeRawEvent.cc
@@ -202,6 +204,8 @@ add_executable(GH1Example
    src/GHistEvent.cc
    src/GCheckProton.cc
    src/GAnalysis3Mesons.cc
+   src/GKinFitterParticle.cc
+   src/GKinFitter.cc
    src/GH1Example.cc
    src/GH1_example_main.cc
    )
