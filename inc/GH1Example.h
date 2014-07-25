@@ -12,7 +12,8 @@
 class	GH1Example  : public GTreeManager
 {
 private:
-    GHistEvent     test;
+    GHistEvent     hist_eta;
+    GHistEvent     hist_etap;
 
 protected:
     virtual Bool_t  Start();
