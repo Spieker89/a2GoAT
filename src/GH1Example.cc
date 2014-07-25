@@ -34,9 +34,9 @@ Bool_t	GH1Example::Start()
 void	GH1Example::ProcessEvent()
 {
     if(eta->GetNParticles()>0)
-        hist_eta.Fill(eta->Particle(0), *tagger, kTRUE);
+        hist_eta.Fill(*eta, *tagger, kTRUE);
     if(etap->GetNParticles()>0)
-        hist_etap.Fill(etap->Particle(0), *tagger, kTRUE);
+        hist_etap.Fill(*etap, *tagger, kTRUE);
 }
 
 void	GH1Example::ProcessScalerRead()
