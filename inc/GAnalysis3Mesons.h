@@ -14,12 +14,16 @@ class GTreeMeson;
 class   GAnalysis3Mesons
 {
 private:
+    Bool_t              isEtap;
     GHistEvent3Mesons   hist_raw;
+
+    Double_t            cutSubIM[6];
+    GHistEvent3Mesons   hist_SubImCut;
 
 protected:
 
 public:
-    GAnalysis3Mesons(const char* name, const char* title, const char* dirName);
+    GAnalysis3Mesons(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
     ~GAnalysis3Mesons();
 
     void    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
@@ -36,7 +40,7 @@ private:
 protected:
 
 public:
-    GAnalysis3MesonsProton(const char* name, const char* title, const char* dirName);
+    GAnalysis3MesonsProton(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
     ~GAnalysis3MesonsProton();
 
     void    Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
