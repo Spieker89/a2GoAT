@@ -1,8 +1,6 @@
 #ifndef __GHistEvent_h__
 #define __GHistEvent_h__
 
-//#include <iostream>
-
 #include <TLorentzVector.h>
 
 #include "GH1.h"

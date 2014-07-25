@@ -8,12 +8,15 @@
 
 #include "GTreeManager.h"
 #include "GHistEvent.h"
+#include "GCheckProton.h"
 
 class	GH1Example  : public GTreeManager
 {
 private:
-    GHistEvent3Mesons     hist_eta;
-    GHistEvent3Mesons     hist_etap;
+    GHistEvent3Mesons   hist_eta;
+    GCheckProton        check_eta_proton;
+    GHistEvent3Mesons   hist_etap;
+    GCheckProton        check_etap_proton;
 
 protected:
     virtual Bool_t  Start();

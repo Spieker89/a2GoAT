@@ -180,6 +180,7 @@ add_executable(GH1Example
    inc/GHistScaCor.h
    inc/GH1.h
    inc/GHistEvent.h
+   inc/GCheckProton.h
    inc/GH1Example.h
    src/GTree.cc
    src/GTreeRawEvent.cc
@@ -198,6 +199,7 @@ add_executable(GH1Example
    src/GHistBGSub.cc
    src/GHistScaCor.cc
    src/GHistEvent.cc
+   src/GCheckProton.cc
    src/GH1Example.cc
    src/GH1_example_main.cc
    )
