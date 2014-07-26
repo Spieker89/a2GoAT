@@ -29,7 +29,7 @@ public:
     GAnalysis3Mesons(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
     ~GAnalysis3Mesons();
 
-    void    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
+    Bool_t    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
 };
 
 

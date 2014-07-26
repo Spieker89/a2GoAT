@@ -34,7 +34,7 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 
 }
 
-void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
     hist_raw.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
@@ -58,9 +58,11 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagge
                     hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                 else
                     hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
+                return kTRUE;
             }
         }
     }
+    return kFALSE;
 }
 
 
