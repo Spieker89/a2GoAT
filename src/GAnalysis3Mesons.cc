@@ -80,8 +80,10 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
 
 GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* title, const char* dirName, const Bool_t IsEtap) :
     hist_meson(name, title, TString(dirName).Append("/WithoutProton"), IsEtap),
+    fit_meson(TString(name).Append("_fit").Data(), TString(title).Append(" kin. Fit").Data(), TString(dirName).Append("/WithoutProton/Fit"), IsEtap),
     check_meson_proton(TString(name).Append("_checkProton").Data(), TString(title).Append(" Check Proton").Data(), TString(dirName).Append("/WithProton").Data()),
-    hist_meson_proton(TString(name).Append("_proton").Data(), TString(title).Append(" Proton").Data(), TString(dirName).Append("/WithProton").Data(), IsEtap)
+    hist_meson_proton(TString(name).Append("_proton").Data(), TString(title).Append(" Proton").Data(), TString(dirName).Append("/WithProton").Data(), IsEtap),
+    fit_meson_proton(TString(name).Append("_proton_fit").Data(), TString(title).Append(" Proton kin. Fit").Data(), TString(dirName).Append("/WithProton/Fit"), IsEtap)
 {
 
 }
@@ -97,9 +99,11 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
     {
         if(check_meson_proton.Check(meson, proton, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
         {
-            hist_meson_proton.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
+            if(hist_meson_proton.Fill(meson, tagger, CreateHistogramsForTaggerBinning))
+                fit_meson_proton.Fit(meson, tagger, CreateHistogramsForTaggerBinning);
             return;
         }
-        hist_meson.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
+        if(hist_meson.Fill(meson, tagger, CreateHistogramsForTaggerBinning))
+            fit_meson.Fit(meson, tagger, CreateHistogramsForTaggerBinning);
     }
 }

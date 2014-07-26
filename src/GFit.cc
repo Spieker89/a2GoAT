@@ -9,16 +9,20 @@ GFit::GFit(const char* name, const char* title, const char* dirName, const Bool_
     isEtap(IsEtap),
     fit3(6, 3, 0),
     fit4(6, 4, 0),
-    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 100, 0, 1, TString(dirName).Append("/fit3/Raw")),
-    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 100, 0, 1, TString(dirName).Append("/fit4/Raw")),
-    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 100, 0, 1, TString(dirName).Append("/fit3/Raw")),
-    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 100, 0, 1, TString(dirName).Append("/fit4/Raw")),
+    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit3/Raw")),
+    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit4/Raw")),
+    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit3/Raw")),
+    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit4/Raw")),
     im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit3/Raw")),
     im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit4/Raw")),
     im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit3/CutConfidenceLevel")),
     im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit4/CutConfidenceLevel"))
 {
-
+    GammaResFile   = new TFile("~/GammaRes.root");
+    GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
+    GammaERes      = (TH2F*)GammaResFile->Get("EResIter");
+    GammaThetaRes  = (TH2F*)GammaResFile->Get("ThetaRes;1");
+    GammaPhiRes    = (TH2F*)GammaResFile->Get("PhiRes;1");
 }
 
 GFit::~GFit()
@@ -72,7 +76,7 @@ void    GFit::Fit3(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
     fit3.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
     fit3.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
 
-    if(fit3.Solve()<0)
+    if(fit3.Solve()>=0)
     {
         fit3_ConfidenceLevel.Fill(fit3.ConfidenceLevel());
         fit3_ChiSq.Fill(fit3.GetChi2());
@@ -101,7 +105,7 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit4.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
         fit4.AddSubMissMassConstraint(tagger.GetVectorProtonTarget(i), 6, sub, MASS_PROTON);
 
-        if(fit4.Solve()<0)
+        if(fit4.Solve()>=0)
         {
             if(fit4.GetChi2()<minChiSq)
             {
@@ -120,3 +124,4 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         im_fit4.Fill(im, 0, channel);
     }
 }
+

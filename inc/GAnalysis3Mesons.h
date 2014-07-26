@@ -4,6 +4,7 @@
 
 #include "GHistEvent.h"
 #include "GCheckProton.h"
+#include "GFit.h"
 
 
 class GTreeTagger;
@@ -37,8 +38,10 @@ class   GAnalysis3MesonsProton
 {
 private:
     GAnalysis3Mesons   hist_meson;
+    GFit               fit_meson;
     GCheckProton       check_meson_proton;
     GAnalysis3Mesons   hist_meson_proton;
+    GFit               fit_meson_proton;
 
 protected:
 
