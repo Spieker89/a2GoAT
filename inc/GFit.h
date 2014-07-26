@@ -24,6 +24,7 @@ private:
     GH1                 fit4_ChiSq;
     GH1                 im_fit3;
     GH1                 im_fit4;
+    Double_t            cutConfidenceLevel;
     GH1                 im_fit3_cutCL;
     GH1                 im_fit4_cutCL;
 

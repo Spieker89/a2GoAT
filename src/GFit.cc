@@ -15,6 +15,7 @@ GFit::GFit(const char* name, const char* title, const char* dirName, const Bool_
     fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit4/Raw")),
     im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit3/Raw")),
     im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit4/Raw")),
+    cutConfidenceLevel(0.1),
     im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit3/CutConfidenceLevel")),
     im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit4/CutConfidenceLevel"))
 {
@@ -81,6 +82,8 @@ void    GFit::Fit3(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit3_ConfidenceLevel.Fill(fit3.ConfidenceLevel());
         fit3_ChiSq.Fill(fit3.GetChi2());
         im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
+        if(fit3.ConfidenceLevel()>cutConfidenceLevel)
+            im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
     }
 }
 
@@ -122,6 +125,8 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit4_ConfidenceLevel.Fill(fit4.ConfidenceLevel());
         fit4_ChiSq.Fill(fit4.GetChi2());
         im_fit4.Fill(im, 0, channel);
+        if(fit4.ConfidenceLevel()>cutConfidenceLevel)
+            im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
     }
 }
 
