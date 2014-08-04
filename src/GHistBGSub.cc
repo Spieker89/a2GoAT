@@ -166,6 +166,7 @@ void	GHistBGSub::SetTitle(const char* title)
 
 Int_t    GHistBGSub::Write(const char* name, Int_t option, Int_t bufsize)
 {
+    //std::cout << "\t" << GetName() << std::endl;
     if(rand.GetEntriesFast()==0)
         return GHistTaggerBinning::Write();
 
@@ -193,8 +194,6 @@ Int_t    GHistBGSub::Write(const char* name, Int_t option, Int_t bufsize)
     }
     res->Add(this);
     GHistTaggerBinning::SetOutputDirectory(oldDirectory.Data());
-    GHistTaggerBinning::SetName(oldName.Data());
-    GHistTaggerBinning::SetTitle(oldTitle.Data());
 
     if(rand.GetEntriesFast()>1)
     {
@@ -220,6 +219,9 @@ Int_t    GHistBGSub::Write(const char* name, Int_t option, Int_t bufsize)
 
     res->Write(name, option, bufsize);
     res->Delete();
+
+    GHistTaggerBinning::SetName(oldName.Data());
+    GHistTaggerBinning::SetTitle(oldTitle.Data());
 }
 
 

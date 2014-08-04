@@ -59,8 +59,8 @@ Bool_t	GHistTaggerBinning::Add(const GHistTaggerBinning* h, Double_t c)
         if(i>=bin.GetEntriesFast())
         {
             gROOT->cd();
-            GHistScaCor*    hist = new GHistScaCor(TString(GetName()).Append(TString::Itoa(bin.GetEntriesFast()+TaggerBinningRangeMin,10).Prepend("_bin")).Data(),
-                                                   TString(GetTitle()).Append(TString::Itoa(bin.GetEntriesFast()+TaggerBinningRangeMin,10).Prepend(" bin ")).Data(),
+            GHistScaCor*    hist = new GHistScaCor(TString(GetName()).Append(TString::Itoa(bin.GetEntriesFast()+1+TaggerBinningRangeMin,10).Prepend("_bin")).Data(),
+                                                   TString(GetTitle()).Append(TString::Itoa(bin.GetEntriesFast()+1+TaggerBinningRangeMin,10).Prepend(" bin ")).Data(),
                                                    GetNbinsX(),
                                                    GetXaxis()->GetXmin(),
                                                    GetXaxis()->GetXmax(),
