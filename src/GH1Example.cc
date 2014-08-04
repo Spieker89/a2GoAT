@@ -41,6 +41,6 @@ void	GH1Example::ProcessEvent()
 
 void	GH1Example::ProcessScalerRead()
 {
-    //hist_eta.ScalerReadCorrection(1/0.65);
-    //hist_etap.ScalerReadCorrection(1/0.65);
+    hist_eta.ScalerReadCorrection(1/0.65);
+    hist_etap.ScalerReadCorrection(1/0.65);
 }
