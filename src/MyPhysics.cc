@@ -1,8 +1,8 @@
-#include "GH1Example.h"
+#include "MyPhysics.h"
 
 
 
-GH1Example::GH1Example()    :
+MyPhysics::MyPhysics()    :
     hist_eta("eta", "eta", "eta", kFALSE),
     hist_etap("etap", "etap", "etap", kTRUE)
 { 
@@ -10,12 +10,12 @@ GH1Example::GH1Example()    :
         GHistBGSub::AddRandCut(35, 55);
 }
 
-GH1Example::~GH1Example()
+MyPhysics::~MyPhysics()
 {
 
 }
 
-Bool_t	GH1Example::Start()
+Bool_t	MyPhysics::Start()
 {
     if(!IsGoATFile())
     {
@@ -31,7 +31,7 @@ Bool_t	GH1Example::Start()
 	return kTRUE;
 }
 
-void	GH1Example::ProcessEvent()
+void	MyPhysics::ProcessEvent()
 {
     if(eta->GetNParticles()>0)
         hist_eta.Fill(*eta, *protons, *tagger, kTRUE);
@@ -39,7 +39,7 @@ void	GH1Example::ProcessEvent()
         hist_etap.Fill(*etap, *protons, *tagger, kTRUE);
 }
 
-void	GH1Example::ProcessScalerRead()
+void	MyPhysics::ProcessScalerRead()
 {
     hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(1))/scalers->GetScaler(0));
     hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(1))/scalers->GetScaler(0));

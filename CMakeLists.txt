@@ -161,7 +161,7 @@ target_link_libraries(pi0-example ${ROOT_LIBRARIES})
 
 
 
-add_executable(GH1Example
+add_executable(MyPhysics
    inc/GTree.h
    inc/GTreeRawEvent.h
    inc/GTreeDetectorHits.h
@@ -185,7 +185,7 @@ add_executable(GH1Example
    inc/GKinFitterParticle.h
    inc/GKinFitter.h
    inc/GFit.h
-   inc/GH1Example.h
+   inc/MyPhysics.h
    src/GTree.cc
    src/GTreeRawEvent.cc
    src/GTreeDetectorHits.cc
@@ -208,7 +208,7 @@ add_executable(GH1Example
    src/GKinFitterParticle.cc
    src/GKinFitter.cc
    src/GFit.cc
-   src/GH1Example.cc
-   src/GH1_example_main.cc
+   src/MyPhysics.cc
+   src/MyPhysics_main.cc
    )
-target_link_libraries(GH1Example ${ROOT_LIBRARIES})
+target_link_libraries(MyPhysics ${ROOT_LIBRARIES})

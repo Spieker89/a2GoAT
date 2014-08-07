@@ -1,5 +1,5 @@
-#ifndef __GH1Example_h__
-#define __GH1Example_h__
+#ifndef __MyPhysics_h__
+#define __MyPhysics_h__
 
 #include <iostream>
 #include <fstream>
@@ -9,7 +9,7 @@
 #include "GTreeManager.h"
 #include "GAnalysis3Mesons.h"
 
-class	GH1Example  : public GTreeManager
+class	MyPhysics  : public GTreeManager
 {
 private:
     GAnalysis3MesonsProton    hist_eta;
@@ -22,8 +22,8 @@ protected:
     virtual void	ProcessScalerRead();
 			
 public:
-    GH1Example();
-    virtual ~GH1Example();
+    MyPhysics();
+    virtual ~MyPhysics();
 
     //virtual Bool_t	Init(const char* configfile);
 

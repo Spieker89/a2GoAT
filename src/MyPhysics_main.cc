@@ -1,6 +1,6 @@
 #ifndef __CINT__
 
-#include "GH1Example.h"
+#include "MyPhysics.h"
 #include "TSystem.h"
 #include "TSystemDirectory.h"
 #include "TSystemFile.h"
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
     // If no server file is specified, allow for checking in the config file
     else serverfile = configfile;
 
-    // Create instance of GH1Example class
-    GH1Example* ppi0 = new GH1Example;
+    // Create instance of MyPhysics class
+    MyPhysics* ppi0 = new MyPhysics;
 
     // If unset, scan server or config file for file settings
     if(dir_in.length() == 0)
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
     // Perform full initialisation
     if(!ppi0->Init(configfile.c_str()))
     {
-        cout << "ERROR: GH1Example Init failed!" << endl;
+        cout << "ERROR: MyPhysics Init failed!" << endl;
         return 0;
     }
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
             }
 
             cout << "Output file '" << file_out << "' chosen" << endl << endl;
-            if(!ppi0->StartFile(file_in.c_str(), file_out.c_str())) cout << "ERROR: GH1Example failed on file " << file_in << "!" << endl;
+            if(!ppi0->StartFile(file_in.c_str(), file_out.c_str())) cout << "ERROR: MyPhysics failed on file " << file_in << "!" << endl;
             files_found++;
         }
     }
@@ -235,9 +235,9 @@ int main(int argc, char *argv[])
                     file_out = dir_out+pre_out+suffix;
 
                     files_found++;
-                    // Run GH1Example
+                    // Run MyPhysics
                     if(!ppi0->StartFile(file_in.c_str(), file_out.c_str()))
-                        cout << "ERROR: GH1Example failed on file " << file_in << "!" << endl;
+                        cout << "ERROR: MyPhysics failed on file " << file_in << "!" << endl;
 
                 }
             }
