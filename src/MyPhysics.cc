@@ -41,6 +41,6 @@ void	MyPhysics::ProcessEvent()
 
 void	MyPhysics::ProcessScalerRead()
 {
-    hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(1))/scalers->GetScaler(0));
-    hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(1))/scalers->GetScaler(0));
+    //hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    //hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
 }
