@@ -30,12 +30,12 @@ void    GHistEvent::Fill(const TLorentzVector& part, const GTreeTagger& tagger, 
         if(CreateHistogramsForTaggerBinning)
         {
             im.Fill(part.M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(0)-part).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+            mm.Fill((tagger.GetVectorProtonTarget(i)-part).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
         }
         else
         {
             im.Fill(part.M(), tagger.GetTagged_t(i), 0);
-            mm.Fill((tagger.GetVectorProtonTarget(0)-part).M(), tagger.GetTagged_t(i), 0);
+            mm.Fill((tagger.GetVectorProtonTarget(i)-part).M(), tagger.GetTagged_t(i), 0);
         }
     }
 }
@@ -47,12 +47,12 @@ void    GHistEvent::Fill(const TLorentzVector& part, const TLorentzVector& rest,
         if(CreateHistogramsForTaggerBinning)
         {
             im.Fill(part.M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(0)-part-rest).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+            mm.Fill((tagger.GetVectorProtonTarget(i)-part-rest).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
         }
         else
         {
             im.Fill(part.M(), tagger.GetTagged_t(i), 0);
-            mm.Fill((tagger.GetVectorProtonTarget(0)-part-rest).M(), tagger.GetTagged_t(i), 0);
+            mm.Fill((tagger.GetVectorProtonTarget(i)-part-rest).M(), tagger.GetTagged_t(i), 0);
         }
     }
 }
@@ -103,7 +103,8 @@ void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagg
         if(CreateHistogramsForTaggerBinning)
         {
             im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(0)-meson.Particle(0)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+            cout << "mm event: " << (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M() << endl;
+            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
@@ -111,7 +112,7 @@ void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagg
         else
         {
             im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i));
-            mm.Fill((tagger.GetVectorProtonTarget(0)-meson.Particle(0)).M(), tagger.GetTagged_t(i));
+            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M(), tagger.GetTagged_t(i));
             sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i));
             sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i));
             sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i));
@@ -126,7 +127,7 @@ void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& r
         if(CreateHistogramsForTaggerBinning)
         {
             im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(0)-meson.Particle(0)-rest).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)-rest).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
@@ -134,7 +135,7 @@ void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& r
         else
         {
             im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i));
-            mm.Fill((tagger.GetVectorProtonTarget(0)-meson.Particle(0)-rest).M(), tagger.GetTagged_t(i));
+            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)-rest).M(), tagger.GetTagged_t(i));
             sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i));
             sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i));
             sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i));

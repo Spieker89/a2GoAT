@@ -30,7 +30,7 @@ public:
     GAnalysis3Mesons(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
     ~GAnalysis3Mesons();
 
-            Bool_t    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
+    virtual Bool_t    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
 };
 
@@ -50,7 +50,7 @@ public:
     GAnalysis3MesonsProton(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
     ~GAnalysis3MesonsProton();
 
-            void    Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    virtual void    Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
 };
 

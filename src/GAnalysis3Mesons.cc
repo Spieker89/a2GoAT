@@ -36,6 +36,9 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 
 Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
+    Bool_t  found = kFALSE;
+    cout << "Fill" << endl;
+
     hist_raw.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
     Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
@@ -46,23 +49,27 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
        (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
        (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
     {
+        cout << "passed im" << endl;
         hist_SubImCut.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
         Double_t    mm;
         for(int i=0; i<tagger.GetNTagged(); i++)
         {
             mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
+            cout << "mm: " << mm << endl;
             if(mm>cutMM[0] && mm<cutMM[1])
             {
+                cout << "passed mm" << endl;
                 if(CreateHistogramsForTaggerBinning)
                     hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                 else
                     hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
-                return kTRUE;
+                found = kTRUE;
             }
         }
+
     }
-    return kFALSE;
+    return found;
 }
 
 void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
@@ -104,11 +111,11 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
     {
         if(check_meson_proton.Check(meson, proton, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
         {
-            if(hist_meson_proton.Fill(meson, tagger, CreateHistogramsForTaggerBinning))
+            if(hist_meson_proton.Fill(meson, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
                 fit_meson_proton.Fit(meson, tagger, CreateHistogramsForTaggerBinning);
             return;
         }
-        if(hist_meson.Fill(meson, tagger, CreateHistogramsForTaggerBinning))
+        if(hist_meson.Fill(meson, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
             fit_meson.Fit(meson, tagger, CreateHistogramsForTaggerBinning);
     }
 }
