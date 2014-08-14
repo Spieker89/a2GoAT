@@ -103,7 +103,6 @@ void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagg
         if(CreateHistogramsForTaggerBinning)
         {
             im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            cout << "mm event: " << (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M() << endl;
             mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
             sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));

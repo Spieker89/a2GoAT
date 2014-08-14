@@ -37,7 +37,6 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
     Bool_t  found = kFALSE;
-    cout << "Fill" << endl;
 
     hist_raw.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
@@ -49,17 +48,14 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
        (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
        (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
     {
-        cout << "passed im" << endl;
         hist_SubImCut.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
         Double_t    mm;
         for(int i=0; i<tagger.GetNTagged(); i++)
         {
             mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
-            cout << "mm: " << mm << endl;
             if(mm>cutMM[0] && mm<cutMM[1])
             {
-                cout << "passed mm" << endl;
                 if(CreateHistogramsForTaggerBinning)
                     hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                 else
