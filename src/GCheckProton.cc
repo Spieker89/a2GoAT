@@ -155,3 +155,10 @@ void    GCheckProton::ScalerReadCorrection(const Double_t CorrectionFactor, cons
     cutCoplanarity.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     cutBoth.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
+
+void    GCheckProton::SetCuts(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity)
+{
+    CutProtonAngleDiff      = maxProtonAngleDiff;
+    CutProtonCoplanarity[0] = minCoplanarity;
+    CutProtonCoplanarity[1] = maxCoplanarity;
+}
