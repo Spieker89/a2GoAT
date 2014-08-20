@@ -32,6 +32,9 @@ public:
 
     virtual Bool_t    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+
+    void    SetCutSubIM(const Int_t subNumber, const Double_t min, const Double_t max);
+    void    SetCutMM(const Double_t min, const Double_t max);
 };
 
 
@@ -52,6 +55,16 @@ public:
 
     virtual void    Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+
+    void	SetHistMeson(const Double_t sub0_min, const Double_t sub0_max,
+                         const Double_t sub1_min, const Double_t sub1_max,
+                         const Double_t sub2_min, const Double_t sub2_max,
+                         const Double_t mm_min, const Double_t mm_max);
+    void	SetCheckProton(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity);
+    void	SetHistMesonProton(const Double_t sub0_min, const Double_t sub0_max,
+                               const Double_t sub1_min, const Double_t sub1_max,
+                               const Double_t sub2_min, const Double_t sub2_max,
+                               const Double_t mm_min, const Double_t mm_max);
 };
 
 #endif

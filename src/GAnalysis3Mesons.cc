@@ -11,22 +11,13 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const ch
     hist_MmCut(TString(name).Append("_MmCut"), TString(title).Append(" Sub mis. Mass Cut"), TString(dirName).Append("/MM_Cut"))
 {
     if(IsEtap)
-    {
-        cutSubIM[0] = 500;
-        cutSubIM[1] = 590;
-    }
+        SetCutSubIM(0, 497, 697);
     else
-    {
-        cutSubIM[0] = 110;
-        cutSubIM[1] = 155;
-    }
-    cutSubIM[2] = 110;
-    cutSubIM[3] = 155;
-    cutSubIM[4] = 110;
-    cutSubIM[5] = 155;
+        SetCutSubIM(0, 110, 160);
+    SetCutSubIM(1, 110, 160);
+    SetCutSubIM(2, 110, 160);
 
-    cutMM[0]    = 850;
-    cutMM[1]    = 1000;
+    SetCutMM(838, 1038);
 }
 
 GAnalysis3Mesons::~GAnalysis3Mesons()
@@ -75,6 +66,17 @@ void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, 
     hist_MmCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
 
+void    GAnalysis3Mesons::SetCutSubIM(const Int_t subNumber, const Double_t min, const Double_t max)
+{
+    cutSubIM[2*subNumber] = min;
+    cutSubIM[(2*subNumber)+1] = max;
+}
+
+void    GAnalysis3Mesons::SetCutMM(const Double_t min, const Double_t max)
+{
+    cutMM[0] = min;
+    cutMM[1] = max;
+}
 
 
 
@@ -123,4 +125,31 @@ void    GAnalysis3MesonsProton::ScalerReadCorrection(const Double_t CorrectionFa
     check_meson_proton.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_meson_proton.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     fit_meson_proton.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+}
+
+void	GAnalysis3MesonsProton::SetHistMeson(const Double_t sub0_min, const Double_t sub0_max,
+                                             const Double_t sub1_min, const Double_t sub1_max,
+                                             const Double_t sub2_min, const Double_t sub2_max,
+                                             const Double_t mm_min, const Double_t mm_max)
+{
+    hist_meson.SetCutSubIM(0, sub0_min, sub0_max);
+    hist_meson.SetCutSubIM(1, sub1_min, sub1_max);
+    hist_meson.SetCutSubIM(2, sub2_min, sub2_max);
+    hist_meson.SetCutMM(mm_min, mm_max);
+}
+
+void	GAnalysis3MesonsProton::SetCheckProton(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity)
+{
+    check_meson_proton.SetCuts(maxProtonAngleDiff, minCoplanarity, maxCoplanarity);
+}
+
+void	GAnalysis3MesonsProton::SetHistMesonProton(const Double_t sub0_min, const Double_t sub0_max,
+                                                   const Double_t sub1_min, const Double_t sub1_max,
+                                                   const Double_t sub2_min, const Double_t sub2_max,
+                                                   const Double_t mm_min, const Double_t mm_max)
+{
+    hist_meson_proton.SetCutSubIM(0, sub0_min, sub0_max);
+    hist_meson_proton.SetCutSubIM(1, sub1_min, sub1_max);
+    hist_meson_proton.SetCutSubIM(2, sub2_min, sub2_max);
+    hist_meson_proton.SetCutMM(mm_min, mm_max);
 }
