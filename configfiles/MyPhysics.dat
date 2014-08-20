@@ -1,0 +1,12 @@
+Cut-Eta-SubIM:                  110.9624	168.3416    109.2863	159.8657    104.7574	160.5606
+Cut-Eta-MM:                     900.1889	1088.2491
+Cut-Eta-Proton-MinAngle:        10
+Cut-Eta-Proton-Coplanarity:     160     200
+Cut-Eta-Proton-SubIM:           119.3841	158.2879    117.9278	150.3302    113.6797	152.6143
+Cut-Eta-Proton-MM:              855.872	1100.026
+Cut-Etap-SubIM                  502.0797	578.9463    115.8638	147.5342    112.3685	146.7315
+Cut-Etap-MM:                    906.7068	986.3932
+Cut-Etap-Proton-MinAngle:       10
+Cut-Etap-Proton-Coplanarity:    160     200
+Cut-Etap-Proton-SubIM:          516.5764	573.1756    122.2736	144.7064    120.334	143.692
+Cut-Etap-Proton-MM:             907.7906	977.2094
