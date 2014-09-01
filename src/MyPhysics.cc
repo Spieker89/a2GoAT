@@ -48,6 +48,7 @@ void	MyPhysics::ProcessScalerRead()
 
 Bool_t	MyPhysics::Init(const char* configfile)
 {
+    SetConfigFile(configfile);
     Double_t    buf[8];
     std::string config = ReadConfig("Cut-Eta-SubIM");
     if (strcmp(config.c_str(), "nokey") != 0)
@@ -177,4 +178,6 @@ Bool_t	MyPhysics::Init(const char* configfile)
             }
         }
     }
+
+    return kTRUE;
 }
