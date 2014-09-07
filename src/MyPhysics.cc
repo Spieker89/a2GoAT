@@ -3,8 +3,8 @@
 
 
 MyPhysics::MyPhysics()    :
-    hist_eta("eta", "eta", "eta", kFALSE),
-    hist_etap("etap", "etap", "etap", kTRUE)
+    hist_eta("eta", "eta", kFALSE),
+    hist_etap("etap", "etap", kTRUE)
 { 
         GHistBGSub::InitCuts(-20, 20, -55, -35);
         GHistBGSub::AddRandCut(35, 55);

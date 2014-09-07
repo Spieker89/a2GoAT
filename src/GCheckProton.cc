@@ -5,10 +5,10 @@
 
 
 
-GCheckProtonHist::GCheckProtonHist(const char* name, const char* title, const char* dirName) :
-    protonAngeDiff(TString(name).Append("_ProtonAngleDiff"), TString(title).Append(" Proton Angle Diff."), 1000, 0, 100, kTRUE, dirName),
-    protonAngeDiffSmalest(TString(name).Append("_ProtonAngleDiffSmalest"), TString(title).Append(" Smalest Proton Angle Diff."), 1000, 0, 100, kTRUE, dirName),
-    protonCoplanarity(TString(name).Append("_Coplanarity"), TString(title).Append(" Coplanarity"), 3600, 0, 360, kTRUE, dirName)
+GCheckProtonHist::GCheckProtonHist(const char* name, const char* title, Bool_t linkHistogram) :
+    protonAngeDiff(TString(name).Append("_ProtonAngleDiff"), TString(title).Append(" Proton Angle Diff."), 1000, 0, 100, linkHistogram),
+    protonAngeDiffSmalest(TString(name).Append("_ProtonAngleDiffSmalest"), TString(title).Append(" Smalest Proton Angle Diff."), 1000, 0, 100, linkHistogram),
+    protonCoplanarity(TString(name).Append("_Coplanarity"), TString(title).Append(" Coplanarity"), 3600, 0, 360, linkHistogram)
 {
 
 }
@@ -18,26 +18,47 @@ GCheckProtonHist::~GCheckProtonHist()
 
 }
 
-
-
-
-
-
-
-GCheckProton::GCheckProton(const char* name, const char* title, const char* dirName, const Double_t ProtonAngleDiff_max, const Double_t ProtonCoplanarity_min, const Double_t ProtonCoplanarity_max) :
-    raw(TString(name).Append("_Raw"), TString(title).Append(" Raw"), TString(dirName).Append("/CheckProton/Raw")),
-    cutProtonAngle(TString(name).Append("_cutProtonAngle"), TString(title).Append(" Cut Proton Angle"), TString(dirName).Append("/CheckProton/CutProtonAngle")),
-    cutCoplanarity(TString(name).Append("_cutCoplanarity"), TString(title).Append(" Cut Coplanarity"), TString(dirName).Append("/CheckProton/CutCoplanarity")),
-    cutBoth(TString(name).Append("_cutBoth"), TString(title).Append(" Cut Both"), TString(dirName).Append("/CheckProton/CutBoth")),
-    CutProtonAngleDiff(ProtonAngleDiff_max)
+void    GCheckProtonHist::PrepareWriteList(GHistWriteList* arr, const char* name)
 {
-    CutProtonCoplanarity[0] = ProtonCoplanarity_min;
-    CutProtonCoplanarity[1] = ProtonCoplanarity_max;
+    if(!arr)
+        return;
+
+    if(name)
+    {
+        protonAngeDiff.PrepareWriteList(arr, TString(name).Append("_prAng").Data());
+        protonAngeDiffSmalest.PrepareWriteList(arr, TString(name).Append("_prAngMin").Data());
+        protonCoplanarity.PrepareWriteList(arr, TString(name).Append("_copl").Data());
+    }
+}
+
+
+
+
+
+
+GCheckProton::GCheckProton(const char* name, const char* title, Bool_t linkHistogram) :
+    GHistLinked(linkHistogram),
+    raw(TString(name).Append("_Raw"), TString(title).Append(" Raw"), kFALSE),
+    cutProtonAngle(TString(name).Append("_cutProtonAngle"), TString(title).Append(" Cut Proton Angle"), kFALSE),
+    cutCoplanarity(TString(name).Append("_cutCoplanarity"), TString(title).Append(" Cut Coplanarity"), kFALSE),
+    cutBoth(TString(name).Append("_cutBoth"), TString(title).Append(" Cut Both"), kFALSE),
+    CutProtonAngleDiff(10)
+{
+    CutProtonCoplanarity[0] = 160;
+    CutProtonCoplanarity[1] = 200;
 }
 
 GCheckProton::~GCheckProton()
 {
 
+}
+
+void   GCheckProton::CalcResult()
+{
+    raw.CalcResult();
+    cutProtonAngle.CalcResult();
+    cutCoplanarity.CalcResult();
+    cutBoth.CalcResult();
 }
 
 Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
@@ -146,6 +167,37 @@ Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton
             cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
     }
     return kFALSE;
+}
+
+void    GCheckProton::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+    if(name)
+    {
+        GHistWriteList* folder  = arr->GetDirectory("raw");
+        raw.PrepareWriteList(folder, TString(name).Append("_raw").Data());
+
+        folder  = arr->GetDirectory("cutCoplanarity");
+        cutCoplanarity.PrepareWriteList(folder, TString(name).Append("_cutCopl").Data());
+
+
+        folder  = arr->GetDirectory("cutProtonAngle");
+        cutProtonAngle.PrepareWriteList(folder, TString(name).Append("cutPrAng").Data());
+
+
+        folder  = arr->GetDirectory("cutBoth");
+        cutBoth.PrepareWriteList(folder, TString(name).Append("_cutBoth").Data());
+    }
+}
+
+void    GCheckProton::Reset(Option_t* option)
+{
+    raw.Reset(option);
+    cutProtonAngle.Reset(option);
+    cutCoplanarity.Reset(option);
+    cutBoth.Reset(option);
 }
 
 void    GCheckProton::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)

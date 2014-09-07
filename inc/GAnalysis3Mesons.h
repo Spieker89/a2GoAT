@@ -12,7 +12,7 @@ class GTreeParticle;
 class GTreeMeson;
 
 
-class   GAnalysis3Mesons
+class   GAnalysis3Mesons  : public GHistLinked
 {
 private:
     Bool_t              isEtap;
@@ -27,18 +27,24 @@ private:
 protected:
 
 public:
-    GAnalysis3Mesons(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
+    GAnalysis3Mesons(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram = kTRUE);
     ~GAnalysis3Mesons();
 
-    virtual Bool_t    Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
+    virtual void    CalcResult();
+            Bool_t  IsEtap()    const   {return isEtap;}
+    virtual Int_t   Fill(Double_t x)    {}
+    virtual Bool_t  Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning);
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void    Reset(Option_t* option = "");
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 
     void    SetCutSubIM(const Int_t subNumber, const Double_t min, const Double_t max);
     void    SetCutMM(const Double_t min, const Double_t max);
 };
 
 
-class   GAnalysis3MesonsProton
+class   GAnalysis3MesonsProton  : public GHistLinked
 {
 private:
     GAnalysis3Mesons   hist_meson;
@@ -50,11 +56,16 @@ private:
 protected:
 
 public:
-    GAnalysis3MesonsProton(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
+    GAnalysis3MesonsProton(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram = kTRUE);
     ~GAnalysis3MesonsProton();
 
-    virtual void    Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
-    virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+    virtual void        CalcResult();
+    virtual Int_t       Fill(Double_t x)    {}
+    virtual void        Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void        Reset(Option_t* option = "");
+    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 
     void	SetHistMeson(const Double_t sub0_min, const Double_t sub0_max,
                          const Double_t sub1_min, const Double_t sub1_max,

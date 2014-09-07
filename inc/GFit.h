@@ -20,10 +20,24 @@ private:
     GH1 Pull_E;
 
 public:
-    GFitPulls4Vector(const char* name, const char* title, const char* dirName);
+    GFitPulls4Vector(const char* name, const char* title);
     virtual ~GFitPulls4Vector();
 
-    void    Fill(const Double_t px, const Double_t py, const Double_t pz, const Double_t e)  {Pull_Px.Fill(px); Pull_Py.Fill(py); Pull_Pz.Fill(pz); Pull_E.Fill(e);}
+    virtual void    CalcResult()
+    {
+        Pull_Px.CalcResult();
+        Pull_Py.CalcResult();
+        Pull_Pz.CalcResult();
+        Pull_E.CalcResult();
+    }
+            void    Fill(const Double_t px, const Double_t py, const Double_t pz, const Double_t e)  {Pull_Px.Fill(px); Pull_Py.Fill(py); Pull_Pz.Fill(pz); Pull_E.Fill(e);}
+    virtual void    Reset(Option_t* option = "")
+    {
+        Pull_Px.Reset(option);
+        Pull_Py.Reset(option);
+        Pull_Pz.Reset(option);
+        Pull_E.Reset(option);
+    }
 };
 
 class  GFitPulls6Photons
@@ -37,9 +51,18 @@ private:
     GFitPulls4Vector g5;
 
 public:
-    GFitPulls6Photons(const char* name, const char* title, const char* dirName);
+    GFitPulls6Photons(const char* name, const char* title);
     virtual ~GFitPulls6Photons();
 
+    virtual void    CalcResult()
+    {
+        g0.CalcResult();
+        g1.CalcResult();
+        g2.CalcResult();
+        g3.CalcResult();
+        g4.CalcResult();
+        g5.CalcResult();
+    }
     void    Fill(GKinFitter& fitter)
     {
         g0.Fill(fitter.Pull(0), fitter.Pull(1), fitter.Pull(2), fitter.Pull(3));
@@ -49,10 +72,19 @@ public:
         g4.Fill(fitter.Pull(16), fitter.Pull(17), fitter.Pull(18), fitter.Pull(19));
         g5.Fill(fitter.Pull(20), fitter.Pull(21), fitter.Pull(22), fitter.Pull(23));
     }
+    virtual void    Reset(Option_t* option = "")
+    {
+        g0.Reset(option);
+        g1.Reset(option);
+        g2.Reset(option);
+        g3.Reset(option);
+        g4.Reset(option);
+        g5.Reset(option);
+    }
 };
 
 
-class	GFit
+class	GFit : public GHistLinked
 {
 private:
     Bool_t              isEtap;
@@ -83,11 +115,16 @@ private:
 protected:
 
 public:
-    GFit(const char* name, const char* title, const char* dirName, const Bool_t IsEtap);
+    GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram = kTRUE);
     virtual ~GFit();
 
+    virtual void    CalcResult();
+    virtual Int_t   Fill(Double_t x)    {}
             void    Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0) {}
+    virtual void    Reset(Option_t* option = "");
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 };
 
 

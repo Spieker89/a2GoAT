@@ -4,11 +4,12 @@
 #include "GTreeMeson.h"
 
 
-GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const char* dirName, const Bool_t IsEtap) :
+GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
+    GHistLinked(linkHistogram),
     isEtap(IsEtap),
-    hist_raw(TString(name).Append("_Raw"), TString(title).Append(" Raw Data"), TString(dirName).Append("/Raw")),
-    hist_SubImCut(TString(name).Append("_SubImCut"), TString(title).Append(" Sub inv. Mass Cut"), TString(dirName).Append("/IM_Cut")),
-    hist_MmCut(TString(name).Append("_MmCut"), TString(title).Append(" Sub mis. Mass Cut"), TString(dirName).Append("/MM_Cut"))
+    hist_raw(TString(name).Append("_Raw"), TString(title).Append(" Raw Data")),
+    hist_SubImCut(TString(name).Append("_SubImCut"), TString(title).Append(" Sub inv. Mass Cut")),
+    hist_MmCut(TString(name).Append("_MmCut"), TString(title).Append(" Sub mis. Mass Cut"))
 {
     if(IsEtap)
         SetCutSubIM(0, 497, 697);
@@ -23,6 +24,13 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const ch
 GAnalysis3Mesons::~GAnalysis3Mesons()
 {
 
+}
+
+void   GAnalysis3Mesons::CalcResult()
+{
+    hist_raw.CalcResult();
+    hist_SubImCut.CalcResult();
+    hist_MmCut.CalcResult();
 }
 
 Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
@@ -59,6 +67,29 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
     return found;
 }
 
+void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+    if(name)
+    {
+        GHistWriteList* folder  = arr->GetDirectory("raw");
+        hist_raw.PrepareWriteList(folder, TString(name).Append("_raw").Data());
+        folder  = arr->GetDirectory("SubIM_Cut");
+        hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
+        folder  = arr->GetDirectory("MM_Cut");
+        hist_MmCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
+    }
+}
+
+void    GAnalysis3Mesons::Reset(Option_t* option)
+{
+    hist_raw.Reset(option);
+    hist_SubImCut.Reset(option);
+    hist_MmCut.Reset(option);
+}
+
 void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
 {
     hist_raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
@@ -88,12 +119,13 @@ void    GAnalysis3Mesons::SetCutMM(const Double_t min, const Double_t max)
 
 
 
-GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* title, const char* dirName, const Bool_t IsEtap) :
-    hist_meson(name, title, TString(dirName).Append("/WithoutProton"), IsEtap),
-    fit_meson(TString(name).Append("_fit").Data(), TString(title).Append(" kin. Fit").Data(), TString(dirName).Append("/WithoutProton/Fit"), IsEtap),
-    check_meson_proton(TString(name).Append("_checkProton").Data(), TString(title).Append(" Check Proton").Data(), TString(dirName).Append("/WithProton").Data()),
-    hist_meson_proton(TString(name).Append("_proton").Data(), TString(title).Append(" Proton").Data(), TString(dirName).Append("/WithProton").Data(), IsEtap),
-    fit_meson_proton(TString(name).Append("_proton_fit").Data(), TString(title).Append(" Proton kin. Fit").Data(), TString(dirName).Append("/WithProton/Fit"), IsEtap)
+GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
+    GHistLinked(linkHistogram),
+    hist_meson(name, title, IsEtap, kFALSE),
+    fit_meson(TString(name).Append("_fit").Data(), TString(title).Append(" kin. Fit").Data(), IsEtap, kFALSE),
+    check_meson_proton(TString(name).Append("_checkProton").Data(), TString(title).Append(" Check Proton").Data(), kFALSE),
+    hist_meson_proton(TString(name).Append("_proton").Data(), TString(title).Append(" Proton").Data(), IsEtap, kFALSE),
+    fit_meson_proton(TString(name).Append("_proton_fit").Data(), TString(title).Append(" Proton kin. Fit").Data(), IsEtap, kFALSE)
 {
 
 }
@@ -101,6 +133,15 @@ GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* tit
 GAnalysis3MesonsProton::~GAnalysis3MesonsProton()
 {
 
+}
+
+void   GAnalysis3MesonsProton::CalcResult()
+{
+    hist_meson.CalcResult();
+    fit_meson.CalcResult();
+    check_meson_proton.CalcResult();
+    hist_meson_proton.CalcResult();
+    fit_meson_proton.CalcResult();
 }
 
 void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
@@ -116,6 +157,57 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
         if(hist_meson.Fill(meson, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
             fit_meson.Fit(meson, tagger, CreateHistogramsForTaggerBinning);
     }
+}
+
+void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+    if(name)
+    {
+        GHistWriteList* folder  = arr->GetDirectory(TString(name));
+        GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
+        hist_meson.PrepareWriteList(subFolder, name);
+        subFolder  = folder->GetDirectory("WithProton");
+        hist_meson_proton.PrepareWriteList(subFolder, TString(name).Append("_proton").Data());
+    }
+    else
+    {
+        if(hist_meson.IsEtap()==kTRUE)
+        {
+            GHistWriteList* folder  = arr->GetDirectory("etap");
+            GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
+            GHistWriteList* subsubFolder  = subFolder->GetDirectory("etap");
+            hist_meson.PrepareWriteList(subsubFolder, "etap");
+            subFolder  = folder->GetDirectory("WithProton");
+            subsubFolder  = subFolder->GetDirectory("etap");
+            hist_meson_proton.PrepareWriteList(subsubFolder, "etap_proton");
+            subsubFolder  = subFolder->GetDirectory("checkProton");
+            check_meson_proton.PrepareWriteList(subsubFolder, "etap_proton_fit");
+        }
+        else
+        {
+            GHistWriteList* folder  = arr->GetDirectory("eta");
+            GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
+            GHistWriteList* subsubFolder  = subFolder->GetDirectory("eta");
+            hist_meson.PrepareWriteList(subsubFolder, "eta");
+            subFolder  = folder->GetDirectory("WithProton");
+            subsubFolder  = subFolder->GetDirectory("eta");
+            hist_meson_proton.PrepareWriteList(subsubFolder, "eta_proton");
+            subsubFolder  = subFolder->GetDirectory("checkProton");
+            check_meson_proton.PrepareWriteList(subsubFolder, "eta_proton_fit");
+        }
+    }
+}
+
+void    GAnalysis3MesonsProton::Reset(Option_t* option)
+{
+    hist_meson.Reset(option);
+    fit_meson.Reset(option);
+    check_meson_proton.Reset(option);
+    hist_meson_proton.Reset(option);
+    fit_meson_proton.Reset(option);
 }
 
 void    GAnalysis3MesonsProton::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)

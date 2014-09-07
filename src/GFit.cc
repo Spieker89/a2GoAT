@@ -3,11 +3,11 @@
 #include "GTreeTagger.h"
 
 
-GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title, const char* dirName) :
-    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 100, -50, 50, kTRUE, dirName),
-    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 100, -50, 50, kTRUE, dirName),
-    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 100, -50, 50, kTRUE, dirName),
-    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 100, -50, 50, kTRUE, dirName)
+GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
+    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 100, -50, 50, kFALSE),
+    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 100, -50, 50, kFALSE),
+    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 100, -50, 50, kFALSE),
+    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 100, -50, 50, kFALSE)
 {
 
 }
@@ -18,13 +18,13 @@ GFitPulls4Vector::~GFitPulls4Vector()
 }
 
 
-GFitPulls6Photons::GFitPulls6Photons(const char* name, const char* title, const char* dirName) :
-    g0(TString(name).Append("_g0"), TString(title).Append(" Photon 0"), dirName),
-    g1(TString(name).Append("_g1"), TString(title).Append(" Photon 1"), dirName),
-    g2(TString(name).Append("_g2"), TString(title).Append(" Photon 2"), dirName),
-    g3(TString(name).Append("_g3"), TString(title).Append(" Photon 3"), dirName),
-    g4(TString(name).Append("_g4"), TString(title).Append(" Photon 4"), dirName),
-    g5(TString(name).Append("_g5"), TString(title).Append(" Photon 5"), dirName)
+GFitPulls6Photons::GFitPulls6Photons(const char* name, const char* title) :
+    g0(TString(name).Append("_g0"), TString(title).Append(" Photon 0")),
+    g1(TString(name).Append("_g1"), TString(title).Append(" Photon 1")),
+    g2(TString(name).Append("_g2"), TString(title).Append(" Photon 2")),
+    g3(TString(name).Append("_g3"), TString(title).Append(" Photon 3")),
+    g4(TString(name).Append("_g4"), TString(title).Append(" Photon 4")),
+    g5(TString(name).Append("_g5"), TString(title).Append(" Photon 5"))
 {
 
 }
@@ -41,23 +41,23 @@ GFitPulls6Photons::~GFitPulls6Photons()
 
 
 
-GFit::GFit(const char* name, const char* title, const char* dirName, const Bool_t IsEtap) :
+GFit::GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
     isEtap(IsEtap),
     fit3(6, 3, 0),
     fit4(6, 4, 0),
-    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit3/Raw")),
-    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit4/Raw")),
-    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit3/Raw")),
-    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 100, 0, 1, kTRUE, TString(dirName).Append("/fit4/Raw")),
-    fit3_Pulls(TString(name).Append("_fit3_Pulls"), TString(title).Append(" Fit 3 Con. Pull"),TString(dirName).Append("/fit3/Raw/Pulls")),
-    fit4_Pulls(TString(name).Append("_fit4_Pulls"), TString(title).Append(" Fit 4 Con. Pull"),TString(dirName).Append("/fit4/Raw/Pulls")),
-    im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit3/Raw")),
-    im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit4/Raw")),
+    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 100, 0, 1, kFALSE),
+    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 100, 0, 1, kFALSE),
+    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 100, 0, 1, kFALSE),
+    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 100, 0, 1, kFALSE),
+    fit3_Pulls(TString(name).Append("_fit3_Pulls"), TString(title).Append(" Fit 3 Con. Pull")),
+    fit4_Pulls(TString(name).Append("_fit4_Pulls"), TString(title).Append(" Fit 4 Con. Pull")),
+    im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, kFALSE),
+    im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, kFALSE),
     cutConfidenceLevel(0.1),
-    im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit3/CutConfidenceLevel")),
-    im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, kTRUE, TString(dirName).Append("/fit4/CutConfidenceLevel")),
-    fit3_Pulls_cutCL(TString(name).Append("_fit3CutCL_Pulls"), TString(title).Append(" Fit 3 Con. cut Con. Level Pulls"), TString(dirName).Append("/fit3/CutConfidenceLevel/Pulls")),
-    fit4_Pulls_cutCL(TString(name).Append("_fit4CutCL_Pulls"), TString(title).Append(" Fit 4 Con. cut Con. Level Pulls"), TString(dirName).Append("/fit4/CutConfidenceLevel/Pulls"))
+    im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, kFALSE),
+    im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, kFALSE),
+    fit3_Pulls_cutCL(TString(name).Append("_fit3CutCL_Pulls"), TString(title).Append(" Fit 3 Con. cut Con. Level Pulls")),
+    fit4_Pulls_cutCL(TString(name).Append("_fit4CutCL_Pulls"), TString(title).Append(" Fit 4 Con. cut Con. Level Pulls"))
 {
     GammaResFile   = new TFile("~/GammaRes.root");
     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
@@ -69,6 +69,22 @@ GFit::GFit(const char* name, const char* title, const char* dirName, const Bool_
 GFit::~GFit()
 {
 
+}
+
+void   GFit::CalcResult()
+{
+    fit3_ConfidenceLevel.CalcResult();
+    fit4_ConfidenceLevel.CalcResult();
+    fit3_ChiSq.CalcResult();
+    fit4_ChiSq.CalcResult();
+    fit3_Pulls.CalcResult();
+    fit4_Pulls.CalcResult();
+    im_fit3.CalcResult();
+    im_fit4.CalcResult();
+    im_fit3_cutCL.CalcResult();
+    im_fit4_cutCL.CalcResult();
+    fit3_Pulls_cutCL.CalcResult();
+    fit4_Pulls_cutCL.CalcResult();
 }
 
 void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
@@ -176,6 +192,22 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
             im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
         }
     }
+}
+
+void    GFit::Reset(Option_t* option)
+{
+    fit3_ConfidenceLevel.Reset(option);
+    fit4_ConfidenceLevel.Reset(option);
+    fit3_ChiSq.Reset(option);
+    fit4_ChiSq.Reset(option);
+    fit3_Pulls.Reset(option);
+    fit4_Pulls.Reset(option);
+    im_fit3.Reset(option);
+    im_fit4.Reset(option);
+    im_fit3_cutCL.Reset(option);
+    im_fit4_cutCL.Reset(option);
+    fit3_Pulls_cutCL.Reset(option);
+    fit4_Pulls_cutCL.Reset(option);
 }
 
 void    GFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
