@@ -31,6 +31,16 @@ public:
         Pull_E.CalcResult();
     }
             void    Fill(const Double_t px, const Double_t py, const Double_t pz, const Double_t e)  {Pull_Px.Fill(px); Pull_Py.Fill(py); Pull_Pz.Fill(pz); Pull_E.Fill(e);}
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0)
+    {
+        if(!arr)
+            return;
+
+        Pull_Px.PrepareWriteList(arr, TString(name).Append("_Px"));
+        Pull_Py.PrepareWriteList(arr, TString(name).Append("_Py"));
+        Pull_Pz.PrepareWriteList(arr, TString(name).Append("_Pz"));
+        Pull_E.PrepareWriteList(arr, TString(name).Append("_E"));
+    }
     virtual void    Reset(Option_t* option = "")
     {
         Pull_Px.Reset(option);
@@ -72,6 +82,18 @@ public:
         g4.Fill(fitter.Pull(16), fitter.Pull(17), fitter.Pull(18), fitter.Pull(19));
         g5.Fill(fitter.Pull(20), fitter.Pull(21), fitter.Pull(22), fitter.Pull(23));
     }
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0)
+    {
+        if(!arr)
+            return;
+
+        g0.PrepareWriteList(arr, TString(name).Append("_g0"));
+        g1.PrepareWriteList(arr, TString(name).Append("_g1"));
+        g2.PrepareWriteList(arr, TString(name).Append("_g2"));
+        g3.PrepareWriteList(arr, TString(name).Append("_g3"));
+        g4.PrepareWriteList(arr, TString(name).Append("_g4"));
+        g5.PrepareWriteList(arr, TString(name).Append("_g5"));
+    }
     virtual void    Reset(Option_t* option = "")
     {
         g0.Reset(option);
@@ -98,7 +120,8 @@ private:
     GFitPulls6Photons   fit4_Pulls;
     GH1                 im_fit3;
     GH1                 im_fit4;
-    Double_t            cutConfidenceLevel;
+    Double_t            cutConfidenceLevel3;
+    Double_t            cutConfidenceLevel4;
     GH1                 im_fit3_cutCL;
     GH1                 im_fit4_cutCL;
     GFitPulls6Photons   fit3_Pulls_cutCL;
@@ -121,9 +144,10 @@ public:
     virtual void    CalcResult();
     virtual Int_t   Fill(Double_t x)    {}
             void    Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
-    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0) {}
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+            void    SetConfidenceLevelCut(const Double_t fit3_CutConfidenceLevel, const Double_t fit4_CutConfidenceLevel)   {cutConfidenceLevel3=fit3_CutConfidenceLevel; cutConfidenceLevel4=fit4_CutConfidenceLevel;}
     virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 };
 

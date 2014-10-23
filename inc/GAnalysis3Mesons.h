@@ -71,11 +71,13 @@ public:
                          const Double_t sub1_min, const Double_t sub1_max,
                          const Double_t sub2_min, const Double_t sub2_max,
                          const Double_t mm_min, const Double_t mm_max);
+    void    SetFitMeson(const Double_t fit3_CutConfidenceLevel, const Double_t fit4_CutConfidenceLevel);
     void	SetCheckProton(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity);
     void	SetHistMesonProton(const Double_t sub0_min, const Double_t sub0_max,
                                const Double_t sub1_min, const Double_t sub1_max,
                                const Double_t sub2_min, const Double_t sub2_max,
                                const Double_t mm_min, const Double_t mm_max);
+    void    SetFitMesonProton(const Double_t fit3_CutConfidenceLevel, const Double_t fit4_CutConfidenceLevel);
 };
 
 #endif

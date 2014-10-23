@@ -180,11 +180,15 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
             GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
             GHistWriteList* subsubFolder  = subFolder->GetDirectory("etap");
             hist_meson.PrepareWriteList(subsubFolder, "etap");
+            subsubFolder  = subFolder->GetDirectory("fit");
+            fit_meson.PrepareWriteList(subsubFolder, "etap_fit");
             subFolder  = folder->GetDirectory("WithProton");
-            subsubFolder  = subFolder->GetDirectory("etap");
-            hist_meson_proton.PrepareWriteList(subsubFolder, "etap_proton");
             subsubFolder  = subFolder->GetDirectory("checkProton");
             check_meson_proton.PrepareWriteList(subsubFolder, "etap_proton_fit");
+            subsubFolder  = subFolder->GetDirectory("etap");
+            hist_meson_proton.PrepareWriteList(subsubFolder, "etap_proton");
+            subsubFolder  = subFolder->GetDirectory("fit");
+            fit_meson_proton.PrepareWriteList(subsubFolder, "etap_proton_fit");
         }
         else
         {
@@ -192,11 +196,15 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
             GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
             GHistWriteList* subsubFolder  = subFolder->GetDirectory("eta");
             hist_meson.PrepareWriteList(subsubFolder, "eta");
+            subsubFolder  = subFolder->GetDirectory("fit");
+            fit_meson.PrepareWriteList(subsubFolder, "eta_fit");
             subFolder  = folder->GetDirectory("WithProton");
-            subsubFolder  = subFolder->GetDirectory("eta");
-            hist_meson_proton.PrepareWriteList(subsubFolder, "eta_proton");
             subsubFolder  = subFolder->GetDirectory("checkProton");
             check_meson_proton.PrepareWriteList(subsubFolder, "eta_proton_fit");
+            subsubFolder  = subFolder->GetDirectory("eta");
+            hist_meson_proton.PrepareWriteList(subsubFolder, "eta_proton");
+            subsubFolder  = subFolder->GetDirectory("fit");
+            fit_meson_proton.PrepareWriteList(subsubFolder, "eta_proton_fit");
         }
     }
 }
@@ -230,6 +238,11 @@ void	GAnalysis3MesonsProton::SetHistMeson(const Double_t sub0_min, const Double_
     hist_meson.SetCutMM(mm_min, mm_max);
 }
 
+void    GAnalysis3MesonsProton::SetFitMeson(const Double_t fit3_CutConfidenceLevel, const Double_t fit4_CutConfidenceLevel)
+{
+    fit_meson.SetConfidenceLevelCut(fit3_CutConfidenceLevel, fit4_CutConfidenceLevel);
+}
+
 void	GAnalysis3MesonsProton::SetCheckProton(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity)
 {
     check_meson_proton.SetCuts(maxProtonAngleDiff, minCoplanarity, maxCoplanarity);
@@ -244,4 +257,9 @@ void	GAnalysis3MesonsProton::SetHistMesonProton(const Double_t sub0_min, const D
     hist_meson_proton.SetCutSubIM(1, sub1_min, sub1_max);
     hist_meson_proton.SetCutSubIM(2, sub2_min, sub2_max);
     hist_meson_proton.SetCutMM(mm_min, mm_max);
+}
+
+void    GAnalysis3MesonsProton::SetFitMesonProton(const Double_t fit3_CutConfidenceLevel, const Double_t fit4_CutConfidenceLevel)
+{
+    fit_meson_proton.SetConfidenceLevelCut(fit3_CutConfidenceLevel, fit4_CutConfidenceLevel);
 }

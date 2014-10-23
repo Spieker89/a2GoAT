@@ -4,10 +4,10 @@
 
 
 GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
-    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 100, -50, 50, kFALSE),
-    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 100, -50, 50, kFALSE),
-    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 100, -50, 50, kFALSE),
-    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 100, -50, 50, kFALSE)
+    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 2000, -10, 10, kFALSE),
+    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 2000, -10, 10, kFALSE),
+    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 2000, -10, 10, kFALSE),
+    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 2000, -10, 10, kFALSE)
 {
 
 }
@@ -42,18 +42,20 @@ GFitPulls6Photons::~GFitPulls6Photons()
 
 
 GFit::GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
+    GHistLinked(linkHistogram),
     isEtap(IsEtap),
     fit3(6, 3, 0),
     fit4(6, 4, 0),
-    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 100, 0, 1, kFALSE),
-    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 100, 0, 1, kFALSE),
-    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 100, 0, 1, kFALSE),
-    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 100, 0, 1, kFALSE),
+    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 1000, 0, 1, kFALSE),
+    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 1000, 0, 1, kFALSE),
+    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 1000, 0, 100, kFALSE),
+    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 1000, 0, 100, kFALSE),
     fit3_Pulls(TString(name).Append("_fit3_Pulls"), TString(title).Append(" Fit 3 Con. Pull")),
     fit4_Pulls(TString(name).Append("_fit4_Pulls"), TString(title).Append(" Fit 4 Con. Pull")),
     im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, kFALSE),
     im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, kFALSE),
-    cutConfidenceLevel(0.1),
+    cutConfidenceLevel3(0.1),
+    cutConfidenceLevel4(0.1),
     im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, kFALSE),
     im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, kFALSE),
     fit3_Pulls_cutCL(TString(name).Append("_fit3CutCL_Pulls"), TString(title).Append(" Fit 3 Con. cut Con. Level Pulls")),
@@ -139,7 +141,7 @@ void    GFit::Fit3(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit3_ChiSq.Fill(fit3.GetChi2());
         fit3_Pulls.Fill(fit3);
         im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
-        if(fit3.ConfidenceLevel()>cutConfidenceLevel)
+        if(fit3.ConfidenceLevel()>cutConfidenceLevel3)
         {
             fit3_Pulls_cutCL.Fill(fit3);
             im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
@@ -186,12 +188,39 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit4_ChiSq.Fill(fit4.GetChi2());
         fit4_Pulls.Fill(fit4);
         im_fit4.Fill(im, 0, channel);
-        if(fit4.ConfidenceLevel()>cutConfidenceLevel)
+        if(fit4.ConfidenceLevel()>cutConfidenceLevel4)
         {
             fit4_Pulls_cutCL.Fill(fit4);
             im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
         }
     }
+}
+
+void    GFit::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+    GHistWriteList* folder  = arr->GetDirectory("Fit_3");
+    fit3_ConfidenceLevel.PrepareWriteList(folder, TString(name).Append("3_ConfidenceLevel"));
+    fit3_ChiSq.PrepareWriteList(folder, TString(name).Append("3_ChiSq"));
+    im_fit3.PrepareWriteList(folder, TString(name).Append("3_IM"));
+    GHistWriteList* subFolder  = folder->GetDirectory("Pulls");
+    fit3_Pulls.PrepareWriteList(subFolder, TString(name).Append("3_Pulls"));
+    subFolder  = folder->GetDirectory("Cut_ConfidenceLevel");
+    im_fit3_cutCL.PrepareWriteList(subFolder, TString(name).Append("3_IM_CutConL"));
+    fit3_Pulls_cutCL.PrepareWriteList(subFolder, TString(name).Append("3_Pulls_CutConL"));
+
+    folder  = arr->GetDirectory("Fit_4");
+    fit4_ConfidenceLevel.PrepareWriteList(folder, TString(name).Append("4_ConfidenceLevel"));
+    fit4_ChiSq.PrepareWriteList(folder, "fit4_ChiSq");
+    im_fit4.PrepareWriteList(folder, "fit4_IM");
+    subFolder  = folder->GetDirectory("Pulls");
+    fit4_Pulls.PrepareWriteList(subFolder, "fit4_Pulls");
+    subFolder  = folder->GetDirectory("Cut_ConfidenceLevel");
+    im_fit4_cutCL.PrepareWriteList(subFolder, "fit4_IM_CutConL");
+    subFolder  = subFolder->GetDirectory("Pulls");
+    fit4_Pulls_cutCL.PrepareWriteList(subFolder, "fit4_Pulls_CutConL");
 }
 
 void    GFit::Reset(Option_t* option)

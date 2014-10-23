@@ -69,7 +69,15 @@ Bool_t	MyPhysics::Init(const char* configfile)
             }
         }
     }
-
+    config = ReadConfig("Cut-Eta-ConfidenceLevel");
+    if (strcmp(config.c_str(), "nokey") != 0)
+    {
+        if(sscanf( config.c_str(), "%lf %lf\n", &buf[0], &buf[1]) == 2)
+        {
+            hist_eta.SetFitMeson(buf[0], buf[1]);
+            cout << "Set Cuts for eta fit: " << buf[0] << "   " << buf[1] << endl;
+        }
+    }
 
 
     config = ReadConfig("Cut-Eta-Proton-MinAngle");
@@ -111,7 +119,15 @@ Bool_t	MyPhysics::Init(const char* configfile)
             }
         }
     }
-
+    config = ReadConfig("Cut-Eta-Proton-ConfidenceLevel");
+    if (strcmp(config.c_str(), "nokey") != 0)
+    {
+        if(sscanf( config.c_str(), "%lf %lf\n", &buf[0], &buf[1]) == 2)
+        {
+            hist_eta.SetFitMesonProton(buf[0], buf[1]);
+            cout << "Set Cuts for eta proton fit: " << buf[0] << "   " << buf[1] << endl;
+        }
+    }
 
 
 
@@ -137,7 +153,15 @@ Bool_t	MyPhysics::Init(const char* configfile)
             }
         }
     }
-
+    config = ReadConfig("Cut-Etap-ConfidenceLevel");
+    if (strcmp(config.c_str(), "nokey") != 0)
+    {
+        if(sscanf( config.c_str(), "%lf %lf\n", &buf[0], &buf[1]) == 2)
+        {
+            hist_etap.SetFitMeson(buf[0], buf[1]);
+            cout << "Set Cuts for etap fit: " << buf[0] << "   " << buf[1] << endl;
+        }
+    }
 
     config = ReadConfig("Cut-Etap-Proton-MinAngle");
     if (strcmp(config.c_str(), "nokey") != 0)
@@ -176,6 +200,15 @@ Bool_t	MyPhysics::Init(const char* configfile)
                     cout << endl;
                 }
             }
+        }
+    }
+    config = ReadConfig("Cut-Etap-Proton-ConfidenceLevel");
+    if (strcmp(config.c_str(), "nokey") != 0)
+    {
+        if(sscanf( config.c_str(), "%lf %lf\n", &buf[0], &buf[1]) == 2)
+        {
+            hist_etap.SetFitMesonProton(buf[0], buf[1]);
+            cout << "Set Cuts for etap proton fit: " << buf[0] << "   " << buf[1] << endl;
         }
     }
 
