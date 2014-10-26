@@ -141,7 +141,7 @@ void    GFit::Fit3(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit3_ChiSq.Fill(fit3.GetChi2());
         fit3_Pulls.Fill(fit3);
         im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
-        if(fit3.ConfidenceLevel()>cutConfidenceLevel3)
+        if(fit3.ConfidenceLevel()<cutConfidenceLevel3)
         {
             fit3_Pulls_cutCL.Fill(fit3);
             im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
@@ -190,10 +190,10 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit4_ChiSq.Fill(fit4.GetChi2());
         fit4_Pulls.Fill(fit4);
         im_fit4.Fill(im, time, channel);
-        if(fit4.ConfidenceLevel()>cutConfidenceLevel4)
+        if(fit4.ConfidenceLevel()<cutConfidenceLevel4)
         {
             fit4_Pulls_cutCL.Fill(fit4);
-            im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
+            im_fit4_cutCL.Fill(im, time, channel);
         }
     }
 }
@@ -211,6 +211,7 @@ void    GFit::PrepareWriteList(GHistWriteList* arr, const char* name)
     fit3_Pulls.PrepareWriteList(subFolder, TString(name).Append("3_Pulls"));
     subFolder  = folder->GetDirectory("Cut_ConfidenceLevel");
     im_fit3_cutCL.PrepareWriteList(subFolder, TString(name).Append("3_IM_CutConL"));
+    subFolder  = subFolder->GetDirectory("Pulls");
     fit3_Pulls_cutCL.PrepareWriteList(subFolder, TString(name).Append("3_Pulls_CutConL"));
 
     folder  = arr->GetDirectory("Fit_4");
