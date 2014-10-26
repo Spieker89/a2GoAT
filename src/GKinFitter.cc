@@ -69,9 +69,9 @@ Int_t GKinFitter::Solve(){
   if(!lu.Decompose()){
     std::cout<<"GKinFitter::Solve() Cannot invert. KinFit not completed"<<std::endl;
     return -1;
-  } 
+  }
   fmV_D.Invert();
- 
+
   //Double_t det;
   //TMatrixD Einheit = fmV_D*mV_Dinv;
   //if(fNpart == 7) Einheit.Print();
@@ -101,7 +101,7 @@ void GKinFitter::AddInvMassConstraint(Double_t Minv){
 
   // D matrix (derivitives of constraint eqn)
   for(Int_t i=0; i<fNpart; i++){
-    //[Cons Number][Var Number] 
+    //[Cons Number][Var Number]
     fmD[fNconi][0+i*fNvar]=-2*fPtot.X();
     fmD[fNconi][1+i*fNvar]=-2*fPtot.Y();
     fmD[fNconi][2+i*fNvar]=-2*fPtot.Z();
@@ -136,7 +136,7 @@ void GKinFitter::AddSubInvMassConstraint(Int_t Np, Int_t pid[], Double_t Minv){
 
   //D matrix (derivitives of constraint eqn)
   for(Int_t i=0;i<Np;i++){
-    //[Cons Number][Var Number] 
+    //[Cons Number][Var Number]
     fmD[fNconi][0+pid[i]*fNvar]=-2*ptot.X();
     fmD[fNconi][1+pid[i]*fNvar]=-2*ptot.Y();
     fmD[fNconi][2+pid[i]*fNvar]=-2*ptot.Z();
@@ -156,7 +156,7 @@ void GKinFitter::AddTotEnergyConstraint(Double_t Etot){
 
   //D matrix (derivitives of constraint eqn)
   for(Int_t i=0; i<fNpart; i++){
-    //[Cons Number][Var Number] 
+    //[Cons Number][Var Number]
     fmD[fNconi][0+i*fNvar]=0;
     fmD[fNconi][1+i*fNvar]=0;
     fmD[fNconi][2+i*fNvar]=0;
@@ -180,7 +180,7 @@ void GKinFitter::AddTotMomentumConstraint(TVector3 mom){
   Double_t D[3][4]={{1,0,0,0},{0,1,0,0},{0,0,1,0}};
   for(Int_t i=0; i<fNpart; i++){
     for(Int_t j=0;j<3;j++){
-      //[Cons Number][Var Number] 
+      //[Cons Number][Var Number]
       fmD[fNconi+j][0+i*fNvar]=D[j][0];
       fmD[fNconi+j][1+i*fNvar]=D[j][1];
       fmD[fNconi+j][2+i*fNvar]=D[j][2];
@@ -214,7 +214,7 @@ void GKinFitter::AddSubMissMassConstraint(TLorentzVector Mom, Int_t Np, Int_t pi
 
   //D matrix (derivitives of constraint eqn)
   for(Int_t i=0 ;i<Np ;i++)
-    {//[Cons Number][Var Number] 
+    {//[Cons Number][Var Number]
     fmD[fNconi][0+pid[i]*fNvar]=-2*(Ptot-Mom).X();
     fmD[fNconi][1+pid[i]*fNvar]=-2*(Ptot-Mom).Y();
     fmD[fNconi][2+pid[i]*fNvar]=-2*(Ptot-Mom).Z();

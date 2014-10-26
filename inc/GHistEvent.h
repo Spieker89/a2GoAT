@@ -22,7 +22,9 @@ public:
 
     virtual void    CalcResult();
     virtual Int_t   Fill(Double_t x)    {}
-    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime = 0, const Double_t taggerChannel = 0);
+    virtual void    Fill(const Double_t IM, const Double_t MM);
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime);
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Double_t taggerChannel);
     virtual void    Fill(const TLorentzVector& part, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    Fill(const TLorentzVector& part, const TLorentzVector& rest, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
@@ -48,7 +50,9 @@ public:
     virtual ~GHistEvent3Mesons();
 
     virtual void    CalcResult();
-    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime = 0, const Double_t taggerChannel = 0);
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM);
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime);
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime, const Double_t taggerChannel);
     virtual void    Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    Fill(const GTreeMeson& meson, const TLorentzVector& rest, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);

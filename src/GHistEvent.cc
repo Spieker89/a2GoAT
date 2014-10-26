@@ -24,6 +24,18 @@ void   GHistEvent::CalcResult()
     mm.CalcResult();
 }
 
+void    GHistEvent::Fill(const Double_t IM, const Double_t MM)
+{
+    im.Fill(IM);
+    mm.Fill(MM);
+}
+
+void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime)
+{
+    im.Fill(IM, taggerTime);
+    mm.Fill(MM, taggerTime);
+}
+
 void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Double_t taggerChannel)
 {
     im.Fill(IM, taggerTime, taggerChannel);
@@ -119,6 +131,22 @@ void   GHistEvent3Mesons::CalcResult()
     sub0_im.CalcResult();
     sub1_im.CalcResult();
     sub2_im.CalcResult();
+}
+
+void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM)
+{
+    sub0_im.Fill(SUB0_IM);
+    sub1_im.Fill(SUB1_IM);
+    sub2_im.Fill(SUB2_IM);
+    GHistEvent::Fill(IM, MM);
+}
+
+void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime)
+{
+    sub0_im.Fill(SUB0_IM, taggerTime);
+    sub1_im.Fill(SUB1_IM, taggerTime);
+    sub2_im.Fill(SUB2_IM, taggerTime);
+    GHistEvent::Fill(IM, MM, taggerTime);
 }
 
 void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime, const Double_t taggerChannel)
