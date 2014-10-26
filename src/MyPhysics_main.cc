@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
     Int_t length;
     std::string flag;
 
+    Bool_t overwrite = kTRUE;
+
     if(argc == 1)
     {
         cout << "Please provide a config file" << endl;
@@ -52,6 +54,11 @@ int main(int argc, char *argv[])
                 else if(strcmp(flag.c_str(), "F") == 0) file_out = argv[i];
                 else if(strcmp(flag.c_str(), "p") == 0) pre_in = argv[i];
                 else if(strcmp(flag.c_str(), "P") == 0) pre_out = argv[i];
+                else if(strcmp(flag.c_str(), "n") == 0)
+                {
+                        overwrite = kFALSE;
+                    i--;
+                }
                 else
                 {
                     cout << "Unknown flag " << flag << endl;
@@ -233,6 +240,9 @@ int main(int argc, char *argv[])
                     // Build output file name
                     suffix = file.substr(pre_in.length(),length-pre_in.length());
                     file_out = dir_out+pre_out+suffix;
+
+                    // Check for previously created output file
+                    if((gSystem->IsFileInIncludePath(file_out.c_str())) && !overwrite) continue;
 
                     files_found++;
                     // Run MyPhysics
