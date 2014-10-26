@@ -154,6 +154,7 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
     Int_t       sub[6] = {0, 1, 2, 3, 4, 5};
     Double_t    minChiSq    = 1000000000;
     Double_t    im          = 0;
+    Int_t       time        = 0;
     Int_t       channel     = 0;
 
     Bool_t  found   = kFALSE;
@@ -176,6 +177,7 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
             {
                 minChiSq    = fit4.GetChi2();
                 im          = fit4.GetTotalFitParticle().Get4Vector().M();
+                time        = tagger.GetTagged_t(i);
                 channel     = tagger.GetTagged_ch(i);
                 found       = kTRUE;
             }
@@ -187,7 +189,7 @@ void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Boo
         fit4_ConfidenceLevel.Fill(fit4.ConfidenceLevel());
         fit4_ChiSq.Fill(fit4.GetChi2());
         fit4_Pulls.Fill(fit4);
-        im_fit4.Fill(im, 0, channel);
+        im_fit4.Fill(im, time, channel);
         if(fit4.ConfidenceLevel()>cutConfidenceLevel4)
         {
             fit4_Pulls_cutCL.Fill(fit4);
