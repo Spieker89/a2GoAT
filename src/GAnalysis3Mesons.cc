@@ -148,7 +148,7 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 {
     if(proton.GetNParticles()>0)
     {
-        if(check_meson_proton.Check(meson, proton, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
+        if(check_meson_proton.Check(meson, proton, tagger) == kTRUE)
         {
             if(hist_meson_proton.Fill(meson, tagger, CreateHistogramsForTaggerBinning) == kTRUE)
                 fit_meson_proton.Fit(meson, tagger, CreateHistogramsForTaggerBinning);
@@ -222,7 +222,6 @@ void    GAnalysis3MesonsProton::ScalerReadCorrection(const Double_t CorrectionFa
 {
     hist_meson.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     fit_meson.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    check_meson_proton.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_meson_proton.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     fit_meson_proton.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }

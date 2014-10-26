@@ -61,7 +61,7 @@ void   GCheckProton::CalcResult()
     cutBoth.CalcResult();
 }
 
-Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger)
 {
     if(proton.GetNParticles()>1)
         return kFALSE;
@@ -79,49 +79,24 @@ Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton
     {
         for(int i=0; i<tagger.GetNTagged(); i++)
         {
-            if(CreateHistogramsForTaggerBinning)
+            helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
+            if(helpAngleDiff < smalestAngleDiff)
+                smalestAngleDiff            = helpAngleDiff;
+            raw.Fill(helpAngleDiff);
+            cutCoplanarity.Fill(helpAngleDiff);
+            if(helpAngleDiff<CutProtonAngleDiff)
             {
-                helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-                if(helpAngleDiff < smalestAngleDiff)
-                {
-                    smalestAngleDiff            = helpAngleDiff;
-                    smalestAngleDiffTaggerTime  = tagger.GetTagged_t(i);
-                    smalestAngleDiffTaggerBin   = tagger.GetTagged_ch(i);
-                }
-                raw.Fill(helpAngleDiff, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                cutCoplanarity.Fill(helpAngleDiff, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                if(helpAngleDiff<CutProtonAngleDiff)
-                {
-                    passedAngleDiff = kTRUE;
-                    cutProtonAngle.Fill(helpAngleDiff, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    cutBoth.Fill(helpAngleDiff, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                }
-            }
-            else
-            {
-                helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-                if(helpAngleDiff < smalestAngleDiff)
-                {
-                    smalestAngleDiff            = helpAngleDiff;
-                    smalestAngleDiffTaggerTime  = tagger.GetTagged_t(i);
-                    smalestAngleDiffTaggerBin   = tagger.GetTagged_ch(i);
-                }
-                raw.Fill(helpAngleDiff, tagger.GetTagged_t(i), 0);
-                cutCoplanarity.Fill(helpAngleDiff, tagger.GetTagged_t(i), 0);
-                if(helpAngleDiff<CutProtonAngleDiff)
-                {
-                    passedAngleDiff = kTRUE;
-                    cutProtonAngle.Fill(helpAngleDiff, tagger.GetTagged_t(i), 0);
-                    cutBoth.Fill(helpAngleDiff, tagger.GetTagged_t(i), 0);
-                }
+                passedAngleDiff = kTRUE;
+                cutProtonAngle.Fill(helpAngleDiff);
+                cutBoth.Fill(helpAngleDiff);
             }
         }
-        raw.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
-        cutCoplanarity.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
+        raw.Fill(smalestAngleDiff, helpCoplanarity);
+        cutCoplanarity.Fill(smalestAngleDiff, helpCoplanarity);
         if(passedAngleDiff == kTRUE)
         {
-            cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
-            cutBoth.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
+            cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity);
+            cutBoth.Fill(smalestAngleDiff, helpCoplanarity);
             return kTRUE;
         }
     }
@@ -129,42 +104,23 @@ Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton
     {
         for(int i=0; i<tagger.GetNTagged(); i++)
         {
-            if(CreateHistogramsForTaggerBinning)
+            helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
+            if(helpAngleDiff < smalestAngleDiff)
             {
-                helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-                if(helpAngleDiff < smalestAngleDiff)
-                {
-                    smalestAngleDiff            = helpAngleDiff;
-                    smalestAngleDiffTaggerTime  = tagger.GetTagged_t(i);
-                    smalestAngleDiffTaggerBin   = tagger.GetTagged_ch(i);
-                }
-                raw.Fill(helpAngleDiff, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                if(helpAngleDiff<CutProtonAngleDiff)
-                {
-                    passedAngleDiff = kTRUE;
-                    cutProtonAngle.Fill(helpAngleDiff, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                }
+                smalestAngleDiff            = helpAngleDiff;
+                smalestAngleDiffTaggerTime  = tagger.GetTagged_t(i);
+                smalestAngleDiffTaggerBin   = tagger.GetTagged_ch(i);
             }
-            else
+            raw.Fill(helpAngleDiff);
+            if(helpAngleDiff<CutProtonAngleDiff)
             {
-                helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-                if(helpAngleDiff < smalestAngleDiff)
-                {
-                    smalestAngleDiff            = helpAngleDiff;
-                    smalestAngleDiffTaggerTime  = tagger.GetTagged_t(i);
-                    smalestAngleDiffTaggerBin   = tagger.GetTagged_ch(i);
-                }
-                raw.Fill(helpAngleDiff, tagger.GetTagged_t(i), 0);
-                if(helpAngleDiff<CutProtonAngleDiff)
-                {
-                    passedAngleDiff = kTRUE;
-                    cutProtonAngle.Fill(helpAngleDiff, tagger.GetTagged_t(i), 0);
-                }
+                passedAngleDiff = kTRUE;
+                cutProtonAngle.Fill(helpAngleDiff);
             }
         }
-        raw.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
+        raw.Fill(smalestAngleDiff, helpCoplanarity);
         if(passedAngleDiff == kTRUE)
-            cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity, smalestAngleDiffTaggerTime, smalestAngleDiffTaggerBin);
+            cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity);
     }
     return kFALSE;
 }
@@ -198,14 +154,6 @@ void    GCheckProton::Reset(Option_t* option)
     cutProtonAngle.Reset(option);
     cutCoplanarity.Reset(option);
     cutBoth.Reset(option);
-}
-
-void    GCheckProton::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
-{
-    raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    cutProtonAngle.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    cutCoplanarity.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    cutBoth.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
 
 void    GCheckProton::SetCuts(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity)

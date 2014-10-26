@@ -21,11 +21,11 @@ public:
     ~GCheckProtonHist();
 
             void    CalcResult()                                                                                                                            {protonAngeDiff.CalcResult(); protonAngeDiffSmalest.CalcResult(); protonCoplanarity.CalcResult();}
-            void    Fill(const Double_t _ProtonAngeDiff, const Double_t taggerTime, const Int_t taggerChannel)                                              {protonAngeDiff.Fill(_ProtonAngeDiff, taggerTime, taggerChannel);}
-            void    Fill(const Double_t _ProtonAngeDiffSmalest, const Double_t _ProtonCoplanarity, const Double_t taggerTime, const Int_t taggerChannel)    {protonAngeDiffSmalest.Fill(_ProtonAngeDiffSmalest, taggerTime, taggerChannel); protonCoplanarity.Fill(_ProtonCoplanarity, taggerTime, taggerChannel);}
+            void    Fill(const Double_t _ProtonAngeDiff)                                            {protonAngeDiff.Fill(_ProtonAngeDiff);}
+            void    Fill(const Double_t _ProtonAngeDiffSmalest, const Double_t _ProtonCoplanarity)  {protonAngeDiffSmalest.Fill(_ProtonAngeDiffSmalest); protonCoplanarity.Fill(_ProtonCoplanarity);}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "")                                                                                                            {protonAngeDiff.Reset(option); protonAngeDiffSmalest.Reset(option); protonCoplanarity.Reset(option);}
-            void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                       {protonAngeDiff.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonAngeDiffSmalest.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonCoplanarity.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
+            //void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                       {protonAngeDiff.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonAngeDiffSmalest.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonCoplanarity.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
 };
 
 
@@ -47,7 +47,7 @@ public:
     ~GCheckProton();
 
     virtual void    CalcResult();
-    Bool_t  Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+            Bool_t  Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger);
     virtual Int_t   Fill(Double_t x)    {}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");

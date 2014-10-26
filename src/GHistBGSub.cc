@@ -184,17 +184,12 @@ void    GHistBGSub::PrepareWriteList(GHistWriteList* arr, const char *name)
         return;
 
     if(name)
-    {
-        if(GetNRandCuts()==0 || rand.GetEntriesFast()==0)
-            return prompt.PrepareWriteList(arr, name);
         GHistTaggerBinning::PrepareWriteList(arr, name);
-    }
     else
-    {
-        if(GetNRandCuts()==0 || rand.GetEntriesFast()==0)
-            return prompt.PrepareWriteList(arr, GHistTaggerBinning::GetName());
         GHistTaggerBinning::PrepareWriteList(arr);
-    }
+
+    if(rand.GetEntriesFast()==0 && prompt.IsEmpty()==kTRUE)
+        return;
 
     GHistWriteList* BackgroundSubstraction  = arr->GetDirectory(TString(GHBS_folderName));
     GHistWriteList* PromptWindow            = BackgroundSubstraction->GetDirectory(TString(GHBS_promptFolderName));
@@ -235,7 +230,7 @@ void    GHistBGSub::PrepareWriteList(GHistWriteList* arr, const char *name)
                 ((GHistTaggerBinning*)rand.At(i))->PrepareWriteList(subRandWindow);
         }
     }
-    else
+    else if(rand.GetEntriesFast()>0)
     {
         if(name)
         {
