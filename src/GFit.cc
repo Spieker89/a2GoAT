@@ -243,10 +243,6 @@ void    GFit::Reset(Option_t* option)
 
 void    GFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
 {
-    fit3_ConfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    fit4_ConfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    fit3_ChiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    fit4_ChiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     im_fit3.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     im_fit4.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     im_fit3_cutCL.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);

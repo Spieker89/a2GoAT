@@ -157,49 +157,27 @@ void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Doub
     GHistEvent::Fill(IM, MM, taggerTime, taggerChannel);
 }
 
-void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger)
 {
     for(int i=0; i<tagger.GetNTagged(); i++)
     {
-        if(CreateHistogramsForTaggerBinning)
-        {
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        }
-        else
-        {
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i));
-            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M(), tagger.GetTagged_t(i));
-            sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i));
-            sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i));
-            sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i));
-        }
+        im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+        mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M());
+        sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M());
+        sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M());
+        sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M());
     }
 }
 
-void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& rest, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& rest, const GTreeTagger& tagger)
 {
     for(int i=0; i<tagger.GetNTagged(); i++)
     {
-        if(CreateHistogramsForTaggerBinning)
-        {
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)-rest).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        }
-        else
-        {
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i));
-            mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)-rest).M(), tagger.GetTagged_t(i));
-            sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M(), tagger.GetTagged_t(i));
-            sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M(), tagger.GetTagged_t(i));
-            sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M(), tagger.GetTagged_t(i));
-        }
+        im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+        mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)-rest).M());
+        sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M());
+        sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M());
+        sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M());
     }
 }
 
@@ -224,12 +202,4 @@ void    GHistEvent3Mesons::Reset(Option_t* option)
     sub0_im.Reset(option);
     sub1_im.Reset(option);
     sub2_im.Reset(option);
-}
-
-void    GHistEvent3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
-{
-    sub0_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    sub1_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    sub2_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    GHistEvent::ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
