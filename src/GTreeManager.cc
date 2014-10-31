@@ -326,19 +326,23 @@ Bool_t  GTreeManager::TraverseValidEvents_GoATTreeFile()
 
 UInt_t  GTreeManager::GetNEntries()       const
 {
+    Int_t   minIndex=0;
     for(int l=1; l<readList.GetEntriesFast(); l++)
     {
         if(((GTree*)readList[l])->GetNEntries() != ((GTree*)readList[l-1])->GetNEntries())
         {
-            cout << "ERROR: input trees have different number of entries!"<< endl;
-            return 0;
+            cout << "WARNING: input trees have different number of entries!"<< endl;
+            if(((GTree*)readList[l])->GetNEntries() < ((GTree*)readList[l-1])->GetNEntries())
+                minIndex = l;
+            else
+                minIndex = l-1;
         }
     }
 
     if(readList.GetEntriesFast() == 0)
         return 0;
 
-    return  ((GTree*)readList[0])->GetNEntries();
+    return  ((GTree*)readList[minIndex])->GetNEntries();
 }
 
 UInt_t  GTreeManager::GetNScalerEntries()       const
