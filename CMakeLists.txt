@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(ROOT "5.30" REQUIRED)
 
 # since all subprojects need ROOT, set that up here
-include_directories(${ROOT_INCLUDES})
+include_directories(${ROOT_INCLUDES} ${CMAKE_SOURCE_DIR}/inc)
 link_directories(${ROOT_LIBRARY_DIR})
 
 include_directories(inc)
@@ -131,9 +131,14 @@ add_executable(pi0-example
    inc/GHistManager.h
    inc/GTreeManager.h
    inc/GConfigFile.h
-   inc/GHistTaggerBinning.h
-   inc/GHistBGSub.h
    inc/GHistScaCor.h
+   inc/GHistScaCor2.h
+   inc/GHistScaCor3.h
+   inc/GHistBGSub.h
+   inc/GHistBGSub2.h
+   inc/GHistBGSub3.h
+   inc/GHistTaggerBinning.h
+   inc/GHistTaggerBinning2.h
    inc/GH1.h
    inc/PPhysics.h
    inc/PPi0Example.h
@@ -150,15 +155,19 @@ add_executable(pi0-example
    src/GHistManager.cc
    src/GTreeManager.cc
    src/GConfigFile.cc
-   src/GHistTaggerBinning.cc
-   src/GHistBGSub.cc
    src/GHistScaCor.cc
+   src/GHistScaCor2.cc
+   src/GHistScaCor3.cc
+   src/GHistBGSub.cc
+   src/GHistBGSub2.cc
+   src/GHistBGSub3.cc
+   src/GHistTaggerBinning.cc
+   src/GHistTaggerBinning2.cc
    src/PPhysics.cc
    src/PPi0Example.cc
    src/pi0_example_main.cc
    )
 target_link_libraries(pi0-example ${ROOT_LIBRARIES})
-
 
 
 add_executable(MyPhysics
@@ -175,9 +184,14 @@ add_executable(MyPhysics
    inc/GHistManager.h
    inc/GTreeManager.h
    inc/GConfigFile.h
-   inc/GHistTaggerBinning.h
-   inc/GHistBGSub.h
    inc/GHistScaCor.h
+   inc/GHistScaCor2.h
+   inc/GHistScaCor3.h
+   inc/GHistBGSub.h
+   inc/GHistBGSub2.h
+   inc/GHistBGSub3.h
+   inc/GHistTaggerBinning.h
+   inc/GHistTaggerBinning2.h
    inc/GH1.h
    inc/GHistEvent.h
    inc/GCheckProton.h
@@ -199,9 +213,14 @@ add_executable(MyPhysics
    src/GHistManager.cc
    src/GTreeManager.cc
    src/GConfigFile.cc
-   src/GHistTaggerBinning.cc
-   src/GHistBGSub.cc
    src/GHistScaCor.cc
+   src/GHistScaCor2.cc
+   src/GHistScaCor3.cc
+   src/GHistBGSub.cc
+   src/GHistBGSub2.cc
+   src/GHistBGSub3.cc
+   src/GHistTaggerBinning.cc
+   src/GHistTaggerBinning2.cc
    src/GHistEvent.cc
    src/GCheckProton.cc
    src/GAnalysis3Mesons.cc
@@ -212,3 +231,12 @@ add_executable(MyPhysics
    src/MyPhysics_main.cc
    )
 target_link_libraries(MyPhysics ${ROOT_LIBRARIES})
+
+# install some scripts to the bin directory
+# by creating symlinks
+file(GLOB CORE_EXTRA_SCRIPTS "scripts/*")
+foreach(f ${CORE_EXTRA_SCRIPTS})
+  get_filename_component(f_name ${f} NAME)
+  add_custom_target(link_${f_name} ALL
+    COMMAND ${CMAKE_COMMAND} -E create_symlink "${f}" "${EXECUTABLE_OUTPUT_PATH}/${f_name}")
+endforeach()
