@@ -4,10 +4,10 @@
 
 
 GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
-    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 2000, -10, 10, kFALSE),
-    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 2000, -10, 10, kFALSE),
-    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 2000, -10, 10, kFALSE),
-    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 2000, -10, 10, kFALSE)
+    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 2000, -10, 10, 48, kFALSE),
+    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 2000, -10, 10, 48, kFALSE),
+    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 2000, -10, 10, 48, kFALSE),
+    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 2000, -10, 10, 48, kFALSE)
 {
 
 }
@@ -46,18 +46,18 @@ GFit::GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t link
     isEtap(IsEtap),
     fit3(6, 3, 0),
     fit4(6, 4, 0),
-    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 1000, 0, 1, kFALSE),
-    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 1000, 0, 1, kFALSE),
-    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 1000, 0, 100, kFALSE),
-    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 1000, 0, 100, kFALSE),
+    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 1000, 0, 1, 48, kFALSE),
+    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 1000, 0, 1, 48, kFALSE),
+    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 1000, 0, 100, 48, kFALSE),
+    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 1000, 0, 100, 48, kFALSE),
     fit3_Pulls(TString(name).Append("_fit3_Pulls"), TString(title).Append(" Fit 3 Con. Pull")),
     fit4_Pulls(TString(name).Append("_fit4_Pulls"), TString(title).Append(" Fit 4 Con. Pull")),
-    im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, kFALSE),
-    im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, kFALSE),
+    im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, 48, kFALSE),
+    im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, 48, kFALSE),
     cutConfidenceLevel3(0.1),
     cutConfidenceLevel4(0.1),
-    im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, kFALSE),
-    im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, kFALSE),
+    im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, 48, kFALSE),
+    im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, 48, kFALSE),
     fit3_Pulls_cutCL(TString(name).Append("_fit3CutCL_Pulls"), TString(title).Append(" Fit 3 Con. cut Con. Level Pulls")),
     fit4_Pulls_cutCL(TString(name).Append("_fit4CutCL_Pulls"), TString(title).Append(" Fit 4 Con. cut Con. Level Pulls"))
 {

@@ -7,8 +7,8 @@
 
 GHistEvent::GHistEvent(const char* name, const char* title, Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
-    im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 1500, 0, 1500, kFALSE),
-    mm(TString(name).Append("_mm"), TString(title).Append(" mis. Mass"), 2000, 0, 2000, kFALSE)
+    im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 1500, 0, 1500, 48, kFALSE),
+    mm(TString(name).Append("_mm"), TString(title).Append(" mis. Mass"), 2000, 0, 2000, 48, kFALSE)
 {
 
 }
@@ -113,9 +113,9 @@ void    GHistEvent::ScalerReadCorrection(const Double_t CorrectionFactor, const 
 
 GHistEvent3Mesons::GHistEvent3Mesons(const char* name, const char* title, Bool_t linkHistogram) :
     GHistEvent(name, title, linkHistogram),
-    sub0_im(TString(name).Append("_sub0im"), TString(title).Append(" sub Part. 0 inv. Mass"), 800, 0, 800, kFALSE),
-    sub1_im(TString(name).Append("_sub1im"), TString(title).Append(" sub Part. 1 inv. Mass"), 400, 0, 400, kFALSE),
-    sub2_im(TString(name).Append("_sub2im"), TString(title).Append(" sub Part. 2 inv. Mass"), 400, 0, 400, kFALSE)
+    sub0_im(TString(name).Append("_sub0im"), TString(title).Append(" sub Part. 0 inv. Mass"), 800, 0, 800, 48, kFALSE),
+    sub1_im(TString(name).Append("_sub1im"), TString(title).Append(" sub Part. 1 inv. Mass"), 400, 0, 400, 48, kFALSE),
+    sub2_im(TString(name).Append("_sub2im"), TString(title).Append(" sub Part. 2 inv. Mass"), 400, 0, 400, 48, kFALSE)
 {
 
 }
