@@ -44,8 +44,8 @@ GFitPulls6Photons::~GFitPulls6Photons()
 GFit::GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
     isEtap(IsEtap),
-    fit3(6, 3, 0),
-    fit4(6, 4, 0),
+    fit3(7, 3, 0),
+    fit4(7, 4, 0),
     fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 1000, 0, 1, 48, kFALSE),
     fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 1000, 0, 1, 48, kFALSE),
     fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 1000, 0, 100, 48, kFALSE),
@@ -91,7 +91,7 @@ void   GFit::CalcResult()
 
 void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
-    GKinFitterParticle  particle[6];
+    GKinFitterParticle  particle[7];
 
     Int_t Ebin  = 0;
     Int_t Thbin = 0;
@@ -132,6 +132,12 @@ void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool
         fit4.AddPosKFParticle(particle[4]);
         fit3.AddPosKFParticle(particle[5]);
         fit4.AddPosKFParticle(particle[5]);
+
+        particle[6].Set4Vector(tagger.GetVectorProtonTarget(i));
+        particle[6].SetResolutions(0.001, 0.001, 2);
+
+        fit3.AddNegKFParticle(particle[6]);
+        fit4.AddNegKFParticle(particle[6]);
 
         Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
         if(isEtap)
