@@ -3,7 +3,15 @@
 
 /////////////////////////////////////////////////////////////
 //TCBKFParticle
-GKinFitterParticle::GKinFitterParticle(TLorentzVector lv,Double_t sig_th,Double_t sig_ph,Double_t sig_E){
+
+GKinFitterParticle::GKinFitterParticle()
+{
+    fNvar=4;
+    fAlpha.ResizeTo(fNvar,1);
+    fV_Alpha.ResizeTo(fNvar,fNvar);
+    fT.ResizeTo(fNvar,fNvar-1);
+}
+GKinFitterParticle::GKinFitterParticle(const TLorentzVector lv,const Double_t sig_th,const Double_t sig_ph,const Double_t sig_E){
 
   fNvar=4;
   flv=lv;
@@ -19,7 +27,7 @@ GKinFitterParticle::GKinFitterParticle(TLorentzVector lv,Double_t sig_th,Double_
   Polar2Cartesian(sig_th,sig_ph,sig_E);
   //end
 }
-GKinFitterParticle::GKinFitterParticle(TLorentzVector *lv){
+GKinFitterParticle::GKinFitterParticle(const TLorentzVector *lv){
 
   fNvar=4;
   flv=*lv;
@@ -35,14 +43,14 @@ GKinFitterParticle::GKinFitterParticle(TLorentzVector *lv){
   //  Polar2Cartesian(sig_th,sig_ph,sig_E);
   //end
 }
-GKinFitterParticle GKinFitterParticle::Add(GKinFitterParticle p1){
+GKinFitterParticle GKinFitterParticle::Add(const GKinFitterParticle p1){
   if(p1.GetNVar()!=fNvar) {std::cout<<"GKinFitterParticle::Add can't add, different Nvar"<<std::endl; return p1;}
   GKinFitterParticle p12(TLorentzVector(0,0,1,1),1,1,1);
   p12.SetVAlpha(p1.GetVAlpha()+fV_Alpha);
   p12.Set4Vector(p1.Get4Vector()+flv);
   return p12;
 }
-GKinFitterParticle GKinFitterParticle::Subtract(GKinFitterParticle p1){
+GKinFitterParticle GKinFitterParticle::Subtract(const GKinFitterParticle p1){
   if(p1.GetNVar()!=fNvar) {std::cout<<"GKinFitterParticle::Add can't add, different Nvar"<<std::endl; return p1;}
   GKinFitterParticle p12(TLorentzVector(0,0,1,1),1,1,1);
   p12.SetVAlpha(p1.GetVAlpha()+fV_Alpha);
@@ -54,13 +62,6 @@ void GKinFitterParticle::SetAlpha(){
   fAlpha[1][0]=flv.Y();
   fAlpha[2][0]=flv.Z();
   fAlpha[3][0]=flv.T();
-}
-TLorentzVector GKinFitterParticle::Get4Vector(){
-  flv.SetX(fAlpha[0][0]);
-  flv.SetY(fAlpha[1][0]);
-  flv.SetZ(fAlpha[2][0]);
-  flv.SetT(fAlpha[3][0]);
-  return flv;
 }
 void GKinFitterParticle::Polar2Cartesian(Double_t sig_th,Double_t sig_ph,Double_t sig_E){
   Double_t sth=sin(flv.Theta());
