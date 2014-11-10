@@ -133,8 +133,10 @@ private:
     TH2F*   GammaThetaRes;
     TH2F*   GammaPhiRes;
 
-    void    Fit3(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
-    void    Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    void    Fit3(const Double_t taggerTime);
+    void    Fit3(const Double_t taggerTime, const Double_t taggerChannel);
+    void    Fit4(const TLorentzVector& initial, const Double_t taggerTime);
+    void    Fit4(const TLorentzVector& initial, const Double_t taggerTime, const Double_t taggerChannel);
 protected:
 
 public:

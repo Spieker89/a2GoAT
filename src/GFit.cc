@@ -99,9 +99,6 @@ void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool
     Float_t resph = 0;
     Float_t resE  = 0;
 
-    fit3.Reset();
-    fit4.Reset();
-
     for(int i=0; i<6; i++)
     {
         Ebin  = GammaEloss->GetXaxis()->FindFixBin(meson.SubPhotons(0, i).E());
@@ -116,84 +113,120 @@ void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool
         particle[i].Set4Vector(meson.SubPhotons(0, i));
         //std::cout << "Res: " << resth << ", " << resph << ", " << photons->Particle(i).E()*resE << std::endl;
         particle[i].SetResolutions(resth, resph, 2 *meson.SubPhotons(0, i).E()*resE);
-        fit3.AddPosKFParticle(particle[i]);
-        fit4.AddPosKFParticle(particle[i]);
     }
 
-    Fit3(meson, tagger, CreateHistogramsForTaggerBinning);
-    Fit4(meson, tagger, CreateHistogramsForTaggerBinning);
+    for(int i=0; i<tagger.GetNTagged(); i++)
+    {
+        fit3.Reset();
+        fit4.Reset();
+
+        fit3.AddPosKFParticle(particle[0]);
+        fit4.AddPosKFParticle(particle[0]);
+        fit3.AddPosKFParticle(particle[1]);
+        fit4.AddPosKFParticle(particle[1]);
+        fit3.AddPosKFParticle(particle[2]);
+        fit4.AddPosKFParticle(particle[2]);
+        fit3.AddPosKFParticle(particle[3]);
+        fit4.AddPosKFParticle(particle[3]);
+        fit3.AddPosKFParticle(particle[4]);
+        fit4.AddPosKFParticle(particle[4]);
+        fit3.AddPosKFParticle(particle[5]);
+        fit4.AddPosKFParticle(particle[5]);
+
+        Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
+        if(isEtap)
+        {
+            fit3.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
+            fit4.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
+        }
+        else
+        {
+            fit3.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
+            fit4.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
+        }
+
+        fit3.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
+        fit4.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
+        fit3.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
+        fit4.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
+
+        if(CreateHistogramsForTaggerBinning == kTRUE)
+        {
+            Fit3(tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+            Fit4(tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+        }
+        else
+        {
+            Fit3(tagger.GetTagged_t(i));
+            Fit4(tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i));
+        }
+    }
 }
 
-void    GFit::Fit3(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+void    GFit::Fit3(const Double_t taggerTime)
 {
-    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
-    if(isEtap)
-        fit3.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
-    else
-        fit3.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
-
-    fit3.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
-    fit3.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
-
     if(fit3.Solve()>=0)
     {
         fit3_ConfidenceLevel.Fill(fit3.ConfidenceLevel());
         fit3_ChiSq.Fill(fit3.GetChi2());
         fit3_Pulls.Fill(fit3);
-        im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
+        im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime);
         if(fit3.ConfidenceLevel()<cutConfidenceLevel3)
         {
             fit3_Pulls_cutCL.Fill(fit3);
-            im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), tagger, CreateHistogramsForTaggerBinning);
+            im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime);
+        }
+    }
+}
+void    GFit::Fit3(const Double_t taggerTime, const Double_t taggerChannel)
+{
+    if(fit3.Solve()>=0)
+    {
+        fit3_ConfidenceLevel.Fill(fit3.ConfidenceLevel());
+        fit3_ChiSq.Fill(fit3.GetChi2());
+        fit3_Pulls.Fill(fit3);
+        im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
+        if(fit3.ConfidenceLevel()<cutConfidenceLevel3)
+        {
+            fit3_Pulls_cutCL.Fill(fit3);
+            im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
         }
     }
 }
 
-void    GFit::Fit4(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+void    GFit::Fit4(const TLorentzVector& initial,const Double_t taggerTime)
 {
-    Int_t       sub[6] = {0, 1, 2, 3, 4, 5};
-    Double_t    minChiSq    = 1000000000;
-    Double_t    im          = 0;
-    Int_t       time        = 0;
-    Int_t       channel     = 0;
+    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
+    fit4.AddSubMissMassConstraint(initial, 6, sub, MASS_PROTON);
 
-    Bool_t  found   = kFALSE;
-
-    for(int i=0; i<tagger.GetNTagged(); i++)
-    {
-        fit4.ResetConstraints();
-        if(isEtap)
-            fit4.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
-        else
-            fit4.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
-
-        fit4.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
-        fit4.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
-        fit4.AddSubMissMassConstraint(tagger.GetVectorProtonTarget(i), 6, sub, MASS_PROTON);
-
-        if(fit4.Solve()>=0)
-        {
-            if(fit4.GetChi2()<minChiSq)
-            {
-                minChiSq    = fit4.GetChi2();
-                im          = fit4.GetTotalFitParticle().Get4Vector().M();
-                time        = tagger.GetTagged_t(i);
-                channel     = tagger.GetTagged_ch(i);
-                found       = kTRUE;
-            }
-        }
-    }
-
-    if(found == kTRUE)
+    if(fit4.Solve()>=0)
     {
         fit4_ConfidenceLevel.Fill(fit4.ConfidenceLevel());
         fit4_ChiSq.Fill(fit4.GetChi2());
         fit4_Pulls.Fill(fit4);
-        im_fit4.Fill(im, time, channel);
+        im_fit4.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime);
         if(fit4.ConfidenceLevel()<cutConfidenceLevel4)
         {
             fit4_Pulls_cutCL.Fill(fit4);
-            im_fit4_cutCL.Fill(im, time, channel);
+            im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime);
+        }
+    }
+}
+void    GFit::Fit4(const TLorentzVector& initial,const Double_t taggerTime, const Double_t taggerChannel)
+{
+    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
+    fit4.AddSubMissMassConstraint(initial, 6, sub, MASS_PROTON);
+
+    if(fit4.Solve()>=0)
+    {
+        fit4_ConfidenceLevel.Fill(fit4.ConfidenceLevel());
+        fit4_ChiSq.Fill(fit4.GetChi2());
+        fit4_Pulls.Fill(fit4);
+        im_fit4.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
+        if(fit4.ConfidenceLevel()<cutConfidenceLevel4)
+        {
+            fit4_Pulls_cutCL.Fill(fit4);
+            im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
         }
     }
 }
