@@ -32,35 +32,34 @@ class GKinFitter
 	TLorentzVector fPtot;
 
 public:
-	//GKinFitter()									{};
-	GKinFitter(Int_t npart, Int_t ncon, Int_t unk);
-	virtual ~GKinFitter()							{};
+    GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk);
+    virtual ~GKinFitter()							{}
 
 	Int_t Solve(); //do the least squares fit
 
 	//Form the D and d matrixes for the fit
-	void AddInvMassConstraint(Double_t Minv);   //based on Invariant mass of added particles 
-	void AddSubInvMassConstraint(Int_t Np, Int_t pid[], Double_t Minv);//Add invariant mass constraint to subset of particles
-	void AddTotEnergyConstraint(Double_t Etot);  //based on total energy of added particles
-	void AddTotMomentumConstraint(TVector3 mom); //based on total 3 momentum of added particles
-	void AddSubMissMassConstraint(TLorentzVector Mom, Int_t Np, Int_t pid[], Double_t MissMass); // Based on missing mass of particles in subset
+    void AddInvMassConstraint(const Double_t Minv);   //based on Invariant mass of added particles
+    void AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], const Double_t Minv);//Add invariant mass constraint to subset of particles
+    void AddTotEnergyConstraint(const Double_t Etot);  //based on total energy of added particles
+    void AddTotMomentumConstraint(const TVector3 mom); //based on total 3 momentum of added particles
+    void AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass); // Based on missing mass of particles in subset
 
-	void AddPosKFParticle(GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute + to fPtot
-	void AddNegKFParticle(GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute - to fPtot
+    void AddPosKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute + to fPtot
+    void AddNegKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute - to fPtot
 
 	GKinFitterParticle GetTotalFitParticle();//returns alpha=fPtot and sum of error matrices  from each particle
-	TLorentzVector Get4Vector(){return fPtot;}
-	GKinFitterParticle GetParticle(Int_t ip);
-	GKinFitterParticle GetInitialParticle(Int_t ip);
-	Double_t GetChi2(){return fchi2;};
+    TLorentzVector Get4Vector()                             {return fPtot;}
+    GKinFitterParticle GetParticle(const Int_t ip);
+    GKinFitterParticle GetInitialParticle(const Int_t ip);
+    Double_t GetChi2()                                      {return fchi2;}
 
-	Double_t ConfidenceLevel(){ return TMath::Prob(fchi2,fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
-	Double_t Pull(Int_t i) {return (fmAlpha0[i][0]-fmAlpha[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
+    Double_t ConfidenceLevel()      {return TMath::Prob(fchi2,fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
+    Double_t Pull(const Int_t i)    {return (fmAlpha0[i][0]-fmAlpha[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
 
-	void ResetConstraints(){fNconi=0;}
-	void ResetParticles(){fNpari=0;fNparti=0;fPtot.SetXYZT(0,0,0,0);}
+    void ResetConstraints() {fNconi=0;}
+    void ResetParticles()   {fNpari=0;fNparti=0;fPtot.SetXYZT(0,0,0,0);}
 	void ResetMatrices();
-	void Reset(){ResetConstraints();ResetParticles();ResetMatrices();}
+    void Reset()            {ResetConstraints();ResetParticles();ResetMatrices();}
 	void Debug();
 };
 

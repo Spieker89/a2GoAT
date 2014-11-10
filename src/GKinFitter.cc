@@ -9,7 +9,7 @@
 //ClassImp(GKinFitter);
 
 //-----------------------------------------------------------------------------
-GKinFitter::GKinFitter(Int_t npart, Int_t ncon, Int_t unk){
+GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
 
   fNvar=4;
   fNpart=npart;
@@ -94,7 +94,7 @@ Int_t GKinFitter::Solve(){
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddInvMassConstraint(Double_t Minv){
+void GKinFitter::AddInvMassConstraint(const Double_t Minv){
 
   // d matrix (evaluate constraint eqn.)
   fmd[fNconi][0]=fPtot.M2()-Minv*Minv;
@@ -114,7 +114,7 @@ void GKinFitter::AddInvMassConstraint(Double_t Minv){
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddSubInvMassConstraint(Int_t Np, Int_t pid[], Double_t Minv){
+void GKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], const Double_t Minv){
 
   //Add invariant mass constraint to subset of particles
   //Np is number of subs particles
@@ -149,7 +149,7 @@ void GKinFitter::AddSubInvMassConstraint(Int_t Np, Int_t pid[], Double_t Minv){
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddTotEnergyConstraint(Double_t Etot){
+void GKinFitter::AddTotEnergyConstraint(const Double_t Etot){
 
   //d matrix (evaluate constraint eqn.)
   fmd[fNconi][0]=fPtot.E()-Etot;
@@ -192,7 +192,7 @@ void GKinFitter::AddTotMomentumConstraint(TVector3 mom){
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddSubMissMassConstraint(TLorentzVector Mom, Int_t Np, Int_t pid[], Double_t MissMass){
+void GKinFitter::AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass){
 
   // Add missing mass constraint to subset of particles
   // Np is number of subset particles
