@@ -10,44 +10,20 @@
 
 
 class   GTreeMeson;
-
+/*
 class  GFitPulls4Vector
 {
 private:
-    GH1 Pull_Px;
-    GH1 Pull_Py;
-    GH1 Pull_Pz;
-    GH1 Pull_E;
+    Double_t    Pull_Px;
+    Double_t    Pull_Py;
+    Double_t    Pull_Pz;
+    Double_t    Pull_E;
 
 public:
-    GFitPulls4Vector(const char* name, const char* title);
-    virtual ~GFitPulls4Vector();
+    GFitPulls4Vector(const Double_t px, const Double_t py, const Double_t pz, const Double_t e)   : Pull_Px(px), Pull_Py(py), Pull_Pz(pz), Pull_E(e)  {}
+    ~GFitPulls4Vector();
 
-    virtual void    CalcResult()
-    {
-        Pull_Px.CalcResult();
-        Pull_Py.CalcResult();
-        Pull_Pz.CalcResult();
-        Pull_E.CalcResult();
-    }
-            void    Fill(const Double_t px, const Double_t py, const Double_t pz, const Double_t e)  {Pull_Px.Fill(px); Pull_Py.Fill(py); Pull_Pz.Fill(pz); Pull_E.Fill(e);}
-    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0)
-    {
-        if(!arr)
-            return;
-
-        Pull_Px.PrepareWriteList(arr, TString(name).Append("_Px"));
-        Pull_Py.PrepareWriteList(arr, TString(name).Append("_Py"));
-        Pull_Pz.PrepareWriteList(arr, TString(name).Append("_Pz"));
-        Pull_E.PrepareWriteList(arr, TString(name).Append("_E"));
-    }
-    virtual void    Reset(Option_t* option = "")
-    {
-        Pull_Px.Reset(option);
-        Pull_Py.Reset(option);
-        Pull_Pz.Reset(option);
-        Pull_E.Reset(option);
-    }
+    void    Fill(const Double_t px, const Double_t py, const Double_t pz, const Double_t e)  {Pull_Px = px; Pull_Py = py); Pull_Pz(pz); Pull_E(e);}
 };
 
 class  GFitPulls6Photons
@@ -104,58 +80,85 @@ public:
         g5.Reset(option);
     }
 };
+*/
 
-
-class	GFit : public GHistLinked
+class  GFitStructEntry
 {
-private:
-    Bool_t              isEtap;
-    GKinFitter          fit3;
-    GKinFitter          fit4;
-    GH1                 fit3_ConfidenceLevel;
-    GH1                 fit4_ConfidenceLevel;
-    GH1                 fit3_ChiSq;
-    GH1                 fit4_ChiSq;
-    GFitPulls6Photons   fit3_Pulls;
-    GFitPulls6Photons   fit4_Pulls;
-    GH1                 im_fit3;
-    GH1                 im_fit4;
-    Double_t            cutConfidenceLevel3;
-    Double_t            cutConfidenceLevel4;
-    GH1                 im_fit3_cutCL;
-    GH1                 im_fit4_cutCL;
-    GFitPulls6Photons   fit3_Pulls_cutCL;
-    GFitPulls6Photons   fit4_Pulls_cutCL;
-
-    TFile*  GammaResFile;
-    TH2F*   GammaEloss;
-    TH2F*   GammaERes;
-    TH2F*   GammaThetaRes;
-    TH2F*   GammaPhiRes;
-
-    void    Fit3(const Double_t taggerTime);
-    void    Fit3(const Double_t taggerTime, const Double_t taggerChannel);
-    void    Fit4(const TLorentzVector& initial, const Double_t taggerTime);
-    void    Fit4(const TLorentzVector& initial, const Double_t taggerTime, const Double_t taggerChannel);
-protected:
-
 public:
-    GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram = kTRUE);
-    virtual ~GFit();
+    Double_t    im;
+    Double_t    ChiSq;
+    Double_t    ConfidenceLevel;
+    Double_t    PullPhotons[24];
+    Double_t    PullBeam[4];
+    Double_t    PullProton[4];
 
-    virtual void    CalcResult();
-    virtual Int_t   Fill(Double_t x)    {}
-            void    Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
-    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
-    virtual void    Reset(Option_t* option = "");
-    virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-            void    SetConfidenceLevelCut(const Double_t fit3_CutConfidenceLevel, const Double_t fit4_CutConfidenceLevel)   {cutConfidenceLevel3=fit3_CutConfidenceLevel; cutConfidenceLevel4=fit4_CutConfidenceLevel;}
-    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    GFitStructEntry();
+    GFitStructEntry(const GFitStructEntry& c);
+    ~GFitStructEntry()  {}
+
+    GFitStructEntry&    operator =(const GFitStructEntry& c);
+};
+
+struct  GFitStruct
+{
+    GFitStructEntry    raw;
+    GFitStructEntry    CutChiSq;
+    GFitStructEntry    CutConfidenceLevel;
+    GFitStructEntry    CutBoth;
 };
 
 
+class	GFit3Constraints
+{
+private:
+    Bool_t      isEtap;
+
+    GKinFitterParticle  photons[6];
+
+    static  TFile*  GammaResFile;
+    static  TH2F*   GammaEloss;
+    static  TH2F*   GammaERes;
+    static  TH2F*   GammaThetaRes;
+    static  TH2F*   GammaPhiRes;
+
+protected:
+    GKinFitter  fitter;
+    Double_t    cutConfidenceLevel;
+    Double_t    cutChiSq;
+
+    GFitStruct  result;
 
 
+    GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
+
+    virtual void    InitFit(const GTreeMeson& meson);
+            void    SetPhotons(const GTreeMeson& meson);
+
+public:
+    GFit3Constraints(const Bool_t IsEtap);
+    virtual ~GFit3Constraints();
+
+            Bool_t  IsEtap()    const   {return isEtap;}
+    virtual void    Fit(const GTreeMeson& meson);
+};
+
+
+class	GFit4Constraints    :   public  GFit3Constraints
+{
+private:
+
+protected:
+    //GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
+
+    virtual void    InitFit(const GTreeMeson& meson);
+            void    SetPhotons(const GTreeMeson& meson);
+
+public:
+    GFit4Constraints(const Bool_t IsEtap);
+    virtual ~GFit4Constraints();
+
+    virtual void    Fit(const GTreeMeson& meson);
+};
 
 
 

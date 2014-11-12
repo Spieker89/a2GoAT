@@ -3,7 +3,46 @@
 #include "GTreeTagger.h"
 
 
-GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
+GFitStructEntry::GFitStructEntry()   :
+    im(0),
+    ChiSq(0),
+    ConfidenceLevel(0)
+{
+    for(int i=0; i<24; i++)
+        PullPhotons[i]     = 0;
+    for(int i=0; i<4; i++)
+        PullBeam[i]        = 0;
+    for(int i=0; i<4; i++)
+        PullProton[i]      = 0;
+}
+
+GFitStructEntry::GFitStructEntry(const GFitStructEntry& c)   :
+    im(c.im),
+    ChiSq(c.ChiSq),
+    ConfidenceLevel(c.ConfidenceLevel)
+{
+    for(int i=0; i<24; i++)
+        PullPhotons[i]     = c.PullPhotons[i];
+    for(int i=0; i<4; i++)
+        PullBeam[i]        = c.PullBeam[i];
+    for(int i=0; i<4; i++)
+        PullProton[i]      = c.PullProton[i];
+}
+
+GFitStructEntry&    GFitStructEntry::operator =(const GFitStructEntry& c)
+{
+    im              = c.im;
+    ChiSq           = c.ChiSq;
+    ConfidenceLevel = c.ConfidenceLevel;
+    for(int i=0; i<24; i++)
+        PullPhotons[i]     = c.PullPhotons[i];
+    for(int i=0; i<4; i++)
+        PullBeam[i]        = c.PullBeam[i];
+    for(int i=0; i<4; i++)
+        PullProton[i]      = c.PullProton[i];
+}
+
+/*GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
     Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 2000, -10, 10, 48, kFALSE),
     Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 2000, -10, 10, 48, kFALSE),
     Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 2000, -10, 10, 48, kFALSE),
@@ -33,66 +72,98 @@ GFitPulls6Photons::~GFitPulls6Photons()
 {
 
 }
+*/
+
+
+TFile*  GFit3Constraints::GammaResFile  = 0;
+TH2F*   GFit3Constraints::GammaEloss    = 0;
+TH2F*   GFit3Constraints::GammaERes     = 0;
+TH2F*   GFit3Constraints::GammaThetaRes = 0;
+TH2F*   GFit3Constraints::GammaPhiRes   = 0;
 
 
 
 
-
-
-
-
-GFit::GFit(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
-    GHistLinked(linkHistogram),
+GFit3Constraints::GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap) :
     isEtap(IsEtap),
-    fit3(7, 3, 0),
-    fit4(7, 4, 0),
-    fit3_ConfidenceLevel(TString(name).Append("_fit3_ConfidenceLevel"), TString(title).Append(" Fit 3 Con. ConfidenceLevel"), 1000, 0, 1, 48, kFALSE),
-    fit4_ConfidenceLevel(TString(name).Append("_fit4_ConfidenceLevel"), TString(title).Append(" Fit 4 Con. ConfidenceLevel"), 1000, 0, 1, 48, kFALSE),
-    fit3_ChiSq(TString(name).Append("_fit3_ChiSq"), TString(title).Append(" Fit 3 Con. ChiSq"), 1000, 0, 100, 48, kFALSE),
-    fit4_ChiSq(TString(name).Append("_fit4_ChiSq"), TString(title).Append(" Fit 4 Con. ChiSq"), 1000, 0, 100, 48, kFALSE),
-    fit3_Pulls(TString(name).Append("_fit3_Pulls"), TString(title).Append(" Fit 3 Con. Pull")),
-    fit4_Pulls(TString(name).Append("_fit4_Pulls"), TString(title).Append(" Fit 4 Con. Pull")),
-    im_fit3(TString(name).Append("_fit3"), TString(title).Append(" Fit 3 Con."), 1500, 0, 1500, 48, kFALSE),
-    im_fit4(TString(name).Append("_fit4"), TString(title).Append(" Fit 4 Con."), 1500, 0, 1500, 48, kFALSE),
-    cutConfidenceLevel3(0.1),
-    cutConfidenceLevel4(0.1),
-    im_fit3_cutCL(TString(name).Append("_fit3CutCL"), TString(title).Append(" Fit 3 Con. cut Con. Level"), 1500, 0, 1500, 48, kFALSE),
-    im_fit4_cutCL(TString(name).Append("_fit4CutCL"), TString(title).Append(" Fit 4 Con. cut Con. Level"), 1500, 0, 1500, 48, kFALSE),
-    fit3_Pulls_cutCL(TString(name).Append("_fit3CutCL_Pulls"), TString(title).Append(" Fit 3 Con. cut Con. Level Pulls")),
-    fit4_Pulls_cutCL(TString(name).Append("_fit4CutCL_Pulls"), TString(title).Append(" Fit 4 Con. cut Con. Level Pulls"))
+    fitter(npart, ncon, 0),
+    cutConfidenceLevel(0.1)
 {
-    GammaResFile   = new TFile("~/GammaRes.root");
-    GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
-    GammaERes      = (TH2F*)GammaResFile->Get("EResIter");
-    GammaThetaRes  = (TH2F*)GammaResFile->Get("ThetaRes;1");
-    GammaPhiRes    = (TH2F*)GammaResFile->Get("PhiRes;1");
+    if(!GammaResFile)   GammaResFile   = new TFile("~/GammaRes.root");
+    if(!GammaEloss)     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
+    if(!GammaERes)      GammaERes      = (TH2F*)GammaResFile->Get("EResIter");
+    if(!GammaThetaRes)  GammaThetaRes  = (TH2F*)GammaResFile->Get("ThetaRes;1");
+    if(!GammaPhiRes)    GammaPhiRes    = (TH2F*)GammaResFile->Get("PhiRes;1");
 }
 
-GFit::~GFit()
+GFit3Constraints::GFit3Constraints(const Bool_t IsEtap) :
+    isEtap(IsEtap),
+    fitter(6, 3, 0),
+    cutConfidenceLevel(0.1),
+    cutChiSq(10)
+{
+    if(!GammaResFile)   GammaResFile   = new TFile("~/GammaRes.root");
+    if(!GammaEloss)     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
+    if(!GammaERes)      GammaERes      = (TH2F*)GammaResFile->Get("EResIter");
+    if(!GammaThetaRes)  GammaThetaRes  = (TH2F*)GammaResFile->Get("ThetaRes;1");
+    if(!GammaPhiRes)    GammaPhiRes    = (TH2F*)GammaResFile->Get("PhiRes;1");
+}
+
+GFit3Constraints::~GFit3Constraints()
 {
 
 }
 
-void   GFit::CalcResult()
+void    GFit3Constraints::InitFit(const GTreeMeson& meson)
 {
-    fit3_ConfidenceLevel.CalcResult();
-    fit4_ConfidenceLevel.CalcResult();
-    fit3_ChiSq.CalcResult();
-    fit4_ChiSq.CalcResult();
-    fit3_Pulls.CalcResult();
-    fit4_Pulls.CalcResult();
-    im_fit3.CalcResult();
-    im_fit4.CalcResult();
-    im_fit3_cutCL.CalcResult();
-    im_fit4_cutCL.CalcResult();
-    fit3_Pulls_cutCL.CalcResult();
-    fit4_Pulls_cutCL.CalcResult();
+    SetPhotons(meson);
+
+    fitter.Reset();
+    fitter.AddPosKFParticle(photons[0]);
+    fitter.AddPosKFParticle(photons[1]);
+    fitter.AddPosKFParticle(photons[2]);
+    fitter.AddPosKFParticle(photons[3]);
+    fitter.AddPosKFParticle(photons[4]);
+    fitter.AddPosKFParticle(photons[5]);
+
+    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
+    if(isEtap)
+        fitter.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
+
+    fitter.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
 }
 
-void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+void    GFit3Constraints::Fit(const GTreeMeson& meson)
 {
-    GKinFitterParticle  particle[7];
+    InitFit(meson);
 
+    if(fitter.Solve()>=0)
+    {
+        result.raw.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.raw.ChiSq            = fitter.GetChi2();
+        result.raw.ConfidenceLevel  = fitter.ConfidenceLevel();
+        for(int i=0; i<24; i++)
+            result.raw.PullPhotons[i]   = fitter.Pull(i);
+
+        if(result.raw.ConfidenceLevel>cutConfidenceLevel)
+        {
+            result.CutConfidenceLevel   = result.raw;
+            if(result.raw.ChiSq<cutChiSq)
+            {
+                result.CutChiSq   = result.raw;
+                result.CutBoth    = result.raw;
+            }
+        }
+        else if(result.raw.ChiSq<cutChiSq)
+            result.CutChiSq   = result.raw;
+    }
+}
+
+void    GFit3Constraints::SetPhotons(const GTreeMeson& meson)
+{
     Int_t Ebin  = 0;
     Int_t Thbin = 0;
     Float_t resth = 0;
@@ -110,181 +181,59 @@ void    GFit::Fit(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool
         if(resth==0 || resph==0 || resE==0 ) return; // If energy or angle is out of calibrated  range!
         // Now set particle parameters
         //                     LorentzVector
-        particle[i].Set4Vector(meson.SubPhotons(0, i));
+        photons[i].Set4Vector(meson.SubPhotons(0, i));
         //std::cout << "Res: " << resth << ", " << resph << ", " << photons->Particle(i).E()*resE << std::endl;
-        particle[i].SetResolutions(resth, resph, 2 *meson.SubPhotons(0, i).E()*resE);
+        photons[i].SetResolutions(resth, resph, 2 *meson.SubPhotons(0, i).E()*resE);
     }
+}
 
-    for(int i=0; i<tagger.GetNTagged(); i++)
+
+
+
+
+
+
+
+
+
+GFit4Constraints::GFit4Constraints(const Bool_t IsEtap) :
+    GFit3Constraints(6, 4, 0)
+{
+}
+
+GFit4Constraints::~GFit4Constraints()
+{
+}
+
+void    GFit4Constraints::InitFit(const GTreeMeson& meson)
+{
+   GFit3Constraints::InitFit(meson);
+
+   //fitter.AddSubMissMassConstraint();
+}
+
+void    GFit4Constraints::Fit(const GTreeMeson& meson)
+{
+    InitFit(meson);
+
+    if(fitter.Solve()>=0)
     {
-        fit3.Reset();
-        fit4.Reset();
+        result.raw.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.raw.ChiSq            = fitter.GetChi2();
+        result.raw.ConfidenceLevel  = fitter.ConfidenceLevel();
+        for(int i=0; i<24; i++)
+            result.raw.PullPhotons[i]   = fitter.Pull(i);
 
-        fit3.AddPosKFParticle(particle[0]);
-        fit4.AddPosKFParticle(particle[0]);
-        fit3.AddPosKFParticle(particle[1]);
-        fit4.AddPosKFParticle(particle[1]);
-        fit3.AddPosKFParticle(particle[2]);
-        fit4.AddPosKFParticle(particle[2]);
-        fit3.AddPosKFParticle(particle[3]);
-        fit4.AddPosKFParticle(particle[3]);
-        fit3.AddPosKFParticle(particle[4]);
-        fit4.AddPosKFParticle(particle[4]);
-        fit3.AddPosKFParticle(particle[5]);
-        fit4.AddPosKFParticle(particle[5]);
-
-        particle[6].Set4Vector(tagger.GetVectorProtonTarget(i));
-        particle[6].SetResolutions(0.001, 0.001, 2);
-
-        fit3.AddNegKFParticle(particle[6]);
-        fit4.AddNegKFParticle(particle[6]);
-
-        Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
-        if(isEtap)
+        if(result.raw.ConfidenceLevel>cutConfidenceLevel)
         {
-            fit3.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
-            fit4.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
+            result.CutConfidenceLevel   = result.raw;
+            if(result.raw.ChiSq<cutChiSq)
+            {
+                result.CutChiSq   = result.raw;
+                result.CutBoth    = result.raw;
+            }
         }
-        else
-        {
-            fit3.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
-            fit4.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
-        }
-
-        fit3.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
-        fit4.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
-        fit3.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
-        fit4.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
-
-        if(CreateHistogramsForTaggerBinning == kTRUE)
-        {
-            Fit3(tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            Fit4(tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        }
-        else
-        {
-            Fit3(tagger.GetTagged_t(i));
-            Fit4(tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i));
-        }
+        else if(result.raw.ChiSq<cutChiSq)
+            result.CutChiSq   = result.raw;
     }
-}
-
-void    GFit::Fit3(const Double_t taggerTime)
-{
-    if(fit3.Solve()>=0)
-    {
-        fit3_ConfidenceLevel.Fill(fit3.ConfidenceLevel());
-        fit3_ChiSq.Fill(fit3.GetChi2());
-        fit3_Pulls.Fill(fit3);
-        im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime);
-        if(fit3.ConfidenceLevel()<cutConfidenceLevel3)
-        {
-            fit3_Pulls_cutCL.Fill(fit3);
-            im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime);
-        }
-    }
-}
-void    GFit::Fit3(const Double_t taggerTime, const Double_t taggerChannel)
-{
-    if(fit3.Solve()>=0)
-    {
-        fit3_ConfidenceLevel.Fill(fit3.ConfidenceLevel());
-        fit3_ChiSq.Fill(fit3.GetChi2());
-        fit3_Pulls.Fill(fit3);
-        im_fit3.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
-        if(fit3.ConfidenceLevel()<cutConfidenceLevel3)
-        {
-            fit3_Pulls_cutCL.Fill(fit3);
-            im_fit3_cutCL.Fill(fit3.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
-        }
-    }
-}
-
-void    GFit::Fit4(const TLorentzVector& initial,const Double_t taggerTime)
-{
-    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
-    fit4.AddSubMissMassConstraint(initial, 6, sub, MASS_PROTON);
-
-    if(fit4.Solve()>=0)
-    {
-        fit4_ConfidenceLevel.Fill(fit4.ConfidenceLevel());
-        fit4_ChiSq.Fill(fit4.GetChi2());
-        fit4_Pulls.Fill(fit4);
-        im_fit4.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime);
-        if(fit4.ConfidenceLevel()<cutConfidenceLevel4)
-        {
-            fit4_Pulls_cutCL.Fill(fit4);
-            im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime);
-        }
-    }
-}
-void    GFit::Fit4(const TLorentzVector& initial,const Double_t taggerTime, const Double_t taggerChannel)
-{
-    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
-    fit4.AddSubMissMassConstraint(initial, 6, sub, MASS_PROTON);
-
-    if(fit4.Solve()>=0)
-    {
-        fit4_ConfidenceLevel.Fill(fit4.ConfidenceLevel());
-        fit4_ChiSq.Fill(fit4.GetChi2());
-        fit4_Pulls.Fill(fit4);
-        im_fit4.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
-        if(fit4.ConfidenceLevel()<cutConfidenceLevel4)
-        {
-            fit4_Pulls_cutCL.Fill(fit4);
-            im_fit4_cutCL.Fill(fit4.GetTotalFitParticle().Get4Vector().M(), taggerTime, taggerChannel);
-        }
-    }
-}
-
-void    GFit::PrepareWriteList(GHistWriteList* arr, const char* name)
-{
-    if(!arr)
-        return;
-
-    GHistWriteList* folder  = arr->GetDirectory("Fit_3");
-    fit3_ConfidenceLevel.PrepareWriteList(folder, TString(name).Append("3_ConfidenceLevel"));
-    fit3_ChiSq.PrepareWriteList(folder, TString(name).Append("3_ChiSq"));
-    im_fit3.PrepareWriteList(folder, TString(name).Append("3_IM"));
-    GHistWriteList* subFolder  = folder->GetDirectory("Pulls");
-    fit3_Pulls.PrepareWriteList(subFolder, TString(name).Append("3_Pulls"));
-    subFolder  = folder->GetDirectory("Cut_ConfidenceLevel");
-    im_fit3_cutCL.PrepareWriteList(subFolder, TString(name).Append("3_IM_CutConL"));
-    subFolder  = subFolder->GetDirectory("Pulls");
-    fit3_Pulls_cutCL.PrepareWriteList(subFolder, TString(name).Append("3_Pulls_CutConL"));
-
-    folder  = arr->GetDirectory("Fit_4");
-    fit4_ConfidenceLevel.PrepareWriteList(folder, TString(name).Append("4_ConfidenceLevel"));
-    fit4_ChiSq.PrepareWriteList(folder, "fit4_ChiSq");
-    im_fit4.PrepareWriteList(folder, "fit4_IM");
-    subFolder  = folder->GetDirectory("Pulls");
-    fit4_Pulls.PrepareWriteList(subFolder, "fit4_Pulls");
-    subFolder  = folder->GetDirectory("Cut_ConfidenceLevel");
-    im_fit4_cutCL.PrepareWriteList(subFolder, "fit4_IM_CutConL");
-    subFolder  = subFolder->GetDirectory("Pulls");
-    fit4_Pulls_cutCL.PrepareWriteList(subFolder, "fit4_Pulls_CutConL");
-}
-
-void    GFit::Reset(Option_t* option)
-{
-    fit3_ConfidenceLevel.Reset(option);
-    fit4_ConfidenceLevel.Reset(option);
-    fit3_ChiSq.Reset(option);
-    fit4_ChiSq.Reset(option);
-    fit3_Pulls.Reset(option);
-    fit4_Pulls.Reset(option);
-    im_fit3.Reset(option);
-    im_fit4.Reset(option);
-    im_fit3_cutCL.Reset(option);
-    im_fit4_cutCL.Reset(option);
-    fit3_Pulls_cutCL.Reset(option);
-    fit4_Pulls_cutCL.Reset(option);
-}
-
-void    GFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
-{
-    im_fit3.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    im_fit4.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    im_fit3_cutCL.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    im_fit4_cutCL.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
