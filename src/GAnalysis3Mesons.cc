@@ -33,11 +33,11 @@ void   GAnalysis3Mesons::CalcResult()
     hist_MmCut.CalcResult();
 }
 
-Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger)
+Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
     Bool_t  found = kFALSE;
 
-    hist_raw.Fill(meson, tagger);
+    hist_raw.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
     Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
     Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
@@ -47,7 +47,7 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
        (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
        (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
     {
-        hist_SubImCut.Fill(meson, tagger);
+        hist_SubImCut.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
         Double_t    mm;
         for(int i=0; i<tagger.GetNTagged(); i++)
@@ -55,7 +55,10 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
             mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
             if(mm>cutMM[0] && mm<cutMM[1])
             {
-                hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_MmCut.Fill(meson.Particle(0).M(), mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
                 found = kTRUE;
             }
         }
