@@ -16,7 +16,6 @@ class   GAnalysis3Mesons  : public GHistLinked
 {
 private:
     Bool_t              isEtap;
-    GHistEvent3Mesons   hist_raw;
 
     Double_t            cutSubIM[6];
     GHistEvent3Mesons   hist_SubImCut;

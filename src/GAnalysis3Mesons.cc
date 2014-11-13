@@ -7,7 +7,6 @@
 GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
     isEtap(IsEtap),
-    hist_raw(TString(name).Append("_Raw"), TString(title).Append(" Raw Data")),
     hist_SubImCut(TString(name).Append("_SubImCut"), TString(title).Append(" Sub inv. Mass Cut")),
     hist_MmCut(TString(name).Append("_MmCut"), TString(title).Append(" Sub mis. Mass Cut"))
 {
@@ -28,7 +27,6 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 
 void   GAnalysis3Mesons::CalcResult()
 {
-    hist_raw.CalcResult();
     hist_SubImCut.CalcResult();
     hist_MmCut.CalcResult();
 }
@@ -36,8 +34,6 @@ void   GAnalysis3Mesons::CalcResult()
 Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
     Bool_t  found = kFALSE;
-
-    hist_raw.Fill(meson, tagger, CreateHistogramsForTaggerBinning);
 
     Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
     Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
@@ -74,9 +70,7 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
 
     if(name)
     {
-        GHistWriteList* folder  = arr->GetDirectory("raw");
-        hist_raw.PrepareWriteList(folder, TString(name).Append("_raw").Data());
-        folder  = arr->GetDirectory("SubIM_Cut");
+        GHistWriteList* folder  = arr->GetDirectory("SubIM_Cut");
         hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
         folder  = arr->GetDirectory("MM_Cut");
         hist_MmCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
@@ -85,14 +79,12 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
 
 void    GAnalysis3Mesons::Reset(Option_t* option)
 {
-    hist_raw.Reset(option);
     hist_SubImCut.Reset(option);
     hist_MmCut.Reset(option);
 }
 
 void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
 {
-    hist_raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_SubImCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_MmCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
