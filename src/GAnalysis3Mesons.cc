@@ -350,10 +350,10 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
         {
             if(check_meson_proton.Check(meson, proton, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i)) == kTRUE)
             {
-                hist_meson_proton.Fill(meson, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                hist_meson_proton.Fill(meson, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                 return;
             }
-            hist_meson.Fill(meson, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+            hist_meson.Fill(meson, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
         }
     }
 }
@@ -363,40 +363,29 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
     if(!arr)
         return;
 
-    if(name)
+    if(hist_meson.IsEtap()==kTRUE)
     {
-        GHistWriteList* folder  = arr->GetDirectory(TString(name));
+        GHistWriteList* folder  = arr->GetDirectory("etap");
         GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
-        hist_meson.PrepareWriteList(subFolder, name);
+        GHistWriteList* subsubFolder  = subFolder->GetDirectory("etap");
+        hist_meson.PrepareWriteList(subsubFolder, "etap");
         subFolder  = folder->GetDirectory("WithProton");
-        hist_meson_proton.PrepareWriteList(subFolder, TString(name).Append("_proton").Data());
+        subsubFolder  = subFolder->GetDirectory("checkProton");
+        check_meson_proton.PrepareWriteList(subsubFolder, "etap_proton_fit");
+        subsubFolder  = subFolder->GetDirectory("etap");
+        hist_meson_proton.PrepareWriteList(subsubFolder, "etap_proton");
     }
     else
     {
-        if(hist_meson.IsEtap()==kTRUE)
-        {
-            GHistWriteList* folder  = arr->GetDirectory("etap");
-            GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
-            GHistWriteList* subsubFolder  = subFolder->GetDirectory("etap");
-            hist_meson.PrepareWriteList(subsubFolder, "etap");
-            subFolder  = folder->GetDirectory("WithProton");
-            subsubFolder  = subFolder->GetDirectory("checkProton");
-            check_meson_proton.PrepareWriteList(subsubFolder, "etap_proton_fit");
-            subsubFolder  = subFolder->GetDirectory("etap");
-            hist_meson_proton.PrepareWriteList(subsubFolder, "etap_proton");
-        }
-        else
-        {
-            GHistWriteList* folder  = arr->GetDirectory("eta");
-            GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
-            GHistWriteList* subsubFolder  = subFolder->GetDirectory("eta");
-            hist_meson.PrepareWriteList(subsubFolder, "eta");
-            subFolder  = folder->GetDirectory("WithProton");
-            subsubFolder  = subFolder->GetDirectory("checkProton");
-            check_meson_proton.PrepareWriteList(subsubFolder, "eta_proton_fit");
-            subsubFolder  = subFolder->GetDirectory("eta");
-            hist_meson_proton.PrepareWriteList(subsubFolder, "eta_proton");
-        }
+        GHistWriteList* folder  = arr->GetDirectory("eta");
+        GHistWriteList* subFolder  = folder->GetDirectory("WithoutProton");
+        GHistWriteList* subsubFolder  = subFolder->GetDirectory("eta");
+        hist_meson.PrepareWriteList(subsubFolder, "eta");
+        subFolder  = folder->GetDirectory("WithProton");
+        subsubFolder  = subFolder->GetDirectory("checkProton");
+        check_meson_proton.PrepareWriteList(subsubFolder, "eta_proton_fit");
+        subsubFolder  = subFolder->GetDirectory("eta");
+        hist_meson_proton.PrepareWriteList(subsubFolder, "eta_proton");
     }
 }
 
