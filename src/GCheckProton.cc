@@ -68,19 +68,18 @@ Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton
     Double_t    helpAngleDiff   = TMath::RadToDeg()*(beamAndTarget-meson.Particle(0)).Angle(proton.Particle(0).Vect());
     Double_t    helpCoplanarity = TMath::RadToDeg()*TMath::Abs(meson.Particle(0).Phi()-proton.Particle(0).Phi());
 
-    raw.Fill(helpAngleDiff, taggerTime);
+    raw.Fill(helpAngleDiff, helpCoplanarity);
     if(helpCoplanarity>CutProtonCoplanarity[0] && helpCoplanarity<CutProtonCoplanarity[1])
     {
-        cutCoplanarity.Fill(helpAngleDiff, taggerTime);
+        cutCoplanarity.Fill(helpAngleDiff, helpCoplanarity);
         if(helpAngleDiff<CutProtonAngleDiff)
         {
             passed = kTRUE;
-            cutProtonAngle.Fill(helpAngleDiff, taggerTime);
-            cutBoth.Fill(helpAngleDiff, taggerTime);
+            cutBoth.Fill(helpAngleDiff, helpCoplanarity);
         }
     }
     else if(helpAngleDiff<CutProtonAngleDiff)
-        cutProtonAngle.Fill(helpAngleDiff, taggerTime);
+        cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity);
 
     return passed;
 }
