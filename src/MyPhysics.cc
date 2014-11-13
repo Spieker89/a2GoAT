@@ -3,8 +3,8 @@
 
 
 MyPhysics::MyPhysics()    :
-    hist_eta("eta", "eta", kFALSE)
-    //hist_etap("etap", "etap")
+    hist_eta("eta", "eta", kFALSE),
+    hist_etap("etap", "etap", kTRUE)
 { 
         GHistBGSub::InitCuts(-20, 20, -55, -35);
         GHistBGSub::AddRandCut(35, 55);
@@ -38,14 +38,14 @@ void	MyPhysics::ProcessEvent()
         for(int i=0; i<tagger->GetNTagged(); i++)
             hist_eta.Fill(*eta, tagger->GetVectorProtonTarget(i), tagger->GetTagged_t(i), tagger->GetTagged_ch(i));
     }
-    //if(etap->GetNParticles()>0)
-        //hist_etap.Fill(*etap, *protons, *tagger, kTRUE);
+    if(etap->GetNParticles()>0)
+        hist_etap.Fill(*etap, *tagger, kTRUE);
 }
 
 void	MyPhysics::ProcessScalerRead()
 {
     hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
-    //hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
 }
 
 
