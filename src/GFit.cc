@@ -206,7 +206,7 @@ Bool_t  GFit3ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector&
 
     if(fitter.Solve()>=0)
     {
-        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.im               = (fitter.GetParticle(0).Get4Vector()+fitter.GetParticle(1).Get4Vector()+fitter.GetParticle(2).Get4Vector()+fitter.GetParticle(3).Get4Vector()+fitter.GetParticle(4).Get4Vector()+fitter.GetParticle(5).Get4Vector()).M();
         result.ChiSq            = fitter.GetChi2();
         result.ConfidenceLevel  = fitter.ConfidenceLevel();
         for(int i=0; i<24; i++)
@@ -250,7 +250,7 @@ Bool_t  GFit4ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector&
 
     if(fitter.Solve()>=0)
     {
-        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.im               = (fitter.GetParticle(0).Get4Vector()+fitter.GetParticle(1).Get4Vector()+fitter.GetParticle(2).Get4Vector()+fitter.GetParticle(3).Get4Vector()+fitter.GetParticle(4).Get4Vector()+fitter.GetParticle(5).Get4Vector()).M();
         result.ChiSq            = fitter.GetChi2();
         result.ConfidenceLevel  = fitter.ConfidenceLevel();
         for(int i=0; i<24; i++)
