@@ -18,18 +18,24 @@ class   GAnalysis3Mesons  : public GHistLinked
 private:
     Bool_t              isEtap;
 
-    GFit3Constraints    fit3;
-    GFit4Constraints    fit4;
+    GFit3Constraints        fit3;
+    GFit4Constraints        fit4;
+    GFit3ConstraintsBeam    fit3Beam;
+    GFit4ConstraintsBeam    fit4Beam;
 
     Double_t            cutSubIM[6];
     GHistEvent3Mesons   hist_SubImCut;
     GHistFit            hist_SubImCut_fit3;
     GHistFit            hist_SubImCut_fit4;
+    GHistFit            hist_SubImCut_fit3Beam;
+    GHistFit            hist_SubImCut_fit4Beam;
 
     Double_t                cutMM[2];
     GHistEvent3Mesons       hist_MmCut;
     GHistFit                hist_MmCut_fit3;
     GHistFit                hist_MmCut_fit4;
+    GHistFit                hist_MmCut_fit3Beam;
+    GHistFit                hist_MmCut_fit4Beam;
 
 protected:
 

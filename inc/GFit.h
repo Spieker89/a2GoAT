@@ -80,5 +80,40 @@ public:
 };
 
 
+class	GFit3ConstraintsBeam    :   public  GFit3Constraints
+{
+private:
+
+protected:
+    GFit3ConstraintsBeam(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
+
+    virtual Bool_t  InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+
+public:
+    GFit3ConstraintsBeam(const Bool_t IsEtap);
+    virtual ~GFit3ConstraintsBeam();
+
+    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+};
+
+
+
+class	GFit4ConstraintsBeam    :   public  GFit4Constraints
+{
+private:
+
+protected:
+    GFit4ConstraintsBeam(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
+
+    virtual Bool_t  InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+
+public:
+    GFit4ConstraintsBeam(const Bool_t IsEtap);
+    virtual ~GFit4ConstraintsBeam();
+
+    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+};
+
+
 
 #endif

@@ -15,37 +15,7 @@ GFitStruct::GFitStruct()   :
         PullProton[i]      = 0;
 }
 
-/*GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
-    Pull_Px(TString(name).Append("_Px"), TString(title).Append(" Px"), 2000, -10, 10, 48, kFALSE),
-    Pull_Py(TString(name).Append("_Py"), TString(title).Append(" Py"), 2000, -10, 10, 48, kFALSE),
-    Pull_Pz(TString(name).Append("_Pz"), TString(title).Append(" Pz"), 2000, -10, 10, 48, kFALSE),
-    Pull_E(TString(name).Append("_E"), TString(title).Append(" E"), 2000, -10, 10, 48, kFALSE)
-{
 
-}
-
-GFitPulls4Vector::~GFitPulls4Vector()
-{
-
-}
-
-
-GFitPulls6Photons::GFitPulls6Photons(const char* name, const char* title) :
-    g0(TString(name).Append("_g0"), TString(title).Append(" Photon 0")),
-    g1(TString(name).Append("_g1"), TString(title).Append(" Photon 1")),
-    g2(TString(name).Append("_g2"), TString(title).Append(" Photon 2")),
-    g3(TString(name).Append("_g3"), TString(title).Append(" Photon 3")),
-    g4(TString(name).Append("_g4"), TString(title).Append(" Photon 4")),
-    g5(TString(name).Append("_g5"), TString(title).Append(" Photon 5"))
-{
-
-}
-
-GFitPulls6Photons::~GFitPulls6Photons()
-{
-
-}
-*/
 
 
 TFile*  GFit3Constraints::GammaResFile  = 0;
@@ -161,6 +131,11 @@ Bool_t  GFit3Constraints::SetPhotons(const GTreeMeson& meson)
 
 
 
+GFit4Constraints::GFit4Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap) :
+    GFit3Constraints(npart, ncon, 0)
+{
+}
+
 GFit4Constraints::GFit4Constraints(const Bool_t IsEtap) :
     GFit3Constraints(6, 4, 0)
 {
@@ -193,6 +168,95 @@ Bool_t  GFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVector& bea
         result.ConfidenceLevel  = fitter.ConfidenceLevel();
         for(int i=0; i<24; i++)
             result.PullPhotons[i]   = fitter.Pull(i);
+        return kTRUE;
+    }
+    return kFALSE;
+}
+
+
+
+
+
+
+
+GFit3ConstraintsBeam::GFit3ConstraintsBeam(const Bool_t IsEtap) :
+    GFit3Constraints(7, 3, 0)
+{
+}
+
+GFit3ConstraintsBeam::~GFit3ConstraintsBeam()
+{
+}
+
+Bool_t  GFit3ConstraintsBeam::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+{
+   if(GFit3Constraints::InitFit(meson)==kFALSE)
+       return kFALSE;
+
+   GKinFitterParticle   initial(beamAndTarget, 0.001, 0.001, 1);
+   fitter.AddNegKFParticle(initial);
+
+   return kTRUE;
+}
+
+Bool_t  GFit3ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+{
+    if(InitFit(meson, beamAndTarget)==kFALSE)
+        return kFALSE;
+
+    if(fitter.Solve()>=0)
+    {
+        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.ChiSq            = fitter.GetChi2();
+        result.ConfidenceLevel  = fitter.ConfidenceLevel();
+        for(int i=0; i<24; i++)
+            result.PullPhotons[i]   = fitter.Pull(i);
+        for(int i=0; i<4; i++)
+            result.PullBeam[i]   = fitter.Pull(i+24);
+        return kTRUE;
+    }
+    return kFALSE;
+}
+
+
+
+
+
+
+GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t IsEtap) :
+    GFit4Constraints(7, 4, 0)
+{
+}
+
+GFit4ConstraintsBeam::~GFit4ConstraintsBeam()
+{
+}
+
+Bool_t  GFit4ConstraintsBeam::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+{
+   if(GFit4Constraints::InitFit(meson, beamAndTarget)==kFALSE)
+       return kFALSE;
+
+   GKinFitterParticle   initial(beamAndTarget, 0.001, 0.001, 1);
+   fitter.AddNegKFParticle(initial);
+
+   return kTRUE;
+}
+
+Bool_t  GFit4ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+{
+    if(InitFit(meson, beamAndTarget)==kFALSE)
+        return kFALSE;
+
+    if(fitter.Solve()>=0)
+    {
+        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.ChiSq            = fitter.GetChi2();
+        result.ConfidenceLevel  = fitter.ConfidenceLevel();
+        for(int i=0; i<24; i++)
+            result.PullPhotons[i]   = fitter.Pull(i);
+        for(int i=0; i<4; i++)
+            result.PullBeam[i]   = fitter.Pull(i+24);
         return kTRUE;
     }
     return kFALSE;
