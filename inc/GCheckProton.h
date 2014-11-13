@@ -2,6 +2,8 @@
 #define __GCheckProton_h__
 
 
+#include <TLorentzVector.h>
+
 #include "GH1.h"
 
 
@@ -13,18 +15,16 @@ class   GCheckProtonHist
 {
 private:
     GH1         protonAngeDiff;
-    GH1         protonAngeDiffSmalest;
     GH1         protonCoplanarity;
 
 public:
     GCheckProtonHist(const char* name, const char* title, Bool_t linkHistogram = kTRUE);
     ~GCheckProtonHist();
 
-            void    CalcResult()                                                                                                                            {protonAngeDiff.CalcResult(); protonAngeDiffSmalest.CalcResult(); protonCoplanarity.CalcResult();}
-            void    Fill(const Double_t _ProtonAngeDiff)                                            {protonAngeDiff.Fill(_ProtonAngeDiff);}
-            void    Fill(const Double_t _ProtonAngeDiffSmalest, const Double_t _ProtonCoplanarity)  {protonAngeDiffSmalest.Fill(_ProtonAngeDiffSmalest); protonCoplanarity.Fill(_ProtonCoplanarity);}
+            void    CalcResult()                                                            {protonAngeDiff.CalcResult(); protonCoplanarity.CalcResult();}
+            void    Fill(const Double_t _ProtonAngeDiff, const Double_t _ProtonCoplanarity) {protonAngeDiff.Fill(_ProtonAngeDiff); protonCoplanarity.Fill(_ProtonCoplanarity);}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
-    virtual void    Reset(Option_t* option = "")                                                                                                            {protonAngeDiff.Reset(option); protonAngeDiffSmalest.Reset(option); protonCoplanarity.Reset(option);}
+    virtual void    Reset(Option_t* option = "")                                            {protonAngeDiff.Reset(option); protonCoplanarity.Reset(option);}
             //void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                       {protonAngeDiff.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonAngeDiffSmalest.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonCoplanarity.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
 };
 
@@ -47,7 +47,7 @@ public:
     ~GCheckProton();
 
     virtual void    CalcResult();
-            Bool_t  Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger);
+            Bool_t  Check(const GTreeMeson& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
     virtual Int_t   Fill(Double_t x)    {}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");

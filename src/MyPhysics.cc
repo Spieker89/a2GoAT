@@ -35,8 +35,8 @@ void	MyPhysics::ProcessEvent()
 {
     if(eta->GetNParticles()>0)
         hist_eta.Fill(*eta, *protons, *tagger, kTRUE);
-    if(etap->GetNParticles()>0)
-        hist_etap.Fill(*etap, *protons, *tagger, kTRUE);
+    //if(etap->GetNParticles()>0)
+        //hist_etap.Fill(*etap, *protons, *tagger, kTRUE);
 }
 
 void	MyPhysics::ProcessScalerRead()

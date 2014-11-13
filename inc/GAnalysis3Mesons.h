@@ -5,6 +5,7 @@
 #include "GHistEvent.h"
 #include "GCheckProton.h"
 #include "GFit.h"
+#include "GHistFit.h"
 
 
 class GTreeTagger;
@@ -17,22 +18,29 @@ class   GAnalysis3Mesons  : public GHistLinked
 private:
     Bool_t              isEtap;
 
-    Double_t            cutSubIM[6];
-    GHistEvent3Mesons   hist_SubImCut;
+    GFit3Constraints    fit3;
 
-    Double_t            cutMM[2];
-    GHistEvent3Mesons   hist_MmCut;
+    Double_t                cutSubIM[6];
+    GHistEvent3Mesons       hist_SubImCut;
+    GHistFit3Constraints    hist_SubImCut_fit3;
+
+    Double_t                cutMM[2];
+    GHistEvent3Mesons       hist_MmCut;
+    GHistFit3Constraints    hist_MmCut_fit3;
 
 protected:
 
 public:
-    GAnalysis3Mesons(const char* name, const char* title, const Bool_t IsEtap, Bool_t linkHistogram = kTRUE);
+    GAnalysis3Mesons(const char* name, const char* title, const Bool_t _IsEtap, Bool_t linkHistogram = kTRUE);
     ~GAnalysis3Mesons();
 
     virtual void    CalcResult();
             Bool_t  IsEtap()    const   {return isEtap;}
     virtual Int_t   Fill(Double_t x)    {}
-    virtual Bool_t  Fill(const GTreeMeson& meson, const GTreeTagger &tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget);
+    virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
+    virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime, const Int_t taggerChannel);
+    virtual Bool_t  Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);

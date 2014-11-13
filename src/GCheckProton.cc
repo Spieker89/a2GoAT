@@ -7,7 +7,6 @@
 
 GCheckProtonHist::GCheckProtonHist(const char* name, const char* title, Bool_t linkHistogram) :
     protonAngeDiff(TString(name).Append("_ProtonAngleDiff"), TString(title).Append(" Proton Angle Diff."), 1000, 0, 100, 48, linkHistogram),
-    protonAngeDiffSmalest(TString(name).Append("_ProtonAngleDiffSmalest"), TString(title).Append(" Smalest Proton Angle Diff."), 1000, 0, 100, 48, linkHistogram),
     protonCoplanarity(TString(name).Append("_Coplanarity"), TString(title).Append(" Coplanarity"), 3600, 0, 360, 48, linkHistogram)
 {
 
@@ -26,7 +25,6 @@ void    GCheckProtonHist::PrepareWriteList(GHistWriteList* arr, const char* name
     if(name)
     {
         protonAngeDiff.PrepareWriteList(arr, TString(name).Append("_prAng").Data());
-        protonAngeDiffSmalest.PrepareWriteList(arr, TString(name).Append("_prAngMin").Data());
         protonCoplanarity.PrepareWriteList(arr, TString(name).Append("_copl").Data());
     }
 }
@@ -61,68 +59,30 @@ void   GCheckProton::CalcResult()
     cutBoth.CalcResult();
 }
 
-Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger)
+Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime)
 {
-    if(proton.GetNParticles()>1)
-        return kFALSE;
-    if(tagger.GetNTagged() == 0)
+    if(proton.GetNParticles()!=1)
         return kFALSE;
 
-    Bool_t      passedAngleDiff   = kFALSE;
-    Double_t    helpAngleDiff;
-    Double_t    smalestAngleDiff    = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(0)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-    Double_t    smalestAngleDiffTaggerTime     = tagger.GetTagged_t(0);
-    Double_t    smalestAngleDiffTaggerBin      = tagger.GetTagged_ch(0);
-    Double_t    helpCoplanarity     = TMath::RadToDeg()*TMath::Abs(meson.Particle(0).Phi()-proton.Particle(0).Phi());
+    Bool_t      passed          = kFALSE;
+    Double_t    helpAngleDiff   = TMath::RadToDeg()*(beamAndTarget-meson.Particle(0)).Angle(proton.Particle(0).Vect());
+    Double_t    helpCoplanarity = TMath::RadToDeg()*TMath::Abs(meson.Particle(0).Phi()-proton.Particle(0).Phi());
 
+    raw.Fill(helpAngleDiff, taggerTime);
     if(helpCoplanarity>CutProtonCoplanarity[0] && helpCoplanarity<CutProtonCoplanarity[1])
     {
-        for(int i=0; i<tagger.GetNTagged(); i++)
+        cutCoplanarity.Fill(helpAngleDiff, taggerTime);
+        if(helpAngleDiff<CutProtonAngleDiff)
         {
-            helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-            if(helpAngleDiff < smalestAngleDiff)
-                smalestAngleDiff            = helpAngleDiff;
-            raw.Fill(helpAngleDiff);
-            cutCoplanarity.Fill(helpAngleDiff);
-            if(helpAngleDiff<CutProtonAngleDiff)
-            {
-                passedAngleDiff = kTRUE;
-                cutProtonAngle.Fill(helpAngleDiff);
-                cutBoth.Fill(helpAngleDiff);
-            }
-        }
-        raw.Fill(smalestAngleDiff, helpCoplanarity);
-        cutCoplanarity.Fill(smalestAngleDiff, helpCoplanarity);
-        if(passedAngleDiff == kTRUE)
-        {
-            cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity);
-            cutBoth.Fill(smalestAngleDiff, helpCoplanarity);
-            return kTRUE;
+            passed = kTRUE;
+            cutProtonAngle.Fill(helpAngleDiff, taggerTime);
+            cutBoth.Fill(helpAngleDiff, taggerTime);
         }
     }
-    else
-    {
-        for(int i=0; i<tagger.GetNTagged(); i++)
-        {
-            helpAngleDiff   = TMath::RadToDeg()*(tagger.GetVectorProtonTarget(i)-meson.Particle(0)).Angle(proton.Particle(0).Vect());
-            if(helpAngleDiff < smalestAngleDiff)
-            {
-                smalestAngleDiff            = helpAngleDiff;
-                smalestAngleDiffTaggerTime  = tagger.GetTagged_t(i);
-                smalestAngleDiffTaggerBin   = tagger.GetTagged_ch(i);
-            }
-            raw.Fill(helpAngleDiff);
-            if(helpAngleDiff<CutProtonAngleDiff)
-            {
-                passedAngleDiff = kTRUE;
-                cutProtonAngle.Fill(helpAngleDiff);
-            }
-        }
-        raw.Fill(smalestAngleDiff, helpCoplanarity);
-        if(passedAngleDiff == kTRUE)
-            cutProtonAngle.Fill(smalestAngleDiff, helpCoplanarity);
-    }
-    return kFALSE;
+    else if(helpAngleDiff<CutProtonAngleDiff)
+        cutProtonAngle.Fill(helpAngleDiff, taggerTime);
+
+    return passed;
 }
 
 void    GCheckProton::PrepareWriteList(GHistWriteList* arr, const char* name)
