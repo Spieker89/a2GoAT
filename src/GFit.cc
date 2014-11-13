@@ -136,7 +136,7 @@ void    GFit3Constraints::InitFit(const GTreeMeson& meson)
     fitter.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
 }
 
-void    GFit3Constraints::Fit(const GTreeMeson& meson)
+Bool_t  GFit3Constraints::Fit(const GTreeMeson& meson)
 {
     InitFit(meson);
 
@@ -159,7 +159,9 @@ void    GFit3Constraints::Fit(const GTreeMeson& meson)
         }
         else if(result.raw.ChiSq<cutChiSq)
             result.CutChiSq   = result.raw;
+        return kTRUE;
     }
+    return kFALSE;
 }
 
 void    GFit3Constraints::SetPhotons(const GTreeMeson& meson)
@@ -205,35 +207,17 @@ GFit4Constraints::~GFit4Constraints()
 {
 }
 
-void    GFit4Constraints::InitFit(const GTreeMeson& meson)
+void    GFit4Constraints::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
 {
    GFit3Constraints::InitFit(meson);
 
-   //fitter.AddSubMissMassConstraint();
+   Int_t    index[6] = {0,1,2,3,4,5};
+   fitter.AddSubMissMassConstraint(beamAndTarget, 6, index, MASS_PROTON);
 }
 
-void    GFit4Constraints::Fit(const GTreeMeson& meson)
+Bool_t    GFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
 {
-    InitFit(meson);
+    InitFit(meson, beamAndTarget);
 
-    if(fitter.Solve()>=0)
-    {
-        result.raw.im               = fitter.GetTotalFitParticle().Get4Vector().M();
-        result.raw.ChiSq            = fitter.GetChi2();
-        result.raw.ConfidenceLevel  = fitter.ConfidenceLevel();
-        for(int i=0; i<24; i++)
-            result.raw.PullPhotons[i]   = fitter.Pull(i);
-
-        if(result.raw.ConfidenceLevel>cutConfidenceLevel)
-        {
-            result.CutConfidenceLevel   = result.raw;
-            if(result.raw.ChiSq<cutChiSq)
-            {
-                result.CutChiSq   = result.raw;
-                result.CutBoth    = result.raw;
-            }
-        }
-        else if(result.raw.ChiSq<cutChiSq)
-            result.CutChiSq   = result.raw;
-    }
+    return GFit3Constraints::Fit(meson);
 }

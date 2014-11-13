@@ -139,7 +139,7 @@ public:
     virtual ~GFit3Constraints();
 
             Bool_t  IsEtap()    const   {return isEtap;}
-    virtual void    Fit(const GTreeMeson& meson);
+    virtual Bool_t  Fit(const GTreeMeson& meson);
 };
 
 
@@ -150,14 +150,13 @@ private:
 protected:
     //GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
 
-    virtual void    InitFit(const GTreeMeson& meson);
-            void    SetPhotons(const GTreeMeson& meson);
+    virtual void    InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
 
 public:
     GFit4Constraints(const Bool_t IsEtap);
     virtual ~GFit4Constraints();
 
-    virtual void    Fit(const GTreeMeson& meson);
+    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
 };
 
 
