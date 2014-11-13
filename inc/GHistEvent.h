@@ -50,6 +50,7 @@ public:
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime);
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime, const Int_t taggerChannel);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
     virtual void    Reset(Option_t* option = "");
 };
 

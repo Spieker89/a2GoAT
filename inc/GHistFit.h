@@ -26,12 +26,13 @@ public:
     virtual void    Fill(const GFitStruct& fit, const Double_t taggerTime, const Int_t taggerChannel);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "")        {im.Reset(option); ChiSq.Reset(option); ConfidenceLevel.Reset(option);}
+    virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
     virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 };
 
 
 
-class	GHistFit3Constraints    : GHistLinked
+class	GHistFit    : GHistLinked
 {
 private:
     Bool_t      isEtap;
@@ -47,8 +48,8 @@ private:
 protected:
 
 public:
-    GHistFit3Constraints(const char *name, const char *title, const Bool_t IsEtap, const Bool_t linkHistogram = kTRUE);
-    virtual ~GHistFit3Constraints();
+    GHistFit(const char *name, const char *title, const Bool_t IsEtap, const Bool_t linkHistogram = kTRUE);
+    virtual ~GHistFit();
 
     virtual void        CalcResult()        {raw.CalcResult(); CutChiSq.CalcResult(); CutConfidenceLevel.CalcResult(); CutBoth.CalcResult();}
     virtual Int_t       Fill(Double_t x)    {}
@@ -58,23 +59,9 @@ public:
             Bool_t      IsEtap()    const   {return isEtap;}
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void        Reset(Option_t* option = "")        {raw.Reset(option); CutChiSq.Reset(option); CutConfidenceLevel.Reset(option); CutBoth.Reset(option);}
+    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
     virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 };
-
-/*
-class	GHistFit4Constraints    :   public  GHistFit3Constraints
-{
-private:
-
-protected:
-
-public:
-    GHistFit4Constraints(const Bool_t IsEtap);
-    virtual ~GHistFit4Constraints();
-
-    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
-};
-*/
 
 
 #endif

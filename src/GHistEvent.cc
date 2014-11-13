@@ -125,3 +125,11 @@ void    GHistEvent3Mesons::Reset(Option_t* option)
     sub1_im.Reset(option);
     sub2_im.Reset(option);
 }
+
+void    GHistEvent3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
+{
+    GHistEvent::ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub0_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub1_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub2_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+}

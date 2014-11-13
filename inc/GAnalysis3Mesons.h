@@ -19,14 +19,17 @@ private:
     Bool_t              isEtap;
 
     GFit3Constraints    fit3;
+    GFit4Constraints    fit4;
 
-    Double_t                cutSubIM[6];
-    GHistEvent3Mesons       hist_SubImCut;
-    GHistFit3Constraints    hist_SubImCut_fit3;
+    Double_t            cutSubIM[6];
+    GHistEvent3Mesons   hist_SubImCut;
+    GHistFit            hist_SubImCut_fit3;
+    GHistFit            hist_SubImCut_fit4;
 
     Double_t                cutMM[2];
     GHistEvent3Mesons       hist_MmCut;
-    GHistFit3Constraints    hist_MmCut_fit3;
+    GHistFit                hist_MmCut_fit3;
+    GHistFit                hist_MmCut_fit4;
 
 protected:
 

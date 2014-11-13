@@ -84,9 +84,10 @@ GFit3Constraints::~GFit3Constraints()
 
 }
 
-void    GFit3Constraints::InitFit(const GTreeMeson& meson)
+Bool_t  GFit3Constraints::InitFit(const GTreeMeson& meson)
 {
-    SetPhotons(meson);
+    if(SetPhotons(meson)==kFALSE)
+        return kFALSE;
 
     fitter.Reset();
     fitter.AddPosKFParticle(photons[0]);
@@ -104,11 +105,14 @@ void    GFit3Constraints::InitFit(const GTreeMeson& meson)
 
     fitter.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
+
+    return kTRUE;
 }
 
 Bool_t  GFit3Constraints::Fit(const GTreeMeson& meson)
 {
-    InitFit(meson);
+    if(InitFit(meson)==kFALSE)
+        return kFALSE;
 
     if(fitter.Solve()>=0)
     {
@@ -122,7 +126,7 @@ Bool_t  GFit3Constraints::Fit(const GTreeMeson& meson)
     return kFALSE;
 }
 
-void    GFit3Constraints::SetPhotons(const GTreeMeson& meson)
+Bool_t  GFit3Constraints::SetPhotons(const GTreeMeson& meson)
 {
     Int_t Ebin  = 0;
     Int_t Thbin = 0;
@@ -138,13 +142,14 @@ void    GFit3Constraints::SetPhotons(const GTreeMeson& meson)
         resth = GammaThetaRes->GetBinContent(Ebin, Thbin);
         resph = GammaPhiRes->GetBinContent(Ebin, Thbin);
         resE  = GammaERes->GetBinContent(Ebin, Thbin);
-        if(resth==0 || resph==0 || resE==0 ) return; // If energy or angle is out of calibrated  range!
+        if(resth==0 || resph==0 || resE==0 ) return kFALSE; // If energy or angle is out of calibrated  range!
         // Now set particle parameters
         //                     LorentzVector
         photons[i].Set4Vector(meson.SubPhotons(0, i));
         //std::cout << "Res: " << resth << ", " << resph << ", " << photons->Particle(i).E()*resE << std::endl;
         photons[i].SetResolutions(resth, resph, 2 *meson.SubPhotons(0, i).E()*resE);
     }
+    return kTRUE;
 }
 
 
@@ -165,17 +170,30 @@ GFit4Constraints::~GFit4Constraints()
 {
 }
 
-void    GFit4Constraints::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+Bool_t  GFit4Constraints::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
 {
-   GFit3Constraints::InitFit(meson);
+   if(GFit3Constraints::InitFit(meson)==kFALSE)
+       return kFALSE;
 
    Int_t    index[6] = {0,1,2,3,4,5};
    fitter.AddSubMissMassConstraint(beamAndTarget, 6, index, MASS_PROTON);
+
+   return kTRUE;
 }
 
-Bool_t    GFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+Bool_t  GFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
 {
-    InitFit(meson, beamAndTarget);
+    if(InitFit(meson, beamAndTarget)==kFALSE)
+        return kFALSE;
 
-    return GFit3Constraints::Fit(meson);
+    if(fitter.Solve()>=0)
+    {
+        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.ChiSq            = fitter.GetChi2();
+        result.ConfidenceLevel  = fitter.ConfidenceLevel();
+        for(int i=0; i<24; i++)
+            result.PullPhotons[i]   = fitter.Pull(i);
+        return kTRUE;
+    }
+    return kFALSE;
 }

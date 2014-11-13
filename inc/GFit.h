@@ -50,8 +50,8 @@ protected:
 
     GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
 
-    virtual void    InitFit(const GTreeMeson& meson);
-            void    SetPhotons(const GTreeMeson& meson);
+    virtual Bool_t InitFit(const GTreeMeson& meson);
+            Bool_t SetPhotons(const GTreeMeson& meson);
 
 public:
     GFit3Constraints(const Bool_t IsEtap);
@@ -70,7 +70,7 @@ private:
 protected:
     GFit4Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
 
-    virtual void    InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    virtual Bool_t  InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
 
 public:
     GFit4Constraints(const Bool_t IsEtap);

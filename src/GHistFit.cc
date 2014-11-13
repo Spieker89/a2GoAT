@@ -42,6 +42,12 @@ void    GHistFitStruct::PrepareWriteList(GHistWriteList* arr, const char* name)
     ConfidenceLevel.PrepareWriteList(arr, TString(name).Append("_ConfidenceLevel").Data());
 }
 
+void    GHistFitStruct::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
+{
+    im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    ChiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    ConfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+}
 
 
 
@@ -49,7 +55,10 @@ void    GHistFitStruct::PrepareWriteList(GHistWriteList* arr, const char* name)
 
 
 
-GHistFit3Constraints::GHistFit3Constraints(const char* name, const char* title, const Bool_t IsEtap, const Bool_t linkHistogram) :
+
+
+
+GHistFit::GHistFit(const char* name, const char* title, const Bool_t IsEtap, const Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
     isEtap(IsEtap),
     raw(TString(name).Append("_raw"), TString(title).Append(" Raw"), kFALSE),
@@ -61,12 +70,12 @@ GHistFit3Constraints::GHistFit3Constraints(const char* name, const char* title, 
 {
 }
 
-GHistFit3Constraints::~GHistFit3Constraints()
+GHistFit::~GHistFit()
 {
 
 }
 
-void    GHistFit3Constraints::Fill(const GFit3Constraints& fit)
+void    GHistFit::Fill(const GFit3Constraints& fit)
 {
     raw.Fill(fit.GetResult());
     if(fit.GetResult().ChiSq<ChiSqCut)
@@ -81,7 +90,7 @@ void    GHistFit3Constraints::Fill(const GFit3Constraints& fit)
     else if(fit.GetResult().ConfidenceLevel>ConfidenceLevelCut)
         CutConfidenceLevel.Fill(fit.GetResult());
 }
-void    GHistFit3Constraints::Fill(const GFit3Constraints& fit, const Double_t taggerTime)
+void    GHistFit::Fill(const GFit3Constraints& fit, const Double_t taggerTime)
 {
     raw.Fill(fit.GetResult(), taggerTime);
     if(fit.GetResult().ChiSq<ChiSqCut)
@@ -96,7 +105,7 @@ void    GHistFit3Constraints::Fill(const GFit3Constraints& fit, const Double_t t
     else if(fit.GetResult().ConfidenceLevel>ConfidenceLevelCut)
         CutConfidenceLevel.Fill(fit.GetResult(), taggerTime);
 }
-void    GHistFit3Constraints::Fill(const GFit3Constraints& fit, const Double_t taggerTime, const Int_t taggerChannel)
+void    GHistFit::Fill(const GFit3Constraints& fit, const Double_t taggerTime, const Int_t taggerChannel)
 {
     raw.Fill(fit.GetResult(), taggerTime, taggerChannel);
     if(fit.GetResult().ChiSq<ChiSqCut)
@@ -112,7 +121,7 @@ void    GHistFit3Constraints::Fill(const GFit3Constraints& fit, const Double_t t
         CutConfidenceLevel.Fill(fit.GetResult(), taggerTime, taggerChannel);
 }
 
-void    GHistFit3Constraints::PrepareWriteList(GHistWriteList* arr, const char* name)
+void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
 {
     if(!arr)
         return;
@@ -127,6 +136,13 @@ void    GHistFit3Constraints::PrepareWriteList(GHistWriteList* arr, const char* 
     CutBoth.PrepareWriteList(folder, TString(name).Append("CutBoth").Data());
 }
 
+void    GHistFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
+{
+    raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CutChiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CutConfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CutBoth.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+}
 
 
 
@@ -134,7 +150,7 @@ void    GHistFit3Constraints::PrepareWriteList(GHistWriteList* arr, const char* 
 /*
 
 GHistFit4Constraints::GHistFit4Constraints(const Bool_t IsEtap) :
-    GHistFit3Constraints(6, 4, 0)
+    GHistFit(6, 4, 0)
 {
 }
 
@@ -144,7 +160,7 @@ GHistFit4Constraints::~GHistFit4Constraints()
 
 void    GHistFit4Constraints::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
 {
-   GHistFit3Constraints::InitFit(meson);
+   GHistFit::InitFit(meson);
 
    Int_t    index[6] = {0,1,2,3,4,5};
    fitter.AddSubMissMassConstraint(beamAndTarget, 6, index, MASS_PROTON);
@@ -154,5 +170,5 @@ Bool_t    GHistFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVecto
 {
     InitFit(meson, beamAndTarget);
 
-    return GHistFit3Constraints::Fit(meson);
+    return GHistFit::Fit(meson);
 }*/
