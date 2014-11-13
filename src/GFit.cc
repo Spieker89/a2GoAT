@@ -1,9 +1,8 @@
 #include "GFit.h"
 #include "GTreeMeson.h"
-#include "GTreeTagger.h"
 
 
-GFitStructEntry::GFitStructEntry()   :
+GFitStruct::GFitStruct()   :
     im(0),
     ChiSq(0),
     ConfidenceLevel(0)
@@ -14,32 +13,6 @@ GFitStructEntry::GFitStructEntry()   :
         PullBeam[i]        = 0;
     for(int i=0; i<4; i++)
         PullProton[i]      = 0;
-}
-
-GFitStructEntry::GFitStructEntry(const GFitStructEntry& c)   :
-    im(c.im),
-    ChiSq(c.ChiSq),
-    ConfidenceLevel(c.ConfidenceLevel)
-{
-    for(int i=0; i<24; i++)
-        PullPhotons[i]     = c.PullPhotons[i];
-    for(int i=0; i<4; i++)
-        PullBeam[i]        = c.PullBeam[i];
-    for(int i=0; i<4; i++)
-        PullProton[i]      = c.PullProton[i];
-}
-
-GFitStructEntry&    GFitStructEntry::operator =(const GFitStructEntry& c)
-{
-    im              = c.im;
-    ChiSq           = c.ChiSq;
-    ConfidenceLevel = c.ConfidenceLevel;
-    for(int i=0; i<24; i++)
-        PullPhotons[i]     = c.PullPhotons[i];
-    for(int i=0; i<4; i++)
-        PullBeam[i]        = c.PullBeam[i];
-    for(int i=0; i<4; i++)
-        PullProton[i]      = c.PullProton[i];
 }
 
 /*GFitPulls4Vector::GFitPulls4Vector(const char* name, const char* title) :
@@ -86,8 +59,7 @@ TH2F*   GFit3Constraints::GammaPhiRes   = 0;
 
 GFit3Constraints::GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap) :
     isEtap(IsEtap),
-    fitter(npart, ncon, 0),
-    cutConfidenceLevel(0.1)
+    fitter(npart, ncon, 0)
 {
     if(!GammaResFile)   GammaResFile   = new TFile("~/GammaRes.root");
     if(!GammaEloss)     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
@@ -98,9 +70,7 @@ GFit3Constraints::GFit3Constraints(const Int_t npart, const Int_t ncon, const Bo
 
 GFit3Constraints::GFit3Constraints(const Bool_t IsEtap) :
     isEtap(IsEtap),
-    fitter(6, 3, 0),
-    cutConfidenceLevel(0.1),
-    cutChiSq(10)
+    fitter(6, 3, 0)
 {
     if(!GammaResFile)   GammaResFile   = new TFile("~/GammaRes.root");
     if(!GammaEloss)     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
@@ -142,23 +112,11 @@ Bool_t  GFit3Constraints::Fit(const GTreeMeson& meson)
 
     if(fitter.Solve()>=0)
     {
-        result.raw.im               = fitter.GetTotalFitParticle().Get4Vector().M();
-        result.raw.ChiSq            = fitter.GetChi2();
-        result.raw.ConfidenceLevel  = fitter.ConfidenceLevel();
+        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
+        result.ChiSq            = fitter.GetChi2();
+        result.ConfidenceLevel  = fitter.ConfidenceLevel();
         for(int i=0; i<24; i++)
-            result.raw.PullPhotons[i]   = fitter.Pull(i);
-
-        if(result.raw.ConfidenceLevel>cutConfidenceLevel)
-        {
-            result.CutConfidenceLevel   = result.raw;
-            if(result.raw.ChiSq<cutChiSq)
-            {
-                result.CutChiSq   = result.raw;
-                result.CutBoth    = result.raw;
-            }
-        }
-        else if(result.raw.ChiSq<cutChiSq)
-            result.CutChiSq   = result.raw;
+            result.PullPhotons[i]   = fitter.Pull(i);
         return kTRUE;
     }
     return kFALSE;

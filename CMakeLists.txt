@@ -193,12 +193,13 @@ add_executable(MyPhysics
    inc/GHistTaggerBinning.h
    inc/GHistTaggerBinning2.h
    inc/GH1.h
-   inc/GHistEvent.h
-   inc/GCheckProton.h
-   inc/GAnalysis3Mesons.h
    inc/GKinFitterParticle.h
    inc/GKinFitter.h
    inc/GFit.h
+   inc/GHistFit.h
+   inc/GHistEvent.h
+   inc/GCheckProton.h
+   inc/GAnalysis3Mesons.h
    inc/MyPhysics.h
    src/GTree.cc
    src/GTreeRawEvent.cc
@@ -221,12 +222,13 @@ add_executable(MyPhysics
    src/GHistBGSub3.cc
    src/GHistTaggerBinning.cc
    src/GHistTaggerBinning2.cc
-   src/GHistEvent.cc
-   src/GCheckProton.cc
-   src/GAnalysis3Mesons.cc
    src/GKinFitterParticle.cc
    src/GKinFitter.cc
    src/GFit.cc
+   src/GHistFit.cc
+   src/GHistEvent.cc
+   src/GCheckProton.cc
+   src/GAnalysis3Mesons.cc
    src/MyPhysics.cc
    src/MyPhysics_main.cc
    )
