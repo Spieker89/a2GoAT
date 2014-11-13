@@ -37,7 +37,6 @@ public:
     virtual void    CalcResult();
             Bool_t  IsEtap()    const   {return isEtap;}
     virtual Int_t   Fill(Double_t x)    {}
-    virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget);
     virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
     virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime, const Int_t taggerChannel);
     virtual Bool_t  Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);

@@ -31,35 +31,11 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 void   GAnalysis3Mesons::CalcResult()
 {
     hist_SubImCut.CalcResult();
+    hist_SubImCut_fit3.CalcResult();
     hist_MmCut.CalcResult();
+    hist_MmCut_fit3.CalcResult();
 }
 
-Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
-{
-    Double_t    im  = meson.Particle(0).M();
-    Double_t    mm;
-    Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
-    Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
-    Double_t    sub_im_2    = (meson.SubPhotons(0, 4) + meson.SubPhotons(0, 5)).M();
-
-    if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
-        (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
-        (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
-    {
-        mm  = (beamAndTarget-meson.Particle(0)).M();
-
-        hist_SubImCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2);
-        if(fit3.Fit(meson)==kTRUE)
-            hist_SubImCut_fit3.Fill(fit3);
-
-        if(mm>cutMM[0] && mm<cutMM[1])
-        {
-            hist_MmCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2);
-            return kTRUE;
-        }
-    }
-    return kFALSE;
-}
 Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime)
 {
     Double_t    im  = meson.Particle(0).M();
@@ -86,6 +62,7 @@ Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& be
     }
     return kFALSE;
 }
+
 Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime, const Int_t taggerChannel)
 {
     Double_t    im  = meson.Particle(0).M();
@@ -138,10 +115,7 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
             bool    fitDone = false;
             if(fit3.Fit(meson)==kTRUE)
             {
-                if(CreateHistogramsForTaggerBinning==kTRUE)
-                    hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                else
-                    hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i));
+                hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i));
                 fitDone = true;
             }
 
@@ -154,10 +128,7 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
 
                 if(fitDone)
                 {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_MmCut_fit3.Fill(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_MmCut_fit3.Fill(fit3, tagger.GetTagged_t(i));
+                    hist_MmCut_fit3.Fill(fit3, tagger.GetTagged_t(i));
                 }
             }
         }
@@ -171,17 +142,14 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
     if(!arr)
         return;
 
-    if(name)
-    {
-        GHistWriteList* folder  = arr->GetDirectory("SubIM_Cut");
-        hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
-        GHistWriteList* fitfolder  = folder->GetDirectory("fit3");
-        hist_SubImCut_fit3.PrepareWriteList(fitfolder, TString(name).Append("_fit3").Data());
-        folder  = arr->GetDirectory("MM_Cut");
-        hist_MmCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
-        fitfolder  = folder->GetDirectory("fit3");
-        hist_SubImCut_fit3.PrepareWriteList(fitfolder, TString(name).Append("_fit3").Data());
-    }
+    GHistWriteList* folder  = arr->GetDirectory("SubIM_Cut");
+    hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
+    GHistWriteList* fitfolder  = folder->GetDirectory("fit3");
+    hist_SubImCut_fit3.PrepareWriteList(fitfolder, TString(name).Append("_fit3").Data());
+    folder  = arr->GetDirectory("MM_Cut");
+    hist_MmCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
+    fitfolder  = folder->GetDirectory("fit3");
+    hist_SubImCut_fit3.PrepareWriteList(fitfolder, TString(name).Append("_fit3").Data());
 }
 
 void    GAnalysis3Mesons::Reset(Option_t* option)

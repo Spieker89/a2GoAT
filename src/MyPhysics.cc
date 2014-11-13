@@ -3,8 +3,8 @@
 
 
 MyPhysics::MyPhysics()    :
-    hist_eta("eta", "eta", kFALSE),
-    hist_etap("etap", "etap", kTRUE)
+    hist_eta("eta", "eta", kFALSE)
+    //hist_etap("etap", "etap")
 { 
         GHistBGSub::InitCuts(-20, 20, -55, -35);
         GHistBGSub::AddRandCut(35, 55);
@@ -34,7 +34,10 @@ Bool_t	MyPhysics::Start()
 void	MyPhysics::ProcessEvent()
 {
     if(eta->GetNParticles()>0)
-        hist_eta.Fill(*eta, *protons, *tagger, kTRUE);
+    {
+        for(int i=0; i<tagger->GetNTagged(); i++)
+            hist_eta.Fill(*eta, tagger->GetVectorProtonTarget(i), tagger->GetTagged_t(i), tagger->GetTagged_ch(i));
+    }
     //if(etap->GetNParticles()>0)
         //hist_etap.Fill(*etap, *protons, *tagger, kTRUE);
 }
@@ -42,13 +45,13 @@ void	MyPhysics::ProcessEvent()
 void	MyPhysics::ProcessScalerRead()
 {
     hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
-    hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    //hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
 }
 
 
 Bool_t	MyPhysics::Init(const char* configfile)
 {
-    SetConfigFile(configfile);
+    /*SetConfigFile(configfile);
     Double_t    buf[8];
     std::string config = ReadConfig("Cut-Eta-SubIM");
     if (strcmp(config.c_str(), "nokey") != 0)
@@ -211,6 +214,6 @@ Bool_t	MyPhysics::Init(const char* configfile)
             cout << "Set Cuts for etap proton fit: " << buf[0] << "   " << buf[1] << endl;
         }
     }
-
+*/
     return kTRUE;
 }

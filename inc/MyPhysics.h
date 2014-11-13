@@ -12,8 +12,8 @@
 class	MyPhysics  : public GTreeManager
 {
 private:
-    GAnalysis3MesonsProton    hist_eta;
-    GAnalysis3MesonsProton    hist_etap;
+    GAnalysis3Mesons    hist_eta;
+    //GHistEvent3Mesons    hist_etap;
 
 protected:
     virtual Bool_t  Start();

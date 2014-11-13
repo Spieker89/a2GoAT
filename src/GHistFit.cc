@@ -21,14 +21,14 @@ void    GHistFitStruct::Fill(const GFitStruct& fit)
 void    GHistFitStruct::Fill(const GFitStruct& fit, const Double_t taggerTime)
 {
     im.Fill(fit.im, taggerTime);
-    ChiSq.Fill(fit.ChiSq);
+    ChiSq.Fill(fit.ChiSq, taggerTime);
     ConfidenceLevel.Fill(fit.ConfidenceLevel, taggerTime);
 }
 
 void    GHistFitStruct::Fill(const GFitStruct& fit, const Double_t taggerTime, const Int_t taggerChannel)
 {
     im.Fill(fit.im, taggerTime, taggerChannel);
-    ChiSq.Fill(fit.ChiSq);
+    ChiSq.Fill(fit.ChiSq, taggerTime);
     ConfidenceLevel.Fill(fit.ConfidenceLevel, taggerTime);
 }
 
@@ -38,8 +38,8 @@ void    GHistFitStruct::PrepareWriteList(GHistWriteList* arr, const char* name)
         return;
 
     im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
-    ChiSq.PrepareWriteList(arr, TString(name).Append("ChiSq").Data());
-    ConfidenceLevel.PrepareWriteList(arr, TString(name).Append("ConfidenceLevel").Data());
+    ChiSq.PrepareWriteList(arr, TString(name).Append("_ChiSq").Data());
+    ConfidenceLevel.PrepareWriteList(arr, TString(name).Append("_ConfidenceLevel").Data());
 }
 
 

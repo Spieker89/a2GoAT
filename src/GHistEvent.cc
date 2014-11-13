@@ -24,56 +24,16 @@ void   GHistEvent::CalcResult()
     mm.CalcResult();
 }
 
-void    GHistEvent::Fill(const Double_t IM, const Double_t MM)
-{
-    im.Fill(IM);
-    mm.Fill(MM);
-}
-
 void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime)
 {
     im.Fill(IM, taggerTime);
     mm.Fill(MM, taggerTime);
 }
 
-void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Double_t taggerChannel)
+void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Int_t taggerChannel)
 {
     im.Fill(IM, taggerTime, taggerChannel);
-    mm.Fill(MM, taggerTime, taggerChannel);
-}
-
-void    GHistEvent::Fill(const TLorentzVector& part, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
-{
-    for(int i=0; i<tagger.GetNTagged(); i++)
-    {
-        if(CreateHistogramsForTaggerBinning)
-        {
-            im.Fill(part.M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(i)-part).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        }
-        else
-        {
-            im.Fill(part.M(), tagger.GetTagged_t(i), 0);
-            mm.Fill((tagger.GetVectorProtonTarget(i)-part).M(), tagger.GetTagged_t(i), 0);
-        }
-    }
-}
-
-void    GHistEvent::Fill(const TLorentzVector& part, const TLorentzVector& rest, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
-{
-    for(int i=0; i<tagger.GetNTagged(); i++)
-    {
-        if(CreateHistogramsForTaggerBinning)
-        {
-            im.Fill(part.M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-            mm.Fill((tagger.GetVectorProtonTarget(i)-part-rest).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        }
-        else
-        {
-            im.Fill(part.M(), tagger.GetTagged_t(i), 0);
-            mm.Fill((tagger.GetVectorProtonTarget(i)-part-rest).M(), tagger.GetTagged_t(i), 0);
-        }
-    }
+    mm.Fill(MM, taggerTime);
 }
 
 void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
@@ -81,11 +41,8 @@ void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
     if(!arr)
         return;
 
-    if(name)
-    {
-        im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
-        mm.PrepareWriteList(arr, TString(name).Append("_MM").Data());
-    }
+    im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
+    mm.PrepareWriteList(arr, TString(name).Append("_MM").Data());
 }
 
 void    GHistEvent::Reset(Option_t* option)
@@ -133,14 +90,6 @@ void   GHistEvent3Mesons::CalcResult()
     sub2_im.CalcResult();
 }
 
-void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM)
-{
-    sub0_im.Fill(SUB0_IM);
-    sub1_im.Fill(SUB1_IM);
-    sub2_im.Fill(SUB2_IM);
-    GHistEvent::Fill(IM, MM);
-}
-
 void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime)
 {
     sub0_im.Fill(SUB0_IM, taggerTime);
@@ -149,42 +98,12 @@ void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Doub
     GHistEvent::Fill(IM, MM, taggerTime);
 }
 
-void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime, const Double_t taggerChannel)
+void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime, const Int_t taggerChannel)
 {
-    sub0_im.Fill(SUB0_IM, taggerTime, taggerChannel);
-    sub1_im.Fill(SUB1_IM, taggerTime, taggerChannel);
-    sub2_im.Fill(SUB2_IM, taggerTime, taggerChannel);
+    sub0_im.Fill(SUB0_IM, taggerTime);
+    sub1_im.Fill(SUB1_IM, taggerTime);
+    sub2_im.Fill(SUB2_IM, taggerTime);
     GHistEvent::Fill(IM, MM, taggerTime, taggerChannel);
-}
-
-void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
-{
-    for(int i=0; i<tagger.GetNTagged(); i++)
-    {
-        if(CreateHistogramsForTaggerBinning == kTRUE)
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        else
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i));
-        mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M());
-        sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M());
-        sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M());
-        sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M());
-    }
-}
-
-void    GHistEvent3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& rest, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
-{
-    for(int i=0; i<tagger.GetNTagged(); i++)
-    {
-        if(CreateHistogramsForTaggerBinning == kTRUE)
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-        else
-            im.Fill(meson.Particle(0).M(), tagger.GetTagged_t(i));
-        mm.Fill((tagger.GetVectorProtonTarget(i)-meson.Particle(0)-rest).M());
-        sub0_im.Fill((meson.SubPhotons(0, 0)+meson.SubPhotons(0, 1)).M());
-        sub1_im.Fill((meson.SubPhotons(0, 2)+meson.SubPhotons(0, 3)).M());
-        sub2_im.Fill((meson.SubPhotons(0, 4)+meson.SubPhotons(0, 5)).M());
-    }
 }
 
 void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name)
@@ -194,12 +113,9 @@ void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* nam
 
     GHistEvent::PrepareWriteList(arr, name);
 
-    if(name)
-    {
-        sub0_im.PrepareWriteList(arr, TString(name).Append("_sub0IM").Data());
-        sub1_im.PrepareWriteList(arr, TString(name).Append("_sub1IM").Data());
-        sub2_im.PrepareWriteList(arr, TString(name).Append("_sub2IM").Data());
-    }
+    sub0_im.PrepareWriteList(arr, TString(name).Append("_sub0IM").Data());
+    sub1_im.PrepareWriteList(arr, TString(name).Append("_sub1IM").Data());
+    sub2_im.PrepareWriteList(arr, TString(name).Append("_sub2IM").Data());
 }
 
 void    GHistEvent3Mesons::Reset(Option_t* option)
