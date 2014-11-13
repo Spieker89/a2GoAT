@@ -160,7 +160,7 @@ Bool_t  GHistBGSub::IsEmpty()
         if(((GHistScaCor*)rand.At(i))->IsEmpty()==kFALSE)
             return kFALSE;
     }
-    return kFALSE;
+    return kTRUE;
 }
 
 Int_t   GHistBGSub::Fill(const Double_t value, const Double_t taggerTime)
