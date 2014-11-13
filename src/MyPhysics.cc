@@ -34,12 +34,9 @@ Bool_t	MyPhysics::Start()
 void	MyPhysics::ProcessEvent()
 {
     if(eta->GetNParticles()>0)
-    {
-        for(int i=0; i<tagger->GetNTagged(); i++)
-            hist_eta.Fill(*eta, tagger->GetVectorProtonTarget(i), tagger->GetTagged_t(i), tagger->GetTagged_ch(i));
-    }
+        hist_eta.Fill(*eta, *protons, *tagger, kTRUE);
     if(etap->GetNParticles()>0)
-        hist_etap.Fill(*etap, *tagger, kTRUE);
+        hist_etap.Fill(*etap, *protons, *tagger, kTRUE);
 }
 
 void	MyPhysics::ProcessScalerRead()
