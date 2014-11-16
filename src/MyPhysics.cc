@@ -41,14 +41,14 @@ void	MyPhysics::ProcessEvent()
 
 void	MyPhysics::ProcessScalerRead()
 {
-    hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
-    hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    //hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    //hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
 }
 
 
 Bool_t	MyPhysics::Init(const char* configfile)
 {
-    /*SetConfigFile(configfile);
+    SetConfigFile(configfile);
     Double_t    buf[8];
     std::string config = ReadConfig("Cut-Eta-SubIM");
     if (strcmp(config.c_str(), "nokey") != 0)
@@ -211,6 +211,6 @@ Bool_t	MyPhysics::Init(const char* configfile)
             cout << "Set Cuts for etap proton fit: " << buf[0] << "   " << buf[1] << endl;
         }
     }
-*/
+
     return kTRUE;
 }

@@ -56,17 +56,17 @@ void   GAnalysis3Mesons::CalcResult()
 Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime)
 {
     Double_t    im  = meson.Particle(0).M();
-    Double_t    mm;
+    Double_t    mm  = (beamAndTarget-meson.Particle(0)).M();
     Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
     Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
     Double_t    sub_im_2    = (meson.SubPhotons(0, 4) + meson.SubPhotons(0, 5)).M();
+
+    hist_raw.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, taggerTime);
 
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
         (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
         (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
     {
-        mm  = (beamAndTarget-meson.Particle(0)).M();
-
         hist_SubImCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, taggerTime);
 
         bool    fit3Done = false;
@@ -117,17 +117,17 @@ Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& be
 Bool_t  GAnalysis3Mesons::Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime, const Int_t taggerChannel)
 {
     Double_t    im  = meson.Particle(0).M();
-    Double_t    mm;
+    Double_t    mm  = (beamAndTarget-meson.Particle(0)).M();
     Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
     Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
     Double_t    sub_im_2    = (meson.SubPhotons(0, 4) + meson.SubPhotons(0, 5)).M();
+
+    hist_raw.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, taggerTime, taggerChannel);
 
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
         (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
         (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
     {
-        mm  = (beamAndTarget-meson.Particle(0)).M();
-
         hist_SubImCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, taggerTime, taggerChannel);
 
         bool    fit3Done = false;
@@ -185,7 +185,10 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
     Double_t    sub_im_2    = (meson.SubPhotons(0, 4) + meson.SubPhotons(0, 5)).M();
 
     for(int i=0; i<tagger.GetNTagged(); i++)
+    {
+        mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
         hist_raw.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+    }
 
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
         (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&

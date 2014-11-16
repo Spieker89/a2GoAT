@@ -193,7 +193,8 @@ Bool_t  GFit3ConstraintsBeam::InitFit(const GTreeMeson& meson, const TLorentzVec
    if(GFit3Constraints::InitFit(meson)==kFALSE)
        return kFALSE;
 
-   GKinFitterParticle   initial(beamAndTarget, 0.001, 0.001, 1);
+   //printf("%lf, %lf, %lf, %lf, %lf\n", (beamAndTarget-meson.Particle(0)).Px(), (beamAndTarget-meson.Particle(0)).Py(), (beamAndTarget-meson.Particle(0)).Pz(), (beamAndTarget-meson.Particle(0)).E(), (beamAndTarget-meson.Particle(0)).M());
+   GKinFitterParticle   initial(beamAndTarget, 1, 1, 1);
    fitter.AddNegKFParticle(initial);
 
    return kTRUE;
@@ -237,7 +238,7 @@ Bool_t  GFit4ConstraintsBeam::InitFit(const GTreeMeson& meson, const TLorentzVec
    if(GFit4Constraints::InitFit(meson, beamAndTarget)==kFALSE)
        return kFALSE;
 
-   GKinFitterParticle   initial(beamAndTarget, 0.001, 0.001, 1);
+   GKinFitterParticle   initial(beamAndTarget, 1, 1, 1);
    fitter.AddNegKFParticle(initial);
 
    return kTRUE;
