@@ -23,6 +23,7 @@ public:
 
             void    CalcResult()                                                            {protonAngeDiff.CalcResult(); protonCoplanarity.CalcResult();}
             void    Fill(const Double_t _ProtonAngeDiff, const Double_t _ProtonCoplanarity) {protonAngeDiff.Fill(_ProtonAngeDiff); protonCoplanarity.Fill(_ProtonCoplanarity);}
+            void    Fill(const Double_t _ProtonAngeDiff, const Double_t _ProtonCoplanarity, const Double_t taggerTime) {protonAngeDiff.Fill(_ProtonAngeDiff, taggerTime); protonCoplanarity.Fill(_ProtonCoplanarity, taggerTime);}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "")                                            {protonAngeDiff.Reset(option); protonCoplanarity.Reset(option);}
             //void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                       {protonAngeDiff.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonAngeDiffSmalest.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonCoplanarity.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}

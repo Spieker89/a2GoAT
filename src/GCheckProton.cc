@@ -40,10 +40,10 @@ GCheckProton::GCheckProton(const char* name, const char* title, Bool_t linkHisto
     cutProtonAngle(TString(name).Append("_cutProtonAngle"), TString(title).Append(" Cut Proton Angle"), kFALSE),
     cutCoplanarity(TString(name).Append("_cutCoplanarity"), TString(title).Append(" Cut Coplanarity"), kFALSE),
     cutBoth(TString(name).Append("_cutBoth"), TString(title).Append(" Cut Both"), kFALSE),
-    CutProtonAngleDiff(10)
+    CutProtonAngleDiff(25)
 {
-    CutProtonCoplanarity[0] = 160;
-    CutProtonCoplanarity[1] = 200;
+    CutProtonCoplanarity[0] = 140;
+    CutProtonCoplanarity[1] = 220;
 }
 
 GCheckProton::~GCheckProton()
@@ -68,18 +68,19 @@ Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton
     Double_t    helpAngleDiff   = TMath::RadToDeg()*(beamAndTarget-meson.Particle(0)).Angle(proton.Particle(0).Vect());
     Double_t    helpCoplanarity = TMath::RadToDeg()*TMath::Abs(meson.Particle(0).Phi()-proton.Particle(0).Phi());
 
-    raw.Fill(helpAngleDiff, helpCoplanarity);
+    raw.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
     if(helpCoplanarity>CutProtonCoplanarity[0] && helpCoplanarity<CutProtonCoplanarity[1])
     {
-        cutCoplanarity.Fill(helpAngleDiff, helpCoplanarity);
+        cutCoplanarity.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
         if(helpAngleDiff<CutProtonAngleDiff)
         {
             passed = kTRUE;
-            cutBoth.Fill(helpAngleDiff, helpCoplanarity);
+            cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
+            cutBoth.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
         }
     }
     else if(helpAngleDiff<CutProtonAngleDiff)
-        cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity);
+        cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
 
     return passed;
 }

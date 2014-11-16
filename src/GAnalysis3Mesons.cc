@@ -346,15 +346,26 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 {
     if(proton.GetNParticles()>0)
     {
-        for(int i=0; i<tagger.GetNTagged(); i++)
+        Double_t    sub_im_0    = (meson.SubPhotons(0, 0) + meson.SubPhotons(0, 1)).M();
+        Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
+        Double_t    sub_im_2    = (meson.SubPhotons(0, 4) + meson.SubPhotons(0, 5)).M();
+
+        if((sub_im_0>hist_meson_proton.cutSubIM[0] && sub_im_0<hist_meson_proton.cutSubIM[1]) &&
+            (sub_im_1>hist_meson_proton.cutSubIM[2] && sub_im_1<hist_meson_proton.cutSubIM[3]) &&
+            (sub_im_2>hist_meson_proton.cutSubIM[4] && sub_im_2<hist_meson_proton.cutSubIM[5]))
         {
-            if(check_meson_proton.Check(meson, proton, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i)) == kTRUE)
+            for(int i=0; i<tagger.GetNTagged(); i++)
             {
+                check_meson_proton.Check(meson, proton, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i));
                 hist_meson_proton.Fill(meson, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                 return;
             }
-            hist_meson.Fill(meson, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
         }
+    }
+    else
+    {
+        for(int i=0; i<tagger.GetNTagged(); i++)
+            hist_meson.Fill(meson, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
     }
 }
 

@@ -23,7 +23,6 @@ private:
     GFit3ConstraintsBeam    fit3Beam;
     GFit4ConstraintsBeam    fit4Beam;
 
-    Double_t            cutSubIM[6];
     GHistEvent3Mesons   hist_SubImCut;
     GHistFit            hist_SubImCut_fit3;
     GHistFit            hist_SubImCut_fit4;
@@ -40,6 +39,8 @@ private:
 protected:
 
 public:
+    Double_t            cutSubIM[6];
+
     GAnalysis3Mesons(const char* name, const char* title, const Bool_t _IsEtap, Bool_t linkHistogram = kTRUE);
     ~GAnalysis3Mesons();
 
