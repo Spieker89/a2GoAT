@@ -11,6 +11,7 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
     fit4(_IsEtap),
     fit3Beam(_IsEtap),
     fit4Beam(_IsEtap),
+    hist_raw(TString(name).Append("_Raw"), TString(title).Append(" Raw"), kFALSE),
     hist_SubImCut(TString(name).Append("_SubImCut"), TString(title).Append(" Sub inv. Mass Cut"), kFALSE),
     hist_SubImCut_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" Sub inv. Mass Cut fit3"), _IsEtap, kFALSE),
     hist_SubImCut_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" Sub inv. Mass Cut fit4"), _IsEtap, kFALSE),
@@ -39,6 +40,7 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 
 void   GAnalysis3Mesons::CalcResult()
 {
+    hist_raw.CalcResult();
     hist_SubImCut.CalcResult();
     hist_SubImCut_fit3.CalcResult();
     hist_SubImCut_fit4.CalcResult();
@@ -182,6 +184,9 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
     Double_t    sub_im_1    = (meson.SubPhotons(0, 2) + meson.SubPhotons(0, 3)).M();
     Double_t    sub_im_2    = (meson.SubPhotons(0, 4) + meson.SubPhotons(0, 5)).M();
 
+    for(int i=0; i<tagger.GetNTagged(); i++)
+        hist_raw.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
         (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
         (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
@@ -249,7 +254,9 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
     if(!arr)
         return;
 
-    GHistWriteList* folder  = arr->GetDirectory("SubIM_Cut");
+    GHistWriteList* folder  = arr->GetDirectory("Raw");
+    hist_raw.PrepareWriteList(folder, TString(name).Append("_Raw").Data());
+    folder  = arr->GetDirectory("SubIM_Cut");
     hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
     GHistWriteList* fitfolder  = folder->GetDirectory("fit3");
     hist_SubImCut_fit3.PrepareWriteList(fitfolder, TString(name).Append("_fit3").Data());
@@ -273,6 +280,7 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
 
 void    GAnalysis3Mesons::Reset(Option_t* option)
 {
+    hist_raw.Reset(option);
     hist_SubImCut.Reset(option);
     hist_SubImCut_fit3.Reset(option);
     hist_SubImCut_fit4.Reset(option);
@@ -287,6 +295,7 @@ void    GAnalysis3Mesons::Reset(Option_t* option)
 
 void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
 {
+    hist_raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_SubImCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_SubImCut_fit3.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_SubImCut_fit4.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);

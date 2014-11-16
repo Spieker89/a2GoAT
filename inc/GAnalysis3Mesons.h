@@ -17,6 +17,7 @@ class   GAnalysis3Mesons  : public GHistLinked
 {
 private:
     Bool_t              isEtap;
+    GHistEvent3Mesons   hist_raw;
 
     GFit3Constraints        fit3;
     GFit4Constraints        fit4;
