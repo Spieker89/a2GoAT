@@ -5,7 +5,7 @@
 #include "GHistEvent.h"
 #include "GCheckProton.h"
 #include "GFit.h"
-#include "GHistFit.h"
+//#include "GHistFit.h"
 
 
 class GTreeTagger;

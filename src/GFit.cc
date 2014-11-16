@@ -2,51 +2,11 @@
 #include "GTreeMeson.h"
 
 
-GFitStruct::GFitStruct()   :
-    im(0),
-    ChiSq(0),
-    ConfidenceLevel(0)
-{
-    for(int i=0; i<24; i++)
-        PullPhotons[i]     = 0;
-    for(int i=0; i<4; i++)
-        PullBeam[i]        = 0;
-    for(int i=0; i<4; i++)
-        PullProton[i]      = 0;
-}
-
-
-
-
-TFile*  GFit3Constraints::GammaResFile  = 0;
-TH2F*   GFit3Constraints::GammaEloss    = 0;
-TH2F*   GFit3Constraints::GammaERes     = 0;
-TH2F*   GFit3Constraints::GammaThetaRes = 0;
-TH2F*   GFit3Constraints::GammaPhiRes   = 0;
-
-
-
-
-GFit3Constraints::GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap) :
-    isEtap(IsEtap),
-    fitter(npart, ncon, 0)
-{
-    if(!GammaResFile)   GammaResFile   = new TFile("~/GammaRes.root");
-    if(!GammaEloss)     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
-    if(!GammaERes)      GammaERes      = (TH2F*)GammaResFile->Get("EResIter");
-    if(!GammaThetaRes)  GammaThetaRes  = (TH2F*)GammaResFile->Get("ThetaRes;1");
-    if(!GammaPhiRes)    GammaPhiRes    = (TH2F*)GammaResFile->Get("PhiRes;1");
-}
-
-GFit3Constraints::GFit3Constraints(const Bool_t IsEtap) :
-    isEtap(IsEtap),
+GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
     fitter(6, 3, 0)
 {
-    if(!GammaResFile)   GammaResFile   = new TFile("~/GammaRes.root");
-    if(!GammaEloss)     GammaEloss     = (TH2F*)GammaResFile->Get("Eloss");
-    if(!GammaERes)      GammaERes      = (TH2F*)GammaResFile->Get("EResIter");
-    if(!GammaThetaRes)  GammaThetaRes  = (TH2F*)GammaResFile->Get("ThetaRes;1");
-    if(!GammaPhiRes)    GammaPhiRes    = (TH2F*)GammaResFile->Get("PhiRes;1");
+
 }
 
 GFit3Constraints::~GFit3Constraints()
@@ -54,72 +14,36 @@ GFit3Constraints::~GFit3Constraints()
 
 }
 
-Bool_t  GFit3Constraints::InitFit(const GTreeMeson& meson)
+void    GFit3Constraints::Set(const TLorentzVector& p0,
+                              const TLorentzVector& p1,
+                              const TLorentzVector& p2,
+                              const TLorentzVector& p3,
+                              const TLorentzVector& p4,
+                              const TLorentzVector& p5)
 {
-    if(SetPhotons(meson)==kFALSE)
-        return kFALSE;
-
     fitter.Reset();
-    fitter.AddPosKFParticle(photons[0]);
-    fitter.AddPosKFParticle(photons[1]);
-    fitter.AddPosKFParticle(photons[2]);
-    fitter.AddPosKFParticle(photons[3]);
-    fitter.AddPosKFParticle(photons[4]);
-    fitter.AddPosKFParticle(photons[5]);
 
-    Int_t	sub[6] = {0, 1, 2, 3, 4, 5};
-    if(isEtap)
-        fitter.AddSubInvMassConstraint(2, &sub[0], MASS_ETA);
-    else
-        fitter.AddSubInvMassConstraint(2, &sub[0], MASS_PI0);
+    GKinFitterParticle  photons[6];
 
-    fitter.AddSubInvMassConstraint(2, &sub[2], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &sub[4], MASS_PI0);
-
-    return kTRUE;
-}
-
-Bool_t  GFit3Constraints::Fit(const GTreeMeson& meson)
-{
-    if(InitFit(meson)==kFALSE)
-        return kFALSE;
-
-    if(fitter.Solve()>=0)
-    {
-        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
-        result.ChiSq            = fitter.GetChi2();
-        result.ConfidenceLevel  = fitter.ConfidenceLevel();
-        for(int i=0; i<24; i++)
-            result.PullPhotons[i]   = fitter.Pull(i);
-        return kTRUE;
-    }
-    return kFALSE;
-}
-
-Bool_t  GFit3Constraints::SetPhotons(const GTreeMeson& meson)
-{
-    Int_t Ebin  = 0;
-    Int_t Thbin = 0;
-    Float_t resth = 0;
-    Float_t resph = 0;
-    Float_t resE  = 0;
-
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
     for(int i=0; i<6; i++)
     {
-        Ebin  = GammaEloss->GetXaxis()->FindFixBin(meson.SubPhotons(0, i).E());
-        Thbin = GammaEloss->GetYaxis()->FindFixBin(meson.SubPhotons(0, i).Theta()*TMath::RadToDeg());
-        // Get resolutions
-        resth = GammaThetaRes->GetBinContent(Ebin, Thbin);
-        resph = GammaPhiRes->GetBinContent(Ebin, Thbin);
-        resE  = GammaERes->GetBinContent(Ebin, Thbin);
-        if(resth==0 || resph==0 || resE==0 ) return kFALSE; // If energy or angle is out of calibrated  range!
-        // Now set particle parameters
-        //                     LorentzVector
-        photons[i].Set4Vector(meson.SubPhotons(0, i));
-        //std::cout << "Res: " << resth << ", " << resph << ", " << photons->Particle(i).E()*resE << std::endl;
-        photons[i].SetResolutions(resth, resph, 2 *meson.SubPhotons(0, i).E()*resE);
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
     }
-    return kTRUE;
+
+    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
 }
 
 
@@ -131,46 +55,54 @@ Bool_t  GFit3Constraints::SetPhotons(const GTreeMeson& meson)
 
 
 
-GFit4Constraints::GFit4Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap) :
-    GFit3Constraints(npart, ncon, 0)
-{
-}
 
-GFit4Constraints::GFit4Constraints(const Bool_t IsEtap) :
-    GFit3Constraints(6, 4, 0)
+
+
+
+GFit4Constraints::GFit4Constraints(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
+    fitter(6, 4, 0)
 {
+
 }
 
 GFit4Constraints::~GFit4Constraints()
 {
+
 }
 
-Bool_t  GFit4Constraints::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+void    GFit4Constraints::Set(const TLorentzVector& p0,
+                              const TLorentzVector& p1,
+                              const TLorentzVector& p2,
+                              const TLorentzVector& p3,
+                              const TLorentzVector& p4,
+                              const TLorentzVector& p5,
+                              const TLorentzVector& beamAndTarget)
 {
-   if(GFit3Constraints::InitFit(meson)==kFALSE)
-       return kFALSE;
+    fitter.Reset();
 
-   Int_t    index[6] = {0,1,2,3,4,5};
-   fitter.AddSubMissMassConstraint(beamAndTarget, 6, index, MASS_PROTON);
+    GKinFitterParticle  photons[6];
 
-   return kTRUE;
-}
-
-Bool_t  GFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
-{
-    if(InitFit(meson, beamAndTarget)==kFALSE)
-        return kFALSE;
-
-    if(fitter.Solve()>=0)
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    for(int i=0; i<6; i++)
     {
-        result.im               = fitter.GetTotalFitParticle().Get4Vector().M();
-        result.ChiSq            = fitter.GetChi2();
-        result.ConfidenceLevel  = fitter.ConfidenceLevel();
-        for(int i=0; i<24; i++)
-            result.PullPhotons[i]   = fitter.Pull(i);
-        return kTRUE;
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
     }
-    return kFALSE;
+
+    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
+    fitter.AddSubMissMassConstraint(beamAndTarget, 6, &index[0], MASS_PROTON);
 }
 
 
@@ -179,44 +111,67 @@ Bool_t  GFit4Constraints::Fit(const GTreeMeson& meson, const TLorentzVector& bea
 
 
 
-GFit3ConstraintsBeam::GFit3ConstraintsBeam(const Bool_t IsEtap) :
-    GFit3Constraints(7, 3, 0)
+
+
+
+
+
+
+GFit3ConstraintsBeam::GFit3ConstraintsBeam(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
+    fitter(7, 3, 0)
 {
+
 }
 
 GFit3ConstraintsBeam::~GFit3ConstraintsBeam()
 {
+
 }
 
-Bool_t  GFit3ConstraintsBeam::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+TLorentzVector  GFit3ConstraintsBeam::GetTotalFitParticle()
 {
-   if(GFit3Constraints::InitFit(meson)==kFALSE)
-       return kFALSE;
-
-   //printf("%lf, %lf, %lf, %lf, %lf\n", (beamAndTarget-meson.Particle(0)).Px(), (beamAndTarget-meson.Particle(0)).Py(), (beamAndTarget-meson.Particle(0)).Pz(), (beamAndTarget-meson.Particle(0)).E(), (beamAndTarget-meson.Particle(0)).M());
-   GKinFitterParticle   initial(beamAndTarget, 1, 1, 1);
-   fitter.AddNegKFParticle(initial);
-
-   return kTRUE;
+    TLorentzVector ret(0, 0, 0, 0);
+    for(int i=0; i<6; i++)
+        ret += fitter.GetParticle(i).Get4Vector();
+    return ret;
 }
 
-Bool_t  GFit3ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+void    GFit3ConstraintsBeam::Set(const TLorentzVector& p0,
+                              const TLorentzVector& p1,
+                              const TLorentzVector& p2,
+                              const TLorentzVector& p3,
+                              const TLorentzVector& p4,
+                              const TLorentzVector& p5,
+                              const TLorentzVector& beamAndTarget)
 {
-    if(InitFit(meson, beamAndTarget)==kFALSE)
-        return kFALSE;
+    fitter.Reset();
 
-    if(fitter.Solve()>=0)
+    GKinFitterParticle  photons[6];
+    GKinFitterParticle  beam;
+
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    for(int i=0; i<6; i++)
     {
-        result.im               = (fitter.GetParticle(0).Get4Vector()+fitter.GetParticle(1).Get4Vector()+fitter.GetParticle(2).Get4Vector()+fitter.GetParticle(3).Get4Vector()+fitter.GetParticle(4).Get4Vector()+fitter.GetParticle(5).Get4Vector()).M();
-        result.ChiSq            = fitter.GetChi2();
-        result.ConfidenceLevel  = fitter.ConfidenceLevel();
-        for(int i=0; i<24; i++)
-            result.PullPhotons[i]   = fitter.Pull(i);
-        for(int i=0; i<4; i++)
-            result.PullBeam[i]   = fitter.Pull(i+24);
-        return kTRUE;
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
     }
-    return kFALSE;
+    beam.Set4Vector(beamAndTarget);
+    beam.SetResolutions(1, 1, 2);
+    fitter.AddNegKFParticle(beam);
+
+    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
 }
 
 
@@ -224,41 +179,291 @@ Bool_t  GFit3ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector&
 
 
 
-GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t IsEtap) :
-    GFit4Constraints(7, 4, 0)
+
+
+
+
+
+
+
+
+GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
+    fitter(7, 4, 0)
 {
+
 }
 
 GFit4ConstraintsBeam::~GFit4ConstraintsBeam()
 {
+
 }
 
-Bool_t  GFit4ConstraintsBeam::InitFit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+TLorentzVector  GFit4ConstraintsBeam::GetTotalFitParticle()
 {
-   if(GFit4Constraints::InitFit(meson, beamAndTarget)==kFALSE)
-       return kFALSE;
-
-   GKinFitterParticle   initial(beamAndTarget, 1, 1, 1);
-   fitter.AddNegKFParticle(initial);
-
-   return kTRUE;
+    TLorentzVector ret(0, 0, 0, 0);
+    for(int i=0; i<6; i++)
+        ret += fitter.GetParticle(i).Get4Vector();
+    return ret;
 }
 
-Bool_t  GFit4ConstraintsBeam::Fit(const GTreeMeson& meson, const TLorentzVector& beamAndTarget)
+void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
+                              const TLorentzVector& p1,
+                              const TLorentzVector& p2,
+                              const TLorentzVector& p3,
+                              const TLorentzVector& p4,
+                              const TLorentzVector& p5,
+                              const TLorentzVector& beamAndTarget)
 {
-    if(InitFit(meson, beamAndTarget)==kFALSE)
-        return kFALSE;
+    fitter.Reset();
 
-    if(fitter.Solve()>=0)
+    GKinFitterParticle  photons[6];
+    GKinFitterParticle  beam;
+
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    for(int i=0; i<6; i++)
     {
-        result.im               = (fitter.GetParticle(0).Get4Vector()+fitter.GetParticle(1).Get4Vector()+fitter.GetParticle(2).Get4Vector()+fitter.GetParticle(3).Get4Vector()+fitter.GetParticle(4).Get4Vector()+fitter.GetParticle(5).Get4Vector()).M();
-        result.ChiSq            = fitter.GetChi2();
-        result.ConfidenceLevel  = fitter.ConfidenceLevel();
-        for(int i=0; i<24; i++)
-            result.PullPhotons[i]   = fitter.Pull(i);
-        for(int i=0; i<4; i++)
-            result.PullBeam[i]   = fitter.Pull(i+24);
-        return kTRUE;
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
     }
-    return kFALSE;
+    beam.Set4Vector(beamAndTarget);
+    beam.SetResolutions(1, 1, 2);
+    fitter.AddNegKFParticle(beam);
+
+    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
+    fitter.AddInvMassConstraint(MASS_PROTON);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GFit4ConstraintsProton::GFit4ConstraintsProton(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
+    fitter(7, 5, 0)
+{
+
+}
+
+GFit4ConstraintsProton::~GFit4ConstraintsProton()
+{
+
+}
+
+void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
+                                    const TLorentzVector& p1,
+                                    const TLorentzVector& p2,
+                                    const TLorentzVector& p3,
+                                    const TLorentzVector& p4,
+                                    const TLorentzVector& p5,
+                                    const TLorentzVector& beamAndTarget,
+                                    const TLorentzVector& proton)
+{
+    fitter.Reset();
+
+    GKinFitterParticle  photons[6];
+    GKinFitterParticle  pro;
+
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    for(int i=0; i<6; i++)
+    {
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
+    }
+    TLorentzVector  help(proton);
+    help.SetE(beamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
+    pro.Set4Vector(help);
+    pro.SetResolutions(3, 3, 0.1);
+    fitter.AddPosKFParticle(pro);
+
+    Int_t   index[7]    = {0, 1, 2, 3, 4, 5, 6};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
+    fitter.AddSubInvMassConstraint(1, &index[6], MASS_PROTON);
+    fitter.AddSubMissMassConstraint(beamAndTarget, 6, &index[0], MASS_PROTON);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+GFit3ConstraintsBeamProton::GFit3ConstraintsBeamProton(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
+    fitter(8, 4, 0)
+{
+
+}
+
+GFit3ConstraintsBeamProton::~GFit3ConstraintsBeamProton()
+{
+
+}
+
+TLorentzVector  GFit3ConstraintsBeamProton::GetTotalFitParticle()
+{
+    TLorentzVector ret(0, 0, 0, 0);
+    for(int i=0; i<6; i++)
+        ret += fitter.GetParticle(i).Get4Vector();
+    return ret;
+}
+
+void    GFit3ConstraintsBeamProton::Set(const TLorentzVector& p0,
+                                        const TLorentzVector& p1,
+                                        const TLorentzVector& p2,
+                                        const TLorentzVector& p3,
+                                        const TLorentzVector& p4,
+                                        const TLorentzVector& p5,
+                                        const TLorentzVector& beamAndTarget,
+                                        const TLorentzVector& proton)
+{
+    fitter.Reset();
+
+    GKinFitterParticle  photons[6];
+    GKinFitterParticle  pro;
+    GKinFitterParticle  beam;
+
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    for(int i=0; i<6; i++)
+    {
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
+    }
+    beam.Set4Vector(beamAndTarget);
+    beam.SetResolutions(1, 1, 2);
+    fitter.AddNegKFParticle(beam);
+    TLorentzVector  help(proton);
+    help.SetE(beamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
+    pro.Set4Vector(help);
+    pro.SetResolutions(3, 3, 0.1);
+    fitter.AddPosKFParticle(pro);
+
+    Int_t   index[8]    = {0, 1, 2, 3, 4, 5, 6, 7};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
+    fitter.AddSubInvMassConstraint(1, &index[7], MASS_PROTON);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GFit4ConstraintsBeamProton::GFit4ConstraintsBeamProton(const Bool_t _IsEtap)    :
+    isEtap(_IsEtap),
+    fitter(8, 5, 0)
+{
+
+}
+
+GFit4ConstraintsBeamProton::~GFit4ConstraintsBeamProton()
+{
+
+}
+
+TLorentzVector  GFit4ConstraintsBeamProton::GetTotalFitParticle()
+{
+    TLorentzVector ret(0, 0, 0, 0);
+    for(int i=0; i<6; i++)
+        ret += fitter.GetParticle(i).Get4Vector();
+    return ret;
+}
+
+void    GFit4ConstraintsBeamProton::Set(const TLorentzVector& p0,
+                                        const TLorentzVector& p1,
+                                        const TLorentzVector& p2,
+                                        const TLorentzVector& p3,
+                                        const TLorentzVector& p4,
+                                        const TLorentzVector& p5,
+                                        const TLorentzVector& beamAndTarget,
+                                        const TLorentzVector& proton)
+{
+    fitter.Reset();
+
+    GKinFitterParticle  photons[6];
+    GKinFitterParticle  pro;
+    GKinFitterParticle  beam;
+
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    for(int i=0; i<6; i++)
+    {
+        photons[i].SetResolutions(3, 3, 10);
+        fitter.AddPosKFParticle(photons[i]);
+    };
+    beam.Set4Vector(beamAndTarget);
+    beam.SetResolutions(1, 1, 2);
+    fitter.AddNegKFParticle(beam);
+    TLorentzVector  help(proton);
+    help.SetE(beamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
+    pro.Set4Vector(help);
+    pro.SetResolutions(3, 3, 0.1);
+    fitter.AddPosKFParticle(pro);
+
+    Int_t   index[8]    = {0, 1, 2, 3, 4, 5, 6, 7};
+    if(isEtap==kTRUE)
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
+    else
+        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
+    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
+    fitter.AddSubInvMassConstraint(1, &index[7], MASS_PROTON);
+    fitter.AddInvMassConstraint(0);
 }

@@ -6,113 +6,230 @@
 
 #include "GKinFitter.h"
 #include "GKinFitterParticle.h"
-#include "GHistEvent.h"
-
-
-class   GTreeMeson;
-
-class  GFitStruct
-{
-public:
-    Double_t    im;
-    Double_t    ChiSq;
-    Double_t    ConfidenceLevel;
-    Double_t    PullPhotons[24];
-    Double_t    PullBeam[4];
-    Double_t    PullProton[4];
-
-    GFitStruct();
-    //GFitStructEntry(const GFitStructEntry& c);
-    ~GFitStruct()  {}
-
-    //GFitStructEntry&    operator =(const GFitStructEntry& c);
-};
 
 
 class	GFit3Constraints
 {
 private:
-    Bool_t      isEtap;
-
-    GKinFitterParticle  photons[6];
-
-    static  TFile*  GammaResFile;
-    static  TH2F*   GammaEloss;
-    static  TH2F*   GammaERes;
-    static  TH2F*   GammaThetaRes;
-    static  TH2F*   GammaPhiRes;
-
-protected:
-    GKinFitter  fitter;
-
-    GFitStruct  result;
-
-
-    GFit3Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
-
-    virtual Bool_t InitFit(const GTreeMeson& meson);
-            Bool_t SetPhotons(const GTreeMeson& meson);
+    Bool_t              isEtap;
+    GKinFitter          fitter;
 
 public:
-    GFit3Constraints(const Bool_t IsEtap);
-    virtual ~GFit3Constraints();
+    GFit3Constraints(const Bool_t _IsEtap);
+    ~GFit3Constraints();
 
-    const   GFitStruct& GetResult() const   {return result;}
-            Bool_t      IsEtap()    const   {return isEtap;}
-    virtual Bool_t      Fit(const GTreeMeson& meson);
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
 };
 
 
-class	GFit4Constraints    :   public  GFit3Constraints
+
+
+class	GFit4Constraints
 {
 private:
-
-protected:
-    GFit4Constraints(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
-
-    virtual Bool_t  InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    Bool_t              isEtap;
+    GKinFitter          fitter;
 
 public:
-    GFit4Constraints(const Bool_t IsEtap);
-    virtual ~GFit4Constraints();
+    GFit4Constraints(const Bool_t _IsEtap);
+    ~GFit4Constraints();
 
-    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
 };
 
 
-class	GFit3ConstraintsBeam    :   public  GFit3Constraints
+
+
+
+
+
+class	GFit3ConstraintsBeam
 {
 private:
-
-protected:
-    GFit3ConstraintsBeam(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
-
-    virtual Bool_t  InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    Bool_t              isEtap;
+    GKinFitter          fitter;
 
 public:
-    GFit3ConstraintsBeam(const Bool_t IsEtap);
-    virtual ~GFit3ConstraintsBeam();
+    GFit3ConstraintsBeam(const Bool_t _IsEtap);
+    ~GFit3ConstraintsBeam();
 
-    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle();
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
 };
 
 
 
-class	GFit4ConstraintsBeam    :   public  GFit4Constraints
+
+class	GFit4ConstraintsBeam
 {
 private:
-
-protected:
-    GFit4ConstraintsBeam(const Int_t npart, const Int_t ncon, const Bool_t IsEtap);
-
-    virtual Bool_t  InitFit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    Bool_t              isEtap;
+    GKinFitter          fitter;
 
 public:
-    GFit4ConstraintsBeam(const Bool_t IsEtap);
-    virtual ~GFit4ConstraintsBeam();
+    GFit4ConstraintsBeam(const Bool_t _IsEtap);
+    ~GFit4ConstraintsBeam();
 
-    virtual Bool_t  Fit(const GTreeMeson& meson, const TLorentzVector &beamAndTarget);
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle();
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
 };
+
+
+
+
+
+
+
+
+
+
+
+
+class	GFit3ConstraintsProton
+{
+private:
+    Bool_t              isEtap;
+    GKinFitter          fitter;
+
+public:
+    GFit3ConstraintsProton(const Bool_t _IsEtap);
+    ~GFit3ConstraintsProton();
+
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& proton);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+};
+
+
+
+
+class	GFit4ConstraintsProton
+{
+private:
+    Bool_t              isEtap;
+    GKinFitter          fitter;
+
+public:
+    GFit4ConstraintsProton(const Bool_t _IsEtap);
+    ~GFit4ConstraintsProton();
+
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget,
+                const TLorentzVector& proton);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+};
+
+
+
+
+
+
+
+class	GFit3ConstraintsBeamProton
+{
+private:
+    Bool_t              isEtap;
+    GKinFitter          fitter;
+
+public:
+    GFit3ConstraintsBeamProton(const Bool_t _IsEtap);
+    ~GFit3ConstraintsBeamProton();
+
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle();
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget,
+                const TLorentzVector& proton);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+};
+
+
+
+
+class	GFit4ConstraintsBeamProton
+{
+private:
+    Bool_t              isEtap;
+    GKinFitter          fitter;
+
+public:
+    GFit4ConstraintsBeamProton(const Bool_t _IsEtap);
+    ~GFit4ConstraintsBeamProton();
+
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle();
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget,
+                const TLorentzVector& proton);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+};
+
+
 
 
 

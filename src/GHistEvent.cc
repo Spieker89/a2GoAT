@@ -41,8 +41,16 @@ void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
     if(!arr)
         return;
 
-    im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
-    mm.PrepareWriteList(arr, TString(name).Append("_MM").Data());
+    if(name)
+    {
+        im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
+        mm.PrepareWriteList(arr, TString(name).Append("_MM").Data());
+    }
+    else
+    {
+        im.PrepareWriteList(arr);
+        mm.PrepareWriteList(arr);
+    }
 }
 
 void    GHistEvent::Reset(Option_t* option)
@@ -113,9 +121,18 @@ void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* nam
 
     GHistEvent::PrepareWriteList(arr, name);
 
-    sub0_im.PrepareWriteList(arr, TString(name).Append("_sub0IM").Data());
-    sub1_im.PrepareWriteList(arr, TString(name).Append("_sub1IM").Data());
-    sub2_im.PrepareWriteList(arr, TString(name).Append("_sub2IM").Data());
+    if(name)
+    {
+        sub0_im.PrepareWriteList(arr, TString(name).Append("_sub0IM").Data());
+        sub1_im.PrepareWriteList(arr, TString(name).Append("_sub1IM").Data());
+        sub2_im.PrepareWriteList(arr, TString(name).Append("_sub2IM").Data());
+    }
+    else
+    {
+        sub0_im.PrepareWriteList(arr);
+        sub1_im.PrepareWriteList(arr);
+        sub2_im.PrepareWriteList(arr);
+    }
 }
 
 void    GHistEvent3Mesons::Reset(Option_t* option)
