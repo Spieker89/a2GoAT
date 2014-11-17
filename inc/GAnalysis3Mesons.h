@@ -17,30 +17,34 @@ class   GAnalysis3Mesons  : public GHistLinked
 {
 private:
     Bool_t              isEtap;
-    GHistEvent3Mesons   hist_raw;
 
-    GFit3Constraints        fit3;
-    GFit4Constraints        fit4;
+    GHistEvent3Mesons   hist_raw;
+    GHistEvent3Mesons   hist_SubImCut;
+    GHistEvent3Mesons   hist_MMCut;
+
+    GFit3Constraints    fit3;
+    GFit4Constraints    fit4;
     GFit3ConstraintsBeam    fit3Beam;
     GFit4ConstraintsBeam    fit4Beam;
 
-    GHistEvent3Mesons   hist_SubImCut;
-    GHistFit            hist_SubImCut_fit3;
-    GHistFit            hist_SubImCut_fit4;
-    GHistFit            hist_SubImCut_fit3Beam;
-    GHistFit            hist_SubImCut_fit4Beam;
-
-    Double_t                cutMM[2];
-    GHistEvent3Mesons       hist_MmCut;
-    GHistFit                hist_MmCut_fit3;
-    GHistFit                hist_MmCut_fit4;
-    GHistFit                hist_MmCut_fit3Beam;
-    GHistFit                hist_MmCut_fit4Beam;
+    GH1                 fit3_im;
+    GH1                 fit3_cs;
+    GH1                 fit3_cl;
+    GH1                 fit4_im;
+    GH1                 fit4_cs;
+    GH1                 fit4_cl;
+    GH1                 fit3Beam_im;
+    GH1                 fit3Beam_cs;
+    GH1                 fit3Beam_cl;
+    GH1                 fit4Beam_im;
+    GH1                 fit4Beam_cs;
+    GH1                 fit4Beam_cl;
 
 protected:
 
 public:
     Double_t            cutSubIM[6];
+    Double_t            cutMM[2];
 
     GAnalysis3Mesons(const char* name, const char* title, const Bool_t _IsEtap, Bool_t linkHistogram = kTRUE);
     ~GAnalysis3Mesons();
@@ -48,8 +52,6 @@ public:
     virtual void    CalcResult();
             Bool_t  IsEtap()    const   {return isEtap;}
     virtual Int_t   Fill(Double_t x)    {}
-    virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
-    virtual Bool_t  Fill(const GTreeMeson& meson, const TLorentzVector& beamAndTarget, const Double_t taggerTime, const Int_t taggerChannel);
     virtual Bool_t  Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");
@@ -64,9 +66,41 @@ public:
 class   GAnalysis3MesonsProton  : public GHistLinked
 {
 private:
-    GAnalysis3Mesons   hist_meson;
-    GCheckProton       check_meson_proton;
-    GAnalysis3Mesons   hist_meson_proton;
+    Bool_t              isEtap;
+
+    GHistEvent3Mesons   hist_raw;
+    GHistEvent3Mesons   hist_SubImCut;
+    GHistEvent3Mesons   hist_MMCut;
+
+    GFit3Constraints    fit3;
+    GFit4Constraints    fit4;
+    GFit3ConstraintsBeam    fit3Beam;
+    GFit4ConstraintsBeam    fit4Beam;
+    GFit4ConstraintsProton  fit4Proton;
+    GFit3ConstraintsBeamProton    fit3BeamProton;
+    GFit4ConstraintsBeamProton    fit4BeamProton;
+
+    GH1                 fit3_im;
+    GH1                 fit3_cs;
+    GH1                 fit3_cl;
+    GH1                 fit4_im;
+    GH1                 fit4_cs;
+    GH1                 fit4_cl;
+    GH1                 fit3Beam_im;
+    GH1                 fit3Beam_cs;
+    GH1                 fit3Beam_cl;
+    GH1                 fit4Beam_im;
+    GH1                 fit4Beam_cs;
+    GH1                 fit4Beam_cl;
+    GH1                 fit4Proton_im;
+    GH1                 fit4Proton_cs;
+    GH1                 fit4Proton_cl;
+    GH1                 fit3BeamProton_im;
+    GH1                 fit3BeamProton_cs;
+    GH1                 fit3BeamProton_cl;
+    GH1                 fit4BeamProton_im;
+    GH1                 fit4BeamProton_cs;
+    GH1                 fit4BeamProton_cl;
 
 protected:
 

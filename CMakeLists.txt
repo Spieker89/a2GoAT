@@ -199,7 +199,7 @@ add_executable(MyPhysics
    #inc/GHistFit.h
    inc/GHistEvent.h
    inc/GCheckProton.h
-   #inc/GAnalysis3Mesons.h
+   inc/GAnalysis3Mesons.h
    inc/MyPhysics.h
    src/GTree.cc
    src/GTreeRawEvent.cc
@@ -228,7 +228,7 @@ add_executable(MyPhysics
    #src/GHistFit.cc
    src/GHistEvent.cc
    src/GCheckProton.cc
-   #src/GAnalysis3Mesons.cc
+   src/GAnalysis3Mesons.cc
    src/MyPhysics.cc
    src/MyPhysics_main.cc
    )

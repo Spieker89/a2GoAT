@@ -159,7 +159,34 @@ public:
     ~GFit4ConstraintsProton();
 
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    TLorentzVector  GetTotalFitParticle();
+    Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        Pull(const Int_t index)         {return fitter.Pull(index);}
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5,
+                const TLorentzVector& beamAndTarget,
+                const TLorentzVector& proton);
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+};
+
+
+
+class	GFit4ConstraintsProtonExact
+{
+private:
+    Bool_t              isEtap;
+    GKinFitter          fitter;
+
+public:
+    GFit4ConstraintsProtonExact(const Bool_t _IsEtap);
+    ~GFit4ConstraintsProtonExact();
+
+    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
