@@ -60,7 +60,7 @@ void   GAnalysis3Mesons::CalcResult()
     fit4Beam_cl.CalcResult();
 }
 
-Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
+void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
 {
     Double_t    im  = meson.Particle(0).M();
     Double_t    mm;
@@ -100,6 +100,8 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
 
                 if(fit3.Solve()==kTRUE)
                 {
+                    if(fit3.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit3_im.Fill(fit3.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -114,6 +116,8 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
 
                 if(fit4.Solve()>0)
                 {
+                    if(fit4.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit4_im.Fill(fit4.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -123,6 +127,8 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
                 }
                 if(fit3Beam.Solve()>0)
                 {
+                    if(fit3Beam.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit3Beam_im.Fill(fit3Beam.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -132,6 +138,8 @@ Bool_t GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagger
                 }
                 if(fit4Beam.Solve()>0)
                 {
+                    if(fit4Beam.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit4Beam_im.Fill(fit4Beam.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -150,25 +158,26 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
     if(!arr)
         return;
 
-    GHistWriteList* folder  = arr->GetDirectory("Raw");
+    GHistWriteList* h  = arr->GetDirectory("WithoutProton");
+    GHistWriteList* folder  = h->GetDirectory("Raw");
     hist_raw.PrepareWriteList(folder, TString(name).Append("_Raw").Data());
-    folder  = arr->GetDirectory("SubIM_Cut");
+    folder  = h->GetDirectory("SubIM_Cut");
     hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
-    folder  = arr->GetDirectory("MM_Cut");
+    folder  = h->GetDirectory("MM_Cut");
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
-    folder  = arr->GetDirectory("fit3");
+    folder  = h->GetDirectory("fit3");
     fit3_im.PrepareWriteList(folder, TString(name).Append("_fit3_im").Data());
     fit3_cs.PrepareWriteList(folder, TString(name).Append("_fit3_cs").Data());
     fit3_cl.PrepareWriteList(folder, TString(name).Append("_fit3_cl").Data());
-    folder  = arr->GetDirectory("fit4");
+    folder  = h->GetDirectory("fit4");
     fit4_im.PrepareWriteList(folder, TString(name).Append("_fit4_im").Data());
     fit4_cs.PrepareWriteList(folder, TString(name).Append("_fit4_cs").Data());
     fit4_cl.PrepareWriteList(folder, TString(name).Append("_fit4_cl").Data());
-    folder  = arr->GetDirectory("fit3Beam");
+    folder  = h->GetDirectory("fit3Beam");
     fit3Beam_im.PrepareWriteList(folder, TString(name).Append("_fit3Beam_im").Data());
     fit3Beam_cs.PrepareWriteList(folder, TString(name).Append("_fit3Beam_cs").Data());
     fit3Beam_cl.PrepareWriteList(folder, TString(name).Append("_fit3Beam_cl").Data());
-    folder  = arr->GetDirectory("fit4Beam");
+    folder  = h->GetDirectory("fit4Beam");
     fit4Beam_im.PrepareWriteList(folder, TString(name).Append("_fit4Beam_im").Data());
     fit4Beam_cs.PrepareWriteList(folder, TString(name).Append("_fit4Beam_cs").Data());
     fit4Beam_cl.PrepareWriteList(folder, TString(name).Append("_fit4Beam_cl").Data());
@@ -279,6 +288,7 @@ void   GAnalysis3MesonsProton::CalcResult()
 {
     hist_raw.CalcResult();
     hist_SubImCut.CalcResult();
+    hist_MMCut.CalcResult();
     fit3_im.CalcResult();
     fit3_cs.CalcResult();
     fit3_cl.CalcResult();
@@ -342,6 +352,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 
                 if(fit3.Solve()==kTRUE)
                 {
+                    if(fit3.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit3_im.Fill(fit3.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -359,6 +371,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 
                 if(fit4.Solve()>0)
                 {
+                    if(fit4.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit4_im.Fill(fit4.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -368,6 +382,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 }
                 if(fit3Beam.Solve()>0)
                 {
+                    if(fit3Beam.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit3Beam_im.Fill(fit3Beam.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -377,6 +393,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 }
                 if(fit4Beam.Solve()>0)
                 {
+                    if(fit4Beam.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit4Beam_im.Fill(fit4Beam.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -386,6 +404,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 }
                 if(fit4Proton.Solve()>0)
                 {
+                    if(fit4Proton.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit4Proton_im.Fill(fit4Proton.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -395,6 +415,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 }
                 if(fit3BeamProton.Solve()>0)
                 {
+                    if(fit3BeamProton.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit3BeamProton_im.Fill(fit3BeamProton.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -404,6 +426,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 }
                 if(fit4BeamProton.Solve()>0)
                 {
+                    if(fit4BeamProton.ConfidenceLevel()<0.1)
+                        return;
                     if(CreateHistogramsForTaggerBinning==kTRUE)
                         fit4BeamProton_im.Fill(fit4BeamProton.GetTotalFitParticle().M(), tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                     else
@@ -421,37 +445,38 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
     if(!arr)
         return;
 
-    GHistWriteList* folder  = arr->GetDirectory("Raw");
+    GHistWriteList* h  = arr->GetDirectory("WithProton");
+    GHistWriteList* folder  = h->GetDirectory("Raw");
     hist_raw.PrepareWriteList(folder, TString(name).Append("_Raw").Data());
-    folder  = arr->GetDirectory("SubIM_Cut");
+    folder  = h->GetDirectory("SubIM_Cut");
     hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
-    folder  = arr->GetDirectory("MM_Cut");
+    folder  = h->GetDirectory("MM_Cut");
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
-    folder  = arr->GetDirectory("fit3");
+    folder  = h->GetDirectory("fit3");
     fit3_im.PrepareWriteList(folder, TString(name).Append("_fit3_im").Data());
     fit3_cs.PrepareWriteList(folder, TString(name).Append("_fit3_cs").Data());
     fit3_cl.PrepareWriteList(folder, TString(name).Append("_fit3_cl").Data());
-    folder  = arr->GetDirectory("fit4");
+    folder  = h->GetDirectory("fit4");
     fit4_im.PrepareWriteList(folder, TString(name).Append("_fit4_im").Data());
     fit4_cs.PrepareWriteList(folder, TString(name).Append("_fit4_cs").Data());
     fit4_cl.PrepareWriteList(folder, TString(name).Append("_fit4_cl").Data());
-    folder  = arr->GetDirectory("fit3Beam");
+    folder  = h->GetDirectory("fit3Beam");
     fit3Beam_im.PrepareWriteList(folder, TString(name).Append("_fit3Beam_im").Data());
     fit3Beam_cs.PrepareWriteList(folder, TString(name).Append("_fit3Beam_cs").Data());
     fit3Beam_cl.PrepareWriteList(folder, TString(name).Append("_fit3Beam_cl").Data());
-    folder  = arr->GetDirectory("fit4Beam");
+    folder  = h->GetDirectory("fit4Beam");
     fit4Beam_im.PrepareWriteList(folder, TString(name).Append("_fit4Beam_im").Data());
     fit4Beam_cs.PrepareWriteList(folder, TString(name).Append("_fit4Beam_cs").Data());
     fit4Beam_cl.PrepareWriteList(folder, TString(name).Append("_fit4Beam_cl").Data());
-    folder  = arr->GetDirectory("fit4Proton");
+    folder  = h->GetDirectory("fit4Proton");
     fit4Proton_im.PrepareWriteList(folder, TString(name).Append("_fit4Proton_im").Data());
     fit4Proton_cs.PrepareWriteList(folder, TString(name).Append("_fit4Proton_cs").Data());
     fit4Proton_cl.PrepareWriteList(folder, TString(name).Append("_fit4Proton_cl").Data());
-    folder  = arr->GetDirectory("fit3Beam");
+    folder  = h->GetDirectory("fit3Beam");
     fit3BeamProton_im.PrepareWriteList(folder, TString(name).Append("_fit3BeamProton_im").Data());
     fit3BeamProton_cs.PrepareWriteList(folder, TString(name).Append("_fit3BeamProton_cs").Data());
     fit3BeamProton_cl.PrepareWriteList(folder, TString(name).Append("_fit3BeamProton_cl").Data());
-    folder  = arr->GetDirectory("fit4Beam");
+    folder  = h->GetDirectory("fit4Beam");
     fit4BeamProton_im.PrepareWriteList(folder, TString(name).Append("_fit4BeamProton_im").Data());
     fit4BeamProton_cs.PrepareWriteList(folder, TString(name).Append("_fit4BeamProton_cs").Data());
     fit4BeamProton_cl.PrepareWriteList(folder, TString(name).Append("_fit4BeamProton_cl").Data());
@@ -461,6 +486,7 @@ void    GAnalysis3MesonsProton::Reset(Option_t* option)
 {
     hist_raw.Reset(option);
     hist_SubImCut.Reset(option);
+    hist_MMCut.Reset(option);
     fit3_im.Reset(option);
     fit3_cs.Reset(option);
     fit3_cl.Reset(option);
@@ -488,6 +514,7 @@ void    GAnalysis3MesonsProton::ScalerReadCorrection(const Double_t CorrectionFa
 {
     hist_raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_SubImCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    hist_MMCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     fit3_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     fit3_cs.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     fit3_cl.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
