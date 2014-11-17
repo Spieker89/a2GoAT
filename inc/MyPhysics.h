@@ -40,6 +40,7 @@ private:
     GH1                 fit4Proton_im;
     GH1                 fit4Proton_cs;
     GH1                 fit4Proton_cl;
+    GH1*                fit4Proton_Pulls[24];
     GH1                 fit3BeamProton_im;
     GH1                 fit3BeamProton_cs;
     GH1                 fit3BeamProton_cl;

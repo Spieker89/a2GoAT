@@ -37,6 +37,9 @@ MyPhysics::MyPhysics()    :
 { 
         GHistBGSub::InitCuts(-20, 20, -55, -35);
         GHistBGSub::AddRandCut(35, 55);
+
+        for(int i=0; i<24; i++)
+            fit4Proton_Pulls[i]    = new GH1(TString("fit4BeamProton_Pull").Append(TString().Itoa(i, 10)), TString("fit4BeamProton_Pull").Append(TString().Itoa(i, 10)), 1000, -5, 5, 48);
 }
 
 MyPhysics::~MyPhysics()
@@ -128,6 +131,8 @@ void	MyPhysics::ProcessEvent()
                         fit4Proton_im.Fill(fit4Proton.GetTotalFitParticle().M());
                         fit4Proton_cs.Fill(fit4Proton.GetChi2());
                         fit4Proton_cl.Fill(fit4Proton.ConfidenceLevel());
+                        for(int i=0; i<24; i++)
+                            fit4Proton_Pulls[i]->Fill(fit4Proton.Pull(i));
                     }
                     if(fit3BeamProton.Solve()>0)
                     {
