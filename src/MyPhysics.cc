@@ -3,8 +3,10 @@
 
 
 MyPhysics::MyPhysics()    :
-    hist("etap", "etap", kTRUE),
-    hist_proton("etap_proton", "etap_proton", kTRUE)
+    hist_eta("eta", "eta", kTRUE),
+    hist_eta_proton("eta_proton", "eta_proton", kTRUE),
+    hist_etap("etap", "etap", kTRUE),
+    hist_etap_proton("etap_proton", "etap_proton", kTRUE)
 { 
         GHistBGSub::InitCuts(-20, 20, -55, -35);
         GHistBGSub::AddRandCut(35, 55);
@@ -33,18 +35,26 @@ Bool_t	MyPhysics::Start()
 
 void	MyPhysics::ProcessEvent()
 {
+    if(eta->GetNParticles()>0)
+    {
+        hist_eta.Fill(*eta, *tagger, kTRUE);
+        if(protons->GetNParticles()>0)
+            hist_eta_proton.Fill(*eta, *protons, *tagger, kTRUE);
+    }
     if(etap->GetNParticles()>0)
     {
-        hist.Fill(*etap, *tagger, kTRUE);
+        hist_etap.Fill(*etap, *tagger, kTRUE);
         if(protons->GetNParticles()>0)
-            hist_proton.Fill(*etap, *protons, *tagger, kTRUE);
+            hist_etap_proton.Fill(*etap, *protons, *tagger, kTRUE);
     }
 }
 
 void	MyPhysics::ProcessScalerRead()
 {
-    hist.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
-    hist_proton.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    hist_eta.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    hist_eta_proton.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    hist_etap.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
+    hist_etap_proton.ScalerReadCorrection(Double_t(scalers->GetScaler(0))/scalers->GetScaler(1));
 }
 
 
