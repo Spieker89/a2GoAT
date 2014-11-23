@@ -21,6 +21,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -46,6 +47,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -75,6 +77,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -101,6 +104,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -135,6 +139,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -162,6 +167,7 @@ public:
     TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
     Double_t        Pull(const Int_t index)         {return fitter.Pull(index);}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -188,6 +194,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -218,6 +225,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -245,6 +253,7 @@ public:
     Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     TLorentzVector  GetTotalFitParticle();
     Double_t        GetChi2()                       {return fitter.GetChi2();}
+    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
