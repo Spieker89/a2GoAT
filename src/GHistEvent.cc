@@ -18,23 +18,6 @@ GHistEvent::~GHistEvent()
 
 }
 
-void   GHistEvent::CalcResult()
-{
-    im.CalcResult();
-    mm.CalcResult();
-}
-
-void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime)
-{
-    im.Fill(IM, taggerTime);
-    mm.Fill(MM, taggerTime);
-}
-
-void    GHistEvent::Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Int_t taggerChannel)
-{
-    im.Fill(IM, taggerTime, taggerChannel);
-    mm.Fill(MM, taggerTime);
-}
 
 void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
 {
@@ -53,17 +36,6 @@ void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
     }
 }
 
-void    GHistEvent::Reset(Option_t* option)
-{
-    im.Reset(option);
-    mm.Reset(option);
-}
-
-void    GHistEvent::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
-{
-    im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    mm.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-}
 
 
 
@@ -90,28 +62,29 @@ GHistEvent3Mesons::~GHistEvent3Mesons()
 
 }
 
-void   GHistEvent3Mesons::CalcResult()
+void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t* SUB_THETA, const Double_t* SUB_PHI, const Double_t taggerTime)
 {
-    GHistEvent::CalcResult();
-    sub0_im.CalcResult();
-    sub1_im.CalcResult();
-    sub2_im.CalcResult();
-}
-
-void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime)
-{
-    sub0_im.Fill(SUB0_IM, taggerTime);
-    sub1_im.Fill(SUB1_IM, taggerTime);
-    sub2_im.Fill(SUB2_IM, taggerTime);
     GHistEvent::Fill(IM, MM, taggerTime);
-}
-
-void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t taggerTime, const Int_t taggerChannel)
-{
     sub0_im.Fill(SUB0_IM, taggerTime);
     sub1_im.Fill(SUB1_IM, taggerTime);
     sub2_im.Fill(SUB2_IM, taggerTime);
+    for(int i=0; i<6; i++)
+    {
+        sub_theta.Fill(SUB_THETA[i], taggerTime);
+        sub_theta.Fill(SUB_PHI[i], taggerTime);
+    }
+}
+void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t* SUB_THETA, const Double_t* SUB_PHI, const Double_t taggerTime, const Int_t taggerChannel)
+{
     GHistEvent::Fill(IM, MM, taggerTime, taggerChannel);
+    sub0_im.Fill(SUB0_IM, taggerTime);
+    sub1_im.Fill(SUB1_IM, taggerTime);
+    sub2_im.Fill(SUB2_IM, taggerTime);
+    for(int i=0; i<6; i++)
+    {
+        sub_theta.Fill(SUB_THETA[i], taggerTime);
+        sub_theta.Fill(SUB_PHI[i], taggerTime);
+    }
 }
 
 void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name)
@@ -133,20 +106,4 @@ void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* nam
         sub1_im.PrepareWriteList(arr);
         sub2_im.PrepareWriteList(arr);
     }
-}
-
-void    GHistEvent3Mesons::Reset(Option_t* option)
-{
-    GHistEvent::Reset(option);
-    sub0_im.Reset(option);
-    sub1_im.Reset(option);
-    sub2_im.Reset(option);
-}
-
-void    GHistEvent3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
-{
-    GHistEvent::ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    sub0_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    sub1_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    sub2_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
