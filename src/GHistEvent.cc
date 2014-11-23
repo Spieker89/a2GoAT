@@ -8,7 +8,9 @@
 GHistEvent::GHistEvent(const char* name, const char* title, Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
     im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 1500, 0, 1500, 48, kFALSE),
-    mm(TString(name).Append("_mm"), TString(title).Append(" mis. Mass"), 2000, 0, 2000, 48, kFALSE)
+    mm(TString(name).Append("_mm"), TString(title).Append(" mis. Mass"), 2000, 0, 2000, 48, kFALSE),
+    theta(TString(name).Append("_theta"), TString(title).Append(" Theta"), 1800, 0, 180, 48, kFALSE),
+    phi(TString(name).Append("_phi"), TString(title).Append(" Phi"), 3600, -180, 180, 48, kFALSE)
 {
 
 }
@@ -28,11 +30,15 @@ void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
     {
         im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
         mm.PrepareWriteList(arr, TString(name).Append("_MM").Data());
+        theta.PrepareWriteList(arr, TString(name).Append("_Theta").Data());
+        phi.PrepareWriteList(arr, TString(name).Append("_Phi").Data());
     }
     else
     {
         im.PrepareWriteList(arr);
         mm.PrepareWriteList(arr);
+        theta.PrepareWriteList(arr);
+        phi.PrepareWriteList(arr);
     }
 }
 
@@ -105,5 +111,59 @@ void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* nam
         sub0_im.PrepareWriteList(arr);
         sub1_im.PrepareWriteList(arr);
         sub2_im.PrepareWriteList(arr);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GHistEventProton::GHistEventProton(const char* name, const char* title, Bool_t linkHistogram) :
+    GHistEvent(name, title, linkHistogram),
+    E(TString(name).Append("_protonE"), TString(title).Append(" Proton E"), 800, 0, 800, 48, kFALSE),
+    Ecalc(TString(name).Append("_protonEcalc"), TString(title).Append(" Proton E calculated"), 400, 0, 400, 48, kFALSE),
+    protonTheta(TString(name).Append("_protonTheta"), TString(title).Append(" Proton Theta"), 1800, 0, 180, 48, kFALSE),
+    protonPhi(TString(name).Append("_protonPhi"), TString(title).Append(" Proton Phi"), 3600, -180, 180, 48, kFALSE)
+{
+
+}
+
+GHistEventProton::~GHistEventProton()
+{
+
+}
+
+
+void    GHistEventProton::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+    GHistEvent::PrepareWriteList(arr, name);
+
+    if(name)
+    {
+        E.PrepareWriteList(arr, TString(name).Append("_protonE").Data());
+        Ecalc.PrepareWriteList(arr, TString(name).Append("_protonEcalc").Data());
+        protonTheta.PrepareWriteList(arr, TString(name).Append("_protonTheta").Data());
+        protonPhi.PrepareWriteList(arr, TString(name).Append("_protonPhi").Data());
+    }
+    else
+    {
+        E.PrepareWriteList(arr);
+        Ecalc.PrepareWriteList(arr);
+        protonTheta.PrepareWriteList(arr);
+        protonPhi.PrepareWriteList(arr);
     }
 }

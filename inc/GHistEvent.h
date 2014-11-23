@@ -60,4 +60,39 @@ public:
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)                                                                    {GHistEvent::ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); sub0_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); sub1_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); sub2_im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
 };
 
+
+
+
+
+
+class	GHistEventProton  : public GHistEvent
+{
+private:
+
+protected:
+    GH1     E;
+    GH1     Ecalc;
+    GH1     protonTheta;
+    GH1     protonPhi;
+
+public:
+    GHistEventProton(const char* name, const char* title, Bool_t linkHistogram = kTRUE);
+    virtual ~GHistEventProton();
+
+    virtual void    CalcResult()                                                                                                                                {E.CalcResult(); Ecalc.CalcResult(); protonTheta.CalcResult(); protonPhi.CalcResult();}
+    virtual Int_t   Fill(Double_t x)                                                                                                                            {}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime)                                                                       {GHistEvent::Fill(IM, MM, taggerTime);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Int_t taggerChannel)                                            {GHistEvent::Fill(IM, MM, taggerTime, taggerChannel);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t taggerTime)                             {GHistEvent::Fill(IM, MM, Theta, Phi, taggerTime);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t taggerTime, const Int_t taggerChannel)  {GHistEvent::Fill(IM, MM, Theta, Phi, taggerTime, taggerChannel);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t ProtonE, const Double_t ProtonEcalc, const Double_t ProtonTheta, const Double_t ProtonPhi, const Double_t taggerTime)                                                                       {GHistEvent::Fill(IM, MM, taggerTime); E.Fill(ProtonE, taggerTime); Ecalc.Fill(ProtonEcalc, taggerTime); protonTheta.Fill(ProtonTheta, taggerTime); protonPhi.Fill(ProtonPhi, taggerTime);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t ProtonE, const Double_t ProtonEcalc, const Double_t ProtonTheta, const Double_t ProtonPhi, const Double_t taggerTime, const Int_t taggerChannel)                                            {GHistEvent::Fill(IM, MM, taggerTime, taggerChannel); E.Fill(ProtonE, taggerTime); Ecalc.Fill(ProtonEcalc, taggerTime); protonTheta.Fill(ProtonTheta, taggerTime); protonPhi.Fill(ProtonPhi, taggerTime);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t ProtonE, const Double_t ProtonEcalc, const Double_t ProtonTheta, const Double_t ProtonPhi, const Double_t taggerTime)                             {GHistEvent::Fill(IM, MM, Theta, Phi, taggerTime); E.Fill(ProtonE, taggerTime); Ecalc.Fill(ProtonEcalc, taggerTime); protonTheta.Fill(ProtonTheta, taggerTime); protonPhi.Fill(ProtonPhi, taggerTime);}
+    virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t ProtonE, const Double_t ProtonEcalc, const Double_t ProtonTheta, const Double_t ProtonPhi, const Double_t taggerTime, const Int_t taggerChannel)  {GHistEvent::Fill(IM, MM, Theta, Phi, taggerTime, taggerChannel); E.Fill(ProtonE, taggerTime); Ecalc.Fill(ProtonEcalc, taggerTime); protonTheta.Fill(ProtonTheta, taggerTime); protonPhi.Fill(ProtonPhi, taggerTime);}
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void    Reset(Option_t* option = "")                                                                                                                {E.Reset(option); Ecalc.Reset(option); protonTheta.Reset(option); protonPhi.Reset(option);}
+    virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                           {E.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); Ecalc.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonTheta.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonPhi.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+};
+
 #endif
