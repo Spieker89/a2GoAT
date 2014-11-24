@@ -23,12 +23,14 @@ public:
     virtual TLorentzVector  GetTotalFitParticle()       = 0;
     virtual Double_t        GetChi2()                   = 0;
     virtual Double_t        GetPull(const Int_t index)  = 0;
+    virtual Bool_t          IsSolved()                  = 0;
 };
 
 
 class	GFit3Constraints    : public GFit
 {
 private:
+    Bool_t              solved;
     Bool_t              isEtap;
     GKinFitter          fitter;
 
@@ -40,13 +42,14 @@ public:
     virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
                 const TLorentzVector& p5);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -55,6 +58,7 @@ public:
 class	GFit4Constraints    : public GFit
 {
 private:
+    Bool_t              solved;
     Bool_t              isEtap;
     GKinFitter          fitter;
 
@@ -66,6 +70,7 @@ public:
     virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -73,7 +78,7 @@ public:
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -86,6 +91,7 @@ public:
 class	GFit4ConstraintsBeam    : public GFit
 {
 private:
+    Bool_t              solved;
     Bool_t              isEtap;
     GKinFitter          fitter;
 
@@ -97,6 +103,7 @@ public:
     virtual TLorentzVector  GetTotalFitParticle();
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -104,7 +111,7 @@ public:
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -121,6 +128,7 @@ public:
 class	GFit4ConstraintsProton    : public GFit
 {
 private:
+    Bool_t              solved;
     Bool_t              isEtap;
     GKinFitter          fitter;
 
@@ -132,6 +140,7 @@ public:
     virtual TLorentzVector  GetTotalFitParticle();
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -140,7 +149,7 @@ public:
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget,
                 const TLorentzVector& proton);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -149,6 +158,7 @@ public:
 class	GFit4ConstraintsProtonExact    : public GFit
 {
 private:
+    Bool_t              solved;
     Bool_t              isEtap;
     GKinFitter          fitter;
 
@@ -160,6 +170,7 @@ public:
     virtual TLorentzVector  GetTotalFitParticle();
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -168,7 +179,7 @@ public:
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget,
                 const TLorentzVector& proton);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -181,6 +192,7 @@ public:
 class	GFit4ConstraintsBeamProton    : public GFit
 {
 private:
+    Bool_t              solved;
     Bool_t              isEtap;
     GKinFitter          fitter;
 
@@ -192,6 +204,7 @@ public:
     virtual TLorentzVector  GetTotalFitParticle();
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -200,7 +213,7 @@ public:
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget,
                 const TLorentzVector& proton);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) return kTRUE; return kFALSE;}
+    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -223,13 +236,13 @@ public:
     GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram= kTRUE);
     ~GHistFit();
 
-    virtual void        CalcResult()                    {im.CalcResult(); chiSq.CalcResult(); confidenceLevel.CalcResult(); pulls.CalcResult();}
+    virtual void        CalcResult();
     virtual Int_t       Fill(Double_t x)                {}
     virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime);
     virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel);
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
-    virtual void        Reset(Option_t* option = "")    {im.Reset(option); chiSq.Reset(option); confidenceLevel.Reset(option); pulls.Reset(option);}
-    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)   {im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); chiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); pulls.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
+    virtual void        Reset(Option_t* option = "");
+    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
     virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
 };
 

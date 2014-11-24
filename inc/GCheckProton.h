@@ -7,9 +7,7 @@
 #include "GH1.h"
 
 
-class GTreeTagger;
 class GTreeParticle;
-class GTreeMeson;
 
 class   GCheckProtonHist
 {
@@ -48,7 +46,7 @@ public:
     ~GCheckProton();
 
     virtual void    CalcResult();
-            Bool_t  Check(const GTreeMeson& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
+            Bool_t  Check(const GTreeParticle& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
     virtual Int_t   Fill(Double_t x)    {}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");

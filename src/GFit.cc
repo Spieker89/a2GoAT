@@ -3,6 +3,7 @@
 
 
 GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
+    solved(kFALSE),
     isEtap(_IsEtap),
     fitter(6, 3, 0)
 {
@@ -21,6 +22,7 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
                               const TLorentzVector& p4,
                               const TLorentzVector& p5)
 {
+    solved = kFALSE;
     fitter.Reset();
 
     GKinFitterParticle  photons[6];
@@ -60,6 +62,7 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
 
 
 GFit4Constraints::GFit4Constraints(const Bool_t _IsEtap)    :
+    solved(kFALSE),
     isEtap(_IsEtap),
     fitter(6, 4, 0)
 {
@@ -79,6 +82,7 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
                               const TLorentzVector& p5,
                               const TLorentzVector& beamAndTarget)
 {
+    solved = kFALSE;
     fitter.Reset();
 
     GKinFitterParticle  photons[6];
@@ -124,6 +128,7 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
 
 
 GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t _IsEtap)    :
+    solved(kFALSE),
     isEtap(_IsEtap),
     fitter(7, 4, 0)
 {
@@ -151,6 +156,7 @@ void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
                               const TLorentzVector& p5,
                               const TLorentzVector& beamAndTarget)
 {
+    solved = kFALSE;
     fitter.Reset();
 
     GKinFitterParticle  photons[6];
@@ -195,6 +201,7 @@ void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
 
 
 GFit4ConstraintsProton::GFit4ConstraintsProton(const Bool_t _IsEtap)    :
+    solved(kFALSE),
     isEtap(_IsEtap),
     fitter(7, 4, 0)
 {
@@ -223,6 +230,7 @@ void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
                                     const TLorentzVector& beamAndTarget,
                                     const TLorentzVector& proton)
 {
+    solved = kFALSE;
     fitter.Reset();
 
     GKinFitterParticle  photons[6];
@@ -280,6 +288,7 @@ void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
 
 
 GFit4ConstraintsBeamProton::GFit4ConstraintsBeamProton(const Bool_t _IsEtap)    :
+    solved(kFALSE),
     isEtap(_IsEtap),
     fitter(8, 5, 0)
 {
@@ -308,6 +317,7 @@ void    GFit4ConstraintsBeamProton::Set(const TLorentzVector& p0,
                                         const TLorentzVector& beamAndTarget,
                                         const TLorentzVector& proton)
 {
+    solved = kFALSE;
     fitter.Reset();
 
     GKinFitterParticle  photons[6];
@@ -377,6 +387,14 @@ GHistFit::~GHistFit()
 
 }
 
+void        GHistFit::CalcResult()
+{
+    im.CalcResult();
+    chiSq.CalcResult();
+    confidenceLevel.CalcResult();
+    pulls.CalcResult();
+}
+
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
 {
     im.Fill(fitter.GetTotalFitParticle().M(), taggerTime);
@@ -414,4 +432,20 @@ void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
         confidenceLevel.PrepareWriteList(arr);
         pulls.PrepareWriteList(arr);
     }
+}
+
+void        GHistFit::Reset(Option_t* option)
+{
+    im.Reset(option);
+    chiSq.Reset(option);
+    confidenceLevel.Reset(option);
+    pulls.Reset(option);
+}
+
+void        GHistFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
+{
+    im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    chiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    pulls.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }

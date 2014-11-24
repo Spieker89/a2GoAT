@@ -20,24 +20,18 @@ private:
 
     GHistEvent3Mesons   hist_raw;
     GHistEvent3Mesons   hist_SubImCut;
+    GHistFit            hist_SubImCut_fit3;
+    GHistFit            hist_SubImCut_fit4;
+    GHistFit            hist_SubImCut_fit4Beam;
+
     GHistEvent3Mesons   hist_MMCut;
+    GHistFit            hist_fit3;
+    GHistFit            hist_fit4;
+    GHistFit            hist_fit4Beam;
 
-    GFit3Constraints    fit3;
-    GFit4Constraints    fit4;
+    GFit3Constraints        fit3;
+    GFit4Constraints        fit4;
     GFit4ConstraintsBeam    fit4Beam;
-
-    GH1                 fit3_im;
-    GH1                 fit3_cs;
-    GH1                 fit3_cl;
-    GHistBGSub2         fit3_Pull;
-    GH1                 fit4_im;
-    GH1                 fit4_cs;
-    GH1                 fit4_cl;
-    GHistBGSub2         fit4_Pull;
-    GH1                 fit4Beam_im;
-    GH1                 fit4Beam_cs;
-    GH1                 fit4Beam_cl;
-    GHistBGSub2         fit4Beam_Pull;
 
 protected:
 
@@ -67,21 +61,28 @@ class   GAnalysis3MesonsProton  : public GHistLinked
 private:
     Bool_t              isEtap;
 
+    GCheckProton        checkProton;
+
     GHistEvent3Mesons   hist_raw;
     GHistEvent3Mesons   hist_SubImCut;
+    GHistFit            hist_SubImCut_fit3;
+    GHistFit            hist_SubImCut_fit4;
+    GHistFit            hist_SubImCut_fit4Beam;
+    GHistFit            hist_SubImCut_fit4Proton;
+    GHistFit            hist_SubImCut_fit4BeamProton;
+
     GHistEvent3Mesons   hist_MMCut;
-
-    GFit3Constraints    fit3;
-    GFit4Constraints    fit4;
-    GFit4ConstraintsBeam    fit4Beam;
-    GFit4ConstraintsProton  fit4Proton;
-    GFit4ConstraintsBeamProton    fit4BeamProton;
-
     GHistFit            hist_fit3;
     GHistFit            hist_fit4;
     GHistFit            hist_fit4Beam;
     GHistFit            hist_fit4Proton;
     GHistFit            hist_fit4BeamProton;
+
+    GFit3Constraints            fit3;
+    GFit4Constraints            fit4;
+    GFit4ConstraintsBeam        fit4Beam;
+    GFit4ConstraintsProton      fit4Proton;
+    GFit4ConstraintsBeamProton  fit4BeamProton;
 
 protected:
 

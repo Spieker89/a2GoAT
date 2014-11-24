@@ -59,7 +59,7 @@ void   GCheckProton::CalcResult()
     cutBoth.CalcResult();
 }
 
-Bool_t  GCheckProton::Check(const GTreeMeson& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime)
+Bool_t  GCheckProton::Check(const GTreeParticle& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime)
 {
     if(proton.GetNParticles()!=1)
         return kFALSE;
