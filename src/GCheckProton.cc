@@ -40,10 +40,10 @@ GCheckProton::GCheckProton(const char* name, const char* title, Bool_t linkHisto
     cutProtonAngle(TString(name).Append("_cutProtonAngle"), TString(title).Append(" Cut Proton Angle"), kFALSE),
     cutCoplanarity(TString(name).Append("_cutCoplanarity"), TString(title).Append(" Cut Coplanarity"), kFALSE),
     cutBoth(TString(name).Append("_cutBoth"), TString(title).Append(" Cut Both"), kFALSE),
-    CutProtonAngleDiff(25)
+    CutProtonAngleDiff(10)
 {
-    CutProtonCoplanarity[0] = 140;
-    CutProtonCoplanarity[1] = 220;
+    CutProtonCoplanarity[0] = 160;
+    CutProtonCoplanarity[1] = 200;
 }
 
 GCheckProton::~GCheckProton()

@@ -303,7 +303,8 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
     {
         for(int i=0; i<tagger.GetNTagged(); i++)
         {
-            checkProton.Check(meson, proton, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i));
+            if(checkProton.Check(meson, proton, tagger.GetVectorProtonTarget(i), tagger.GetTagged_t(i))==kFALSE)
+                continue;
 
             mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();if(CreateHistogramsForTaggerBinning==kTRUE)
             if(CreateHistogramsForTaggerBinning==kTRUE)
@@ -436,9 +437,11 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
         return;
 
     GHistWriteList* h  = arr->GetDirectory("WithProton");
-    checkProton.PrepareWriteList(h, TString(name).Append("_CheckProton").Data());
 
-    GHistWriteList* folder  = h->GetDirectory("Raw");
+    GHistWriteList* folder  = h->GetDirectory("CheckProton");
+    checkProton.PrepareWriteList(folder, TString(name).Append("_CheckProton").Data());
+
+    folder  = h->GetDirectory("Raw");
     hist_raw.PrepareWriteList(folder, TString(name).Append("_Raw").Data());
 
     folder  = h->GetDirectory("SubIM_Cut");
