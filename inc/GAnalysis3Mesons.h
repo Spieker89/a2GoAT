@@ -77,26 +77,11 @@ private:
     GFit4ConstraintsProton  fit4Proton;
     GFit4ConstraintsBeamProton    fit4BeamProton;
 
-    GH1                 fit3_im;
-    GH1                 fit3_cs;
-    GH1                 fit3_cl;
-    GHistBGSub2         fit3_Pull;
-    GH1                 fit4_im;
-    GH1                 fit4_cs;
-    GH1                 fit4_cl;
-    GHistBGSub2         fit4_Pull;
-    GH1                 fit4Beam_im;
-    GH1                 fit4Beam_cs;
-    GH1                 fit4Beam_cl;
-    GHistBGSub2         fit4Beam_Pull;
-    GH1                 fit4Proton_im;
-    GH1                 fit4Proton_cs;
-    GH1                 fit4Proton_cl;
-    GHistBGSub2         fit4Proton_Pull;
-    GH1                 fit4BeamProton_im;
-    GH1                 fit4BeamProton_cs;
-    GH1                 fit4BeamProton_cl;
-    GHistBGSub2         fit4BeamProton_Pull;
+    GHistFit            hist_fit3;
+    GHistFit            hist_fit4;
+    GHistFit            hist_fit4Beam;
+    GHistFit            hist_fit4Proton;
+    GHistFit            hist_fit4BeamProton;
 
 protected:
 

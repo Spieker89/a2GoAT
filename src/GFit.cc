@@ -349,3 +349,69 @@ void    GFit4ConstraintsBeamProton::Set(const TLorentzVector& p0,
     //fitter.AddTotMomentumConstraint(TVector3(0, 0, 0));
     fitter.AddInvMassConstraint(0);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+GHistFit::GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram)   :
+    GHistLinked(linkHistogram),
+    nPulls(_NPulls),
+    im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 2000, 0, 2000, 48, kFALSE),
+    chiSq(TString(name).Append("_ChiSq"), TString(title).Append(" ChiSq"), 1000, 0, 100, 48, kFALSE),
+    confidenceLevel(TString(name).Append("_ConfLev"), TString(title).Append(" ConfLev"), 1000, 0, 1, 48, kFALSE),
+    pulls(TString(name).Append("_Pulls"), TString(title).Append(" Pulls"), 100, -5, 5, nPulls, 0, nPulls, kFALSE)
+{
+
+}
+
+GHistFit::~GHistFit()
+{
+
+}
+
+Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
+{
+    im.Fill(fitter.GetTotalFitParticle().M(), taggerTime);
+    chiSq.Fill(fitter.GetChi2(), taggerTime);
+    confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
+    for(int i=0; i<nPulls; i++)
+        pulls.Fill(fitter.GetPull(i), i);
+}
+
+Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)
+{
+    im.Fill(fitter.GetTotalFitParticle().M(), taggerTime, taggerChannel);
+    chiSq.Fill(fitter.GetChi2(), taggerTime);
+    confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
+    for(int i=0; i<nPulls; i++)
+        pulls.Fill(fitter.GetPull(i), i);
+}
+
+void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+    if(name)
+    {
+        im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
+        chiSq.PrepareWriteList(arr, TString(name).Append("_ChiSq").Data());
+        confidenceLevel.PrepareWriteList(arr, TString(name).Append("_ConfLev").Data());
+        pulls.PrepareWriteList(arr, TString(name).Append("_Pulls").Data());
+    }
+    else
+    {
+        im.PrepareWriteList(arr);
+        chiSq.PrepareWriteList(arr);
+        confidenceLevel.PrepareWriteList(arr);
+        pulls.PrepareWriteList(arr);
+    }
+}

@@ -4,11 +4,29 @@
 
 #include <TH2.h>
 
+#include "GHistManager.h"
+#include "GH1.h"
 #include "GKinFitter.h"
 #include "GKinFitterParticle.h"
 
 
-class	GFit3Constraints
+
+class	GFit
+{
+private:
+
+public:
+    GFit()  {}
+    ~GFit() {}
+
+    virtual Double_t        ConfidenceLevel()           = 0;
+    virtual TLorentzVector  GetTotalFitParticle()       = 0;
+    virtual Double_t        GetChi2()                   = 0;
+    virtual Double_t        GetPull(const Int_t index)  = 0;
+};
+
+
+class	GFit3Constraints    : public GFit
 {
 private:
     Bool_t              isEtap;
@@ -18,10 +36,10 @@ public:
     GFit3Constraints(const Bool_t _IsEtap);
     ~GFit3Constraints();
 
-    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
-    Double_t        GetChi2()                       {return fitter.GetChi2();}
-    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -34,7 +52,7 @@ public:
 
 
 
-class	GFit4Constraints
+class	GFit4Constraints    : public GFit
 {
 private:
     Bool_t              isEtap;
@@ -44,10 +62,10 @@ public:
     GFit4Constraints(const Bool_t _IsEtap);
     ~GFit4Constraints();
 
-    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
-    Double_t        GetChi2()                       {return fitter.GetChi2();}
-    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -65,7 +83,7 @@ public:
 
 
 
-class	GFit4ConstraintsBeam
+class	GFit4ConstraintsBeam    : public GFit
 {
 private:
     Bool_t              isEtap;
@@ -75,10 +93,10 @@ public:
     GFit4ConstraintsBeam(const Bool_t _IsEtap);
     ~GFit4ConstraintsBeam();
 
-    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle();
-    Double_t        GetChi2()                       {return fitter.GetChi2();}
-    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    virtual TLorentzVector  GetTotalFitParticle();
+    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -100,7 +118,7 @@ public:
 
 
 
-class	GFit4ConstraintsProton
+class	GFit4ConstraintsProton    : public GFit
 {
 private:
     Bool_t              isEtap;
@@ -110,11 +128,10 @@ public:
     GFit4ConstraintsProton(const Bool_t _IsEtap);
     ~GFit4ConstraintsProton();
 
-    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle();
-    Double_t        GetChi2()                       {return fitter.GetChi2();}
-    Double_t        Pull(const Int_t index)         {return fitter.Pull(index);}
-    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    virtual TLorentzVector  GetTotalFitParticle();
+    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -129,7 +146,7 @@ public:
 
 
 
-class	GFit4ConstraintsProtonExact
+class	GFit4ConstraintsProtonExact    : public GFit
 {
 private:
     Bool_t              isEtap;
@@ -139,10 +156,10 @@ public:
     GFit4ConstraintsProtonExact(const Bool_t _IsEtap);
     ~GFit4ConstraintsProtonExact();
 
-    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle();
-    Double_t        GetChi2()                       {return fitter.GetChi2();}
-    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    virtual TLorentzVector  GetTotalFitParticle();
+    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -161,7 +178,7 @@ public:
 
 
 
-class	GFit4ConstraintsBeamProton
+class	GFit4ConstraintsBeamProton    : public GFit
 {
 private:
     Bool_t              isEtap;
@@ -171,10 +188,10 @@ public:
     GFit4ConstraintsBeamProton(const Bool_t _IsEtap);
     ~GFit4ConstraintsBeamProton();
 
-    Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    TLorentzVector  GetTotalFitParticle();
-    Double_t        GetChi2()                       {return fitter.GetChi2();}
-    Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
+    virtual TLorentzVector  GetTotalFitParticle();
+    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -188,6 +205,33 @@ public:
 
 
 
+
+
+
+
+
+
+class   GHistFit    : public    GHistLinked
+{
+private:
+    Int_t       nPulls;
+    GH1         im;
+    GH1         chiSq;
+    GH1         confidenceLevel;
+    GHistBGSub2 pulls;
+public:
+    GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram= kTRUE);
+    ~GHistFit();
+
+    virtual void        CalcResult()                    {im.CalcResult(); chiSq.CalcResult(); confidenceLevel.CalcResult(); pulls.CalcResult();}
+    virtual Int_t       Fill(Double_t x)                {}
+    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime);
+    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel);
+    virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void        Reset(Option_t* option = "")    {im.Reset(option); chiSq.Reset(option); confidenceLevel.Reset(option); pulls.Reset(option);}
+    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)   {im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); chiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); pulls.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+};
 
 
 #endif
