@@ -17,6 +17,11 @@ private:
     GAnalysis3Mesons        hist_etap;
     GAnalysis3MesonsProton  hist_etap_proton;
 
+    GH1     EPTscalers;
+    GH1     EPTscalersCor;
+    TH1D    EPTscalersT;
+    TH1D    EPTscalersCorT;
+
 protected:
     virtual Bool_t  Start();
 
