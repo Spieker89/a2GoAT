@@ -200,20 +200,20 @@ void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
 
 
 
-GFit4ConstraintsProton::GFit4ConstraintsProton(const Bool_t _IsEtap)    :
+GFit7ConstraintsProton::GFit7ConstraintsProton(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(7, 4, 0)
+    fitter(7, 7, 0)
 {
 
 }
 
-GFit4ConstraintsProton::~GFit4ConstraintsProton()
+GFit7ConstraintsProton::~GFit7ConstraintsProton()
 {
 
 }
 
-TLorentzVector  GFit4ConstraintsProton::GetTotalFitParticle()
+TLorentzVector  GFit7ConstraintsProton::GetTotalFitParticle()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
@@ -221,7 +221,7 @@ TLorentzVector  GFit4ConstraintsProton::GetTotalFitParticle()
     return ret;
 }
 
-void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
+void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
                                     const TLorentzVector& p1,
                                     const TLorentzVector& p2,
                                     const TLorentzVector& p3,
@@ -251,7 +251,7 @@ void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
     help.SetE(beamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
     help.SetVect(proton.Vect().Unit()*(TMath::Sqrt(help.E()*help.E() - MASS_PROTON*MASS_PROTON)));
     pro.Set4Vector(help);
-    pro.SetResolutions(3, 3, 0.1);
+    pro.SetResolutions(3, 3, 25);
     fitter.AddPosKFParticle(pro);
 
     Int_t   index[7]    = {0, 1, 2, 3, 4, 5, 6};
@@ -261,7 +261,8 @@ void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
         fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    fitter.AddSubMissMassConstraint(beamAndTarget, 7, &index[0], 0);
+    fitter.AddTotEnergyConstraint(beamAndTarget.E());
+    fitter.AddTotMomentumConstraint(beamAndTarget.Vect());
 }
 
 
@@ -287,20 +288,20 @@ void    GFit4ConstraintsProton::Set(const TLorentzVector& p0,
 
 
 
-GFit4ConstraintsBeamProton::GFit4ConstraintsBeamProton(const Bool_t _IsEtap)    :
+GFit7ConstraintsBeamProton::GFit7ConstraintsBeamProton(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(8, 5, 0)
+    fitter(8, 7, 0)
 {
 
 }
 
-GFit4ConstraintsBeamProton::~GFit4ConstraintsBeamProton()
+GFit7ConstraintsBeamProton::~GFit7ConstraintsBeamProton()
 {
 
 }
 
-TLorentzVector  GFit4ConstraintsBeamProton::GetTotalFitParticle()
+TLorentzVector  GFit7ConstraintsBeamProton::GetTotalFitParticle()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
@@ -308,7 +309,7 @@ TLorentzVector  GFit4ConstraintsBeamProton::GetTotalFitParticle()
     return ret;
 }
 
-void    GFit4ConstraintsBeamProton::Set(const TLorentzVector& p0,
+void    GFit7ConstraintsBeamProton::Set(const TLorentzVector& p0,
                                         const TLorentzVector& p1,
                                         const TLorentzVector& p2,
                                         const TLorentzVector& p3,
@@ -344,7 +345,7 @@ void    GFit4ConstraintsBeamProton::Set(const TLorentzVector& p0,
     //help.Print();
     //std::cout << help.M() << std::endl;
     pro.Set4Vector(help);
-    pro.SetResolutions(3, 3, 0.1);
+    pro.SetResolutions(3, 3, 25);
     fitter.AddPosKFParticle(pro);
 
     Int_t   index[8]    = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -354,10 +355,8 @@ void    GFit4ConstraintsBeamProton::Set(const TLorentzVector& p0,
         fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    //fitter.AddSubInvMassConstraint(1, &index[7], MASS_PROTON);
     fitter.AddTotEnergyConstraint(0);
-    //fitter.AddTotMomentumConstraint(TVector3(0, 0, 0));
-    fitter.AddInvMassConstraint(0);
+    fitter.AddTotMomentumConstraint(TVector3(0.0, 0.0, 0.0));
 }
 
 
@@ -375,6 +374,14 @@ GHistFit::GHistFit(const char* name, const char* title, const Int_t _NPulls, Boo
     GHistLinked(linkHistogram),
     nPulls(_NPulls),
     im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 2000, 0, 2000, 48, kFALSE),
+    sub0im(TString(name).Append("_sub0im"), TString(title).Append(" sub0 inv. Mass"), 800, 0, 800, 48, kFALSE),
+    sub1im(TString(name).Append("_sub1im"), TString(title).Append(" sub1 inv. Mass"), 400, 0, 400, 48, kFALSE),
+    sub2im(TString(name).Append("_sub2im"), TString(title).Append(" sub2 inv. Mass"), 400, 0, 400, 48, kFALSE),
+    theta(TString(name).Append("_theta"), TString(title).Append(" theta"), 180, 0, 180, 48, kFALSE),
+    phi(TString(name).Append("_phi"), TString(title).Append(" phi"), 360, -180, 180, 48, kFALSE),
+    Pim(TString(name).Append("_Pim"), TString(title).Append(" Proton Mass"), 2000, 0, 2000, 48, kFALSE),
+    Ptheta(TString(name).Append("_Ptheta"), TString(title).Append(" Proton theta"), 180, 0, 180, 48, kFALSE),
+    Pphi(TString(name).Append("_Pphi"), TString(title).Append(" Proton phi"), 360, -180, 180, 48, kFALSE),
     chiSq(TString(name).Append("_ChiSq"), TString(title).Append(" ChiSq"), 1000, 0, 100, 48, kFALSE),
     confidenceLevel(TString(name).Append("_ConfLev"), TString(title).Append(" ConfLev"), 1000, 0, 1, 48, kFALSE),
     pulls(TString(name).Append("_Pulls"), TString(title).Append(" Pulls"), 100, -5, 5, nPulls, 0, nPulls, kFALSE)
@@ -390,6 +397,14 @@ GHistFit::~GHistFit()
 void        GHistFit::CalcResult()
 {
     im.CalcResult();
+    sub0im.CalcResult();
+    sub1im.CalcResult();
+    sub2im.CalcResult();
+    theta.CalcResult();
+    phi.CalcResult();
+    Pim.CalcResult();
+    Ptheta.CalcResult();
+    Pphi.CalcResult();
     chiSq.CalcResult();
     confidenceLevel.CalcResult();
     pulls.CalcResult();
@@ -397,7 +412,16 @@ void        GHistFit::CalcResult()
 
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
 {
-    im.Fill(fitter.GetTotalFitParticle().M(), taggerTime);
+    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    im.Fill(etap.M(), taggerTime);
+    sub0im.Fill(fitter.GetSub(0).M(), taggerTime);
+    sub1im.Fill(fitter.GetSub(1).M(), taggerTime);
+    sub2im.Fill(fitter.GetSub(2).M(), taggerTime);
+    theta.Fill(etap.Theta()*TMath::RadToDeg(), taggerTime);
+    phi.Fill(etap.Phi()*TMath::RadToDeg(), taggerTime);
+    Pim.Fill(fitter.GetRecoil().M(), taggerTime);
+    Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime);
+    Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime);
     chiSq.Fill(fitter.GetChi2(), taggerTime);
     confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
     for(int i=0; i<nPulls; i++)
@@ -406,9 +430,19 @@ Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
 
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)
 {
-    im.Fill(fitter.GetTotalFitParticle().M(), taggerTime, taggerChannel);
-    chiSq.Fill(fitter.GetChi2(), taggerTime);
-    confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
+
+    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    im.Fill(etap.M(), taggerTime, taggerChannel);
+    sub0im.Fill(fitter.GetSub(0).M(), taggerTime, taggerChannel);
+    sub1im.Fill(fitter.GetSub(1).M(), taggerTime, taggerChannel);
+    sub2im.Fill(fitter.GetSub(2).M(), taggerTime, taggerChannel);
+    theta.Fill(etap.Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    phi.Fill(etap.Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    Pim.Fill(fitter.GetRecoil().M(), taggerTime, taggerChannel);
+    Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    chiSq.Fill(fitter.GetChi2(), taggerTime, taggerChannel);
+    confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime, taggerChannel);
     for(int i=0; i<nPulls; i++)
         pulls.Fill(fitter.GetPull(i), i);
 }
@@ -421,6 +455,14 @@ void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
     if(name)
     {
         im.PrepareWriteList(arr, TString(name).Append("_IM").Data());
+        sub0im.PrepareWriteList(arr, TString(name).Append("_Sub0IM").Data());
+        sub1im.PrepareWriteList(arr, TString(name).Append("_Sub1IM").Data());
+        sub2im.PrepareWriteList(arr, TString(name).Append("_Sub2IM").Data());
+        theta.PrepareWriteList(arr, TString(name).Append("_Theta").Data());
+        phi.PrepareWriteList(arr, TString(name).Append("_Phi").Data());
+        Pim.PrepareWriteList(arr, TString(name).Append("_PrIM").Data());
+        Ptheta.PrepareWriteList(arr, TString(name).Append("_PrTheta").Data());
+        Pphi.PrepareWriteList(arr, TString(name).Append("_PrPhi").Data());
         chiSq.PrepareWriteList(arr, TString(name).Append("_ChiSq").Data());
         confidenceLevel.PrepareWriteList(arr, TString(name).Append("_ConfLev").Data());
         pulls.PrepareWriteList(arr, TString(name).Append("_Pulls").Data());
@@ -428,6 +470,14 @@ void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
     else
     {
         im.PrepareWriteList(arr);
+        sub0im.PrepareWriteList(arr);
+        sub1im.PrepareWriteList(arr);
+        sub2im.PrepareWriteList(arr);
+        theta.PrepareWriteList(arr);
+        phi.PrepareWriteList(arr);
+        Pim.PrepareWriteList(arr);
+        Ptheta.PrepareWriteList(arr);
+        Pphi.PrepareWriteList(arr);
         chiSq.PrepareWriteList(arr);
         confidenceLevel.PrepareWriteList(arr);
         pulls.PrepareWriteList(arr);
@@ -437,6 +487,14 @@ void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
 void        GHistFit::Reset(Option_t* option)
 {
     im.Reset(option);
+    sub0im.Reset(option);
+    sub1im.Reset(option);
+    sub2im.Reset(option);
+    theta.Reset(option);
+    phi.Reset(option);
+    Pim.Reset(option);
+    Ptheta.Reset(option);
+    Pphi.Reset(option);
     chiSq.Reset(option);
     confidenceLevel.Reset(option);
     pulls.Reset(option);
@@ -445,6 +503,14 @@ void        GHistFit::Reset(Option_t* option)
 void        GHistFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
 {
     im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub0im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub1im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub2im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    theta.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    phi.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    Pim.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    Ptheta.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    Pphi.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     chiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     pulls.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);

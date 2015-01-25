@@ -21,6 +21,8 @@ public:
 
     virtual Double_t        ConfidenceLevel()           = 0;
     virtual TLorentzVector  GetTotalFitParticle()       = 0;
+    virtual TLorentzVector  GetSub(const int i)         = 0;
+    virtual TLorentzVector  GetRecoil()                 = 0;
     virtual Double_t        GetChi2()                   = 0;
     virtual Double_t        GetPull(const Int_t index)  = 0;
     virtual Bool_t          IsSolved()                  = 0;
@@ -40,6 +42,8 @@ public:
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}
@@ -68,6 +72,9 @@ public:
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}
@@ -101,6 +108,9 @@ public:
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle();
+
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}
@@ -125,7 +135,7 @@ public:
 
 
 
-class	GFit4ConstraintsProton    : public GFit
+class	GFit7ConstraintsProton    : public GFit
 {
 private:
     Bool_t              solved;
@@ -133,41 +143,14 @@ private:
     GKinFitter          fitter;
 
 public:
-    GFit4ConstraintsProton(const Bool_t _IsEtap);
-    ~GFit4ConstraintsProton();
+    GFit7ConstraintsProton(const Bool_t _IsEtap);
+    ~GFit7ConstraintsProton();
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle();
-    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    virtual Bool_t          IsSolved()                      {return solved;}
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5,
-                const TLorentzVector& beamAndTarget,
-                const TLorentzVector& proton);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
-};
 
-
-
-
-class	GFit4ConstraintsProtonExact    : public GFit
-{
-private:
-    Bool_t              solved;
-    Bool_t              isEtap;
-    GKinFitter          fitter;
-
-public:
-    GFit4ConstraintsProtonExact(const Bool_t _IsEtap);
-    ~GFit4ConstraintsProtonExact();
-
-    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    virtual TLorentzVector  GetTotalFitParticle();
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6).Get4Vector();}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}
@@ -186,10 +169,7 @@ public:
 
 
 
-
-
-
-class	GFit4ConstraintsBeamProton    : public GFit
+class	GFit7ConstraintsBeamProton    : public GFit
 {
 private:
     Bool_t              solved;
@@ -197,11 +177,14 @@ private:
     GKinFitter          fitter;
 
 public:
-    GFit4ConstraintsBeamProton(const Bool_t _IsEtap);
-    ~GFit4ConstraintsBeamProton();
+    GFit7ConstraintsBeamProton(const Bool_t _IsEtap);
+    ~GFit7ConstraintsBeamProton();
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle();
+
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6).Get4Vector();}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}
@@ -229,6 +212,14 @@ class   GHistFit    : public    GHistLinked
 private:
     Int_t       nPulls;
     GH1         im;
+    GH1         sub0im;
+    GH1         sub1im;
+    GH1         sub2im;
+    GH1         theta;
+    GH1         phi;
+    GH1         Pim;
+    GH1         Ptheta;
+    GH1         Pphi;
     GH1         chiSq;
     GH1         confidenceLevel;
     GHistBGSub2 pulls;

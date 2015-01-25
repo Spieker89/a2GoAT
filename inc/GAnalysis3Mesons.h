@@ -81,8 +81,10 @@ private:
     GFit3Constraints            fit3;
     GFit4Constraints            fit4;
     GFit4ConstraintsBeam        fit4Beam;
-    GFit4ConstraintsProton      fit4Proton;
-    GFit4ConstraintsBeamProton  fit4BeamProton;
+    GFit7ConstraintsProton      fit4Proton;
+    GFit7ConstraintsBeamProton  fit4BeamProton;
+
+    TLorentzVector  GetCorrectedProton(const GTreeParticle& proton);
 
 protected:
 
