@@ -23,6 +23,7 @@ public:
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual Double_t        ConstraintsConfidenceLevel()    {return fitter.ConstraintsConfidenceLevel();}
     virtual Double_t        VariablesConfidenceLevel()      {return fitter.VariablesConfidenceLevel();}
+    virtual Int_t           GetIterations()                 {return fitter.GetIterations();}
     virtual TLorentzVector  GetTotalFitParticle()       = 0;
     virtual TLorentzVector  GetSub(const int i)         = 0;
     virtual TLorentzVector  GetRecoil()                 = 0;
@@ -216,6 +217,37 @@ private:
 public:
     GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram= kTRUE);
     ~GHistFit();
+
+    virtual void        CalcResult();
+    virtual Int_t       Fill(Double_t x)                {}
+    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime);
+    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel);
+    virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void        Reset(Option_t* option = "");
+    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+};
+
+
+class   GHistIterativeFit    : public    GHistLinked
+{
+private:
+    GHistBGSub2 im;
+    GHistBGSub2 sub0im;
+    GHistBGSub2 sub1im;
+    GHistBGSub2 sub2im;
+    GHistBGSub2 mm;
+    GHistBGSub2 totE;
+    GHistBGSub2 totPx;
+    GHistBGSub2 totPy;
+    GHistBGSub2 totPz;
+    GHistBGSub2 CchiSq;
+    GHistBGSub2 CconfidenceLevel;
+    GHistFit    final;
+
+public:
+    GHistIterativeFit(const char* name, const char* title, const Int_t _NPulls, const Int_t _NSteps, Bool_t linkHistogram= kTRUE);
+    ~GHistIterativeFit();
 
     virtual void        CalcResult();
     virtual Int_t       Fill(Double_t x)                {}

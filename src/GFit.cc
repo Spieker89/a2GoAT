@@ -373,22 +373,22 @@ void    GFit7ConstraintsBeamProton::Set(const TLorentzVector& p0,
 GHistFit::GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram)   :
     GHistLinked(linkHistogram),
     nPulls(_NPulls),
-    im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 2000, 0, 2000, 48, kFALSE),
-    sub0im(TString(name).Append("_sub0im"), TString(title).Append(" sub0 inv. Mass"), 800, 0, 800, 48, kFALSE),
-    sub1im(TString(name).Append("_sub1im"), TString(title).Append(" sub1 inv. Mass"), 400, 0, 400, 48, kFALSE),
-    sub2im(TString(name).Append("_sub2im"), TString(title).Append(" sub2 inv. Mass"), 400, 0, 400, 48, kFALSE),
-    theta(TString(name).Append("_theta"), TString(title).Append(" theta"), 180, 0, 180, 48, kFALSE),
-    phi(TString(name).Append("_phi"), TString(title).Append(" phi"), 360, -180, 180, 48, kFALSE),
-    Pim(TString(name).Append("_Pim"), TString(title).Append(" Proton Mass"), 2000, 0, 2000, 48, kFALSE),
-    Ptheta(TString(name).Append("_Ptheta"), TString(title).Append(" Proton theta"), 180, 0, 180, 48, kFALSE),
-    Pphi(TString(name).Append("_Pphi"), TString(title).Append(" Proton phi"), 360, -180, 180, 48, kFALSE),
-    chiSq(TString(name).Append("_ChiSq"), TString(title).Append(" ChiSq"), 1000, 0, 100000, 48, kFALSE),
-    VchiSq(TString(name).Append("_VChiSq"), TString(title).Append(" VChiSq"), 1000, 0, 100000, 48, kFALSE),
-    CchiSq(TString(name).Append("_CChiSq"), TString(title).Append(" CChiSq"), 1000, 0, 100, 48, kFALSE),
-    confidenceLevel(TString(name).Append("_ConfLev"), TString(title).Append(" ConfLev"), 1000, 0, 1, 48, kFALSE),
-    VconfidenceLevel(TString(name).Append("_VConfLev"), TString(title).Append(" VConfLev"), 1000, 0, 1, 48, kFALSE),
-    CconfidenceLevel(TString(name).Append("_CConfLev"), TString(title).Append(" CConfLev"), 1000, 0, 1, 48, kFALSE),
-    pulls(TString(name).Append("_Pulls"), TString(title).Append(" Pulls"), 100, -5, 5, nPulls, 0, nPulls, kFALSE)
+    im(TString(name).Append("im"), TString(title).Append(" inv. Mass"), 2000, 0, 2000, 48, kFALSE),
+    sub0im(TString(name).Append("sub0im"), TString(title).Append(" sub0 inv. Mass"), 800, 0, 800, 48, kFALSE),
+    sub1im(TString(name).Append("sub1im"), TString(title).Append(" sub1 inv. Mass"), 400, 0, 400, 48, kFALSE),
+    sub2im(TString(name).Append("sub2im"), TString(title).Append(" sub2 inv. Mass"), 400, 0, 400, 48, kFALSE),
+    theta(TString(name).Append("theta"), TString(title).Append(" theta"), 180, 0, 180, 48, kFALSE),
+    phi(TString(name).Append("phi"), TString(title).Append(" phi"), 360, -180, 180, 48, kFALSE),
+    Pim(TString(name).Append("Pim"), TString(title).Append(" Proton Mass"), 2000, 0, 2000, 48, kFALSE),
+    Ptheta(TString(name).Append("Ptheta"), TString(title).Append(" Proton theta"), 180, 0, 180, 48, kFALSE),
+    Pphi(TString(name).Append("Pphi"), TString(title).Append(" Proton phi"), 360, -180, 180, 48, kFALSE),
+    chiSq(TString(name).Append("ChiSq"), TString(title).Append(" ChiSq"), 1000, 0, 100000, 48, kFALSE),
+    VchiSq(TString(name).Append("VChiSq"), TString(title).Append(" VChiSq"), 1000, 0, 100000, 48, kFALSE),
+    CchiSq(TString(name).Append("CChiSq"), TString(title).Append(" CChiSq"), 1000, 0, 100, 48, kFALSE),
+    confidenceLevel(TString(name).Append("ConfLev"), TString(title).Append(" ConfLev"), 1000, 0, 1, 48, kFALSE),
+    VconfidenceLevel(TString(name).Append("VConfLev"), TString(title).Append(" VConfLev"), 1000, 0, 1, 48, kFALSE),
+    CconfidenceLevel(TString(name).Append("CConfLev"), TString(title).Append(" CConfLev"), 1000, 0, 1, 48, kFALSE),
+    pulls(TString(name).Append("Pulls"), TString(title).Append(" Pulls"), 100, -5, 5, nPulls, 0, nPulls, kFALSE)
 {
 
 }
@@ -546,4 +546,146 @@ void        GHistFit::ScalerReadCorrection(const Double_t CorrectionFactor, cons
     VconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     CconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     pulls.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+}
+
+
+
+
+
+
+
+
+
+GHistIterativeFit::GHistIterativeFit(const char* name, const char* title, const Int_t _NPulls, const Int_t _NSteps, Bool_t linkHistogram)   :
+    GHistLinked(linkHistogram),
+    im(TString(name).Append("im"), TString(title).Append(" inv. Mass"), 2000, 0, 2000, _NSteps, 0, _NSteps, kFALSE),
+    sub0im(TString(name).Append("sub0im"), TString(title).Append(" sub0 inv. Mass"), 800, 0, 800, _NSteps, 0, _NSteps, kFALSE),
+    sub1im(TString(name).Append("sub1im"), TString(title).Append(" sub1 inv. Mass"), 400, 0, 400, _NSteps, 0, _NSteps, kFALSE),
+    sub2im(TString(name).Append("sub2im"), TString(title).Append(" sub2 inv. Mass"), 400, 0, 400, _NSteps, 0, _NSteps, kFALSE),
+    mm(TString(name).Append("mm"), TString(title).Append(" mm"), 3000, 0, 2000, _NSteps, 0, _NSteps, kFALSE),
+    totE(TString(name).Append("totE"), TString(title).Append(" totE"), 3000, 0, 3000, _NSteps, 0, _NSteps, kFALSE),
+    totPx(TString(name).Append("totPx"), TString(title).Append(" totPx"), 2000, -1000, 1000, _NSteps, 0, _NSteps, kFALSE),
+    totPy(TString(name).Append("totPy"), TString(title).Append(" totPy"), 2000, -1000, 1000, _NSteps, 0, _NSteps, kFALSE),
+    totPz(TString(name).Append("totPz"), TString(title).Append(" totPz"), 2000, 0, 2000, _NSteps, 0, _NSteps, kFALSE),
+    CchiSq(TString(name).Append("CChiSq"), TString(title).Append(" CChiSq"), 1000, 0, 100, _NSteps, 0, _NSteps, kFALSE),
+    CconfidenceLevel(TString(name).Append("CConfLev"), TString(title).Append(" CConfLev"), 1000, 0, 1, _NSteps, 0, _NSteps, kFALSE),
+    final(TString(name).Append("Final"), TString(title).Append(" Final"), _NPulls, kFALSE)
+{
+
+}
+
+GHistIterativeFit::~GHistIterativeFit()
+{
+
+}
+
+
+void        GHistIterativeFit::CalcResult()
+{
+    //std::cout << im.GetName() << std::endl;
+    im.CalcResult();
+    sub0im.CalcResult();
+    sub1im.CalcResult();
+    sub2im.CalcResult();
+    mm.CalcResult();
+    totE.CalcResult();
+    totPx.CalcResult();
+    totPy.CalcResult();
+    totPz.CalcResult();
+    CchiSq.CalcResult();
+    CconfidenceLevel.CalcResult();
+
+    final.CalcResult();
+}
+
+Int_t       GHistIterativeFit::Fill(GFit& fitter, const Double_t taggerTime)
+{
+    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    im.Fill(etap.M(), fitter.GetIterations());
+    sub0im.Fill(fitter.GetSub(0).M(), fitter.GetIterations());
+    sub1im.Fill(fitter.GetSub(1).M(), fitter.GetIterations());
+    sub2im.Fill(fitter.GetSub(2).M(), fitter.GetIterations());
+    mm.Fill(fitter.GetTotalFitParticle().M(), fitter.GetIterations());
+    totE.Fill(fitter.GetTotalFitParticle().E(), fitter.GetIterations());
+    totPx.Fill(fitter.GetTotalFitParticle().Px(), fitter.GetIterations());
+    totPy.Fill(fitter.GetTotalFitParticle().Py(), fitter.GetIterations());
+    totPz.Fill(fitter.GetTotalFitParticle().Pz(), fitter.GetIterations());
+    CchiSq.Fill(fitter.GetConstraintsChi2(), fitter.GetIterations());
+    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), fitter.GetIterations());
+
+    final.Fill(fitter, taggerTime);
+}
+
+Int_t       GHistIterativeFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)
+{
+
+    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    im.Fill(etap.M(), fitter.GetIterations());
+    sub0im.Fill(fitter.GetSub(0).M(), fitter.GetIterations());
+    sub1im.Fill(fitter.GetSub(1).M(), fitter.GetIterations());
+    sub2im.Fill(fitter.GetSub(2).M(), fitter.GetIterations());
+    mm.Fill(fitter.GetTotalFitParticle().M(), fitter.GetIterations());
+    totE.Fill(fitter.GetTotalFitParticle().E(), fitter.GetIterations());
+    totPx.Fill(fitter.GetTotalFitParticle().Px(), fitter.GetIterations());
+    totPy.Fill(fitter.GetTotalFitParticle().Py(), fitter.GetIterations());
+    totPz.Fill(fitter.GetTotalFitParticle().Pz(), fitter.GetIterations());
+    CchiSq.Fill(fitter.GetConstraintsChi2(), fitter.GetIterations());
+    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), fitter.GetIterations());
+
+    final.Fill(fitter, taggerTime, taggerChannel);
+}
+
+void    GHistIterativeFit::PrepareWriteList(GHistWriteList* arr, const char* name)
+{
+    if(!arr)
+        return;
+
+        im.PrepareWriteList(arr, "IM");
+        sub0im.PrepareWriteList(arr, "_Sub0IM");
+        sub1im.PrepareWriteList(arr, "_Sub1IM");
+        sub2im.PrepareWriteList(arr, "_Sub2IM");
+        mm.PrepareWriteList(arr, "_MM");
+        totE.PrepareWriteList(arr, "_TotE");
+        totPx.PrepareWriteList(arr, "_TotPx");
+        totPy.PrepareWriteList(arr, "_TotPy");
+        totPz.PrepareWriteList(arr, "_TotPz");
+        CchiSq.PrepareWriteList(arr, "_CChiSq");
+        CconfidenceLevel.PrepareWriteList(arr, "_CConfLev");
+
+    GHistWriteList* finalDir    = arr->GetDirectory("Final");
+    final.PrepareWriteList(finalDir, "Final");
+}
+
+void        GHistIterativeFit::Reset(Option_t* option)
+{
+    im.Reset(option);
+    sub0im.Reset(option);
+    sub1im.Reset(option);
+    sub2im.Reset(option);
+    mm.Reset(option);
+    totE.Reset(option);
+    totPx.Reset(option);
+    totPy.Reset(option);
+    totPz.Reset(option);
+    CchiSq.Reset(option);
+    CconfidenceLevel.Reset(option);
+
+    final.Reset(option);
+}
+
+void        GHistIterativeFit::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
+{
+    im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub0im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub1im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    sub2im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    mm.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    totE.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    totPx.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    totPy.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    totPz.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CchiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+
+    final.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }

@@ -13,12 +13,12 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
     fit3(kTRUE),
     fit4(kTRUE),
     fit4Beam(kTRUE),
-    hist_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" SubImCut fit3"), 24, kFALSE),
-    hist_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" SubImCut fit4"), 24, kFALSE),
-    hist_fit4Beam(TString(name).Append("_SubImCut_fit4Beam"), TString(title).Append(" SubImCut fit4Beam"), 28, kFALSE),
-    hist_SubImCut_fit3(TString(name).Append("fit3"), TString(title).Append("fit3"), 24, kFALSE),
-    hist_SubImCut_fit4(TString(name).Append("fit4"), TString(title).Append("fit4"), 24, kFALSE),
-    hist_SubImCut_fit4Beam(TString(name).Append("fit4Beam"), TString(title).Append("fit4Beam"), 28, kFALSE)
+    hist_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" SubImCut fit3"), 24, 10, kFALSE),
+    hist_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" SubImCut fit4"), 24, 10, kFALSE),
+    hist_fit4Beam(TString(name).Append("_SubImCut_fit4Beam"), TString(title).Append(" SubImCut fit4Beam"), 28, 10, kFALSE),
+    hist_SubImCut_fit3(TString(name).Append("fit3"), TString(title).Append("fit3"), 24, 10, kFALSE),
+    hist_SubImCut_fit4(TString(name).Append("fit4"), TString(title).Append("fit4"), 24, 10, kFALSE),
+    hist_SubImCut_fit4Beam(TString(name).Append("fit4Beam"), TString(title).Append("fit4Beam"), 28, 10, kFALSE)
 {
     if(_IsEtap==kTRUE)
         SetCutSubIM(0, 497, 697);
@@ -243,16 +243,16 @@ GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* tit
     fit4Beam(kTRUE),
     fit4Proton(kTRUE),
     fit4BeamProton(kTRUE),
-    hist_SubImCut_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" SubImCut fit3"), 24, kFALSE),
-    hist_SubImCut_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" SubImCut fit4"), 24, kFALSE),
-    hist_SubImCut_fit4Beam(TString(name).Append("_SubImCut_fit4Beam"), TString(title).Append(" SubImCut fit4Beam"), 28, kFALSE),
-    hist_SubImCut_fit4Proton(TString(name).Append("_SubImCut_fit4Proton"), TString(title).Append(" SubImCut fit4Proton"), 28, kFALSE),
-    hist_SubImCut_fit4BeamProton(TString(name).Append("_SubImCut_fit4BeamProton"), TString(title).Append(" SubImCut fit4BeamProton"), 32, kFALSE),
-    hist_fit3(TString(name).Append("fit3"), TString(title).Append("fit3"), 24, kFALSE),
-    hist_fit4(TString(name).Append("fit4"), TString(title).Append("fit4"), 24, kFALSE),
-    hist_fit4Beam(TString(name).Append("fit4Beam"), TString(title).Append("fit4Beam"), 28, kFALSE),
-    hist_fit4Proton(TString(name).Append("fit4Proton"), TString(title).Append("fit4Proton"), 28, kFALSE),
-    hist_fit4BeamProton(TString(name).Append("fit4BeamProton"), TString(title).Append("fit4BeamProton"), 32, kFALSE)
+    hist_SubImCut_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" SubImCut fit3"), 24, 10, kFALSE),
+    hist_SubImCut_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" SubImCut fit4"), 24, 10, kFALSE),
+    hist_SubImCut_fit4Beam(TString(name).Append("_SubImCut_fit4Beam"), TString(title).Append(" SubImCut fit4Beam"), 28, 10, kFALSE),
+    hist_SubImCut_fit4Proton(TString(name).Append("_SubImCut_fit4Proton"), TString(title).Append(" SubImCut fit4Proton"), 28, 10, kFALSE),
+    hist_SubImCut_fit4BeamProton(TString(name).Append("_SubImCut_fit4BeamProton"), TString(title).Append(" SubImCut fit4BeamProton"), 32, 10, kFALSE),
+    hist_fit3(TString(name).Append("fit3"), TString(title).Append("fit3"), 24, 10, kFALSE),
+    hist_fit4(TString(name).Append("fit4"), TString(title).Append("fit4"), 24, 10, kFALSE),
+    hist_fit4Beam(TString(name).Append("fit4Beam"), TString(title).Append("fit4Beam"), 28, 10, kFALSE),
+    hist_fit4Proton(TString(name).Append("fit4Proton"), TString(title).Append("fit4Proton"), 28, 10, kFALSE),
+    hist_fit4BeamProton(TString(name).Append("fit4BeamProton"), TString(title).Append("fit4BeamProton"), 32, 10, kFALSE)
 {
 
 }

@@ -86,6 +86,7 @@ public:
     };
 
 private:
+    Int_t           nIter;
     ConstraintType  conType[20];
     Double_t        mass[20];
     Int_t           nIndices[20];
@@ -104,7 +105,10 @@ public:
     virtual void AddTotMomentumConstraint(const TVector3 mom); //based on total 3 momentum of added particles
     virtual void AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass); // Based on missing mass of particles in subset
 
-    virtual Int_t Solve();
+    virtual Int_t   GetIterations()    {return nIter;}
+
+    virtual void    Reset()            {nIter=0; GKinFitter::Reset();}
+    virtual Int_t   Solve();
 };
 
 
