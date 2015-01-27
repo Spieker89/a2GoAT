@@ -41,8 +41,8 @@ public:
     ~GFit3Constraints();
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
@@ -71,9 +71,9 @@ public:
     ~GFit4Constraints();
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle().Get4Vector();}
+    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle();}
 
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
@@ -109,7 +109,7 @@ public:
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle();
 
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
@@ -149,8 +149,8 @@ public:
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle();
 
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
-    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6).Get4Vector();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
+    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}
@@ -183,8 +183,8 @@ public:
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual TLorentzVector  GetTotalFitParticle();
 
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i).Get4Vector()+fitter.GetParticle((2*i)+1).Get4Vector();}
-    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6).Get4Vector();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
+    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
     virtual Bool_t          IsSolved()                      {return solved;}

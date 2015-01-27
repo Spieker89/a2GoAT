@@ -144,7 +144,7 @@ TLorentzVector  GFit4ConstraintsBeam::GetTotalFitParticle()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
-        ret += fitter.GetParticle(i).Get4Vector();
+        ret += fitter.GetParticle(i);
     return ret;
 }
 
@@ -217,7 +217,7 @@ TLorentzVector  GFit7ConstraintsProton::GetTotalFitParticle()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
-        ret += fitter.GetParticle(i).Get4Vector();
+        ret += fitter.GetParticle(i);
     return ret;
 }
 
@@ -305,7 +305,7 @@ TLorentzVector  GFit7ConstraintsBeamProton::GetTotalFitParticle()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
-        ret += fitter.GetParticle(i).Get4Vector();
+        ret += fitter.GetParticle(i);
     return ret;
 }
 

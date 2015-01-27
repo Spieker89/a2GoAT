@@ -48,11 +48,11 @@ public:
     void AddPosKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute + to fPtot
     void AddNegKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute - to fPtot
 
-	GKinFitterParticle GetTotalFitParticle();//returns alpha=fPtot and sum of error matrices  from each particle
+    TLorentzVector GetTotalFitParticle();//returns alpha=fPtot and sum of error matrices  from each particle
     TLorentzVector Get4Vector()                             {return fPtot;}
-    GKinFitterParticle GetParticle(const Int_t ip);
-    GKinFitterParticle GetInitialParticle(const Int_t ip);
-    GKinFitterParticle GetOriginalParticle(const Int_t ip);
+    TLorentzVector GetParticle(const Int_t ip);
+    TLorentzVector GetInitialParticle(const Int_t ip);
+    TLorentzVector GetOriginalParticle(const Int_t ip);
     Double_t GetChi2()                                      {return fchi2;}
 
     Double_t ConfidenceLevel()      {return TMath::Prob(fchi2,fNcon-fNunKnown);}//Note should be Ncon-Nunknowns

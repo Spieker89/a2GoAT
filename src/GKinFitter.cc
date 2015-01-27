@@ -130,7 +130,7 @@ void GKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], cons
   //Add up the particle 4 vectors
   TLorentzVector ptot(0.0,0.0,0.0,0.0);
   for(Int_t i=0; i<Np; i++){
-    ptot+=GetInitialParticle(pid[i]).Get4Vector();
+    ptot+=GetInitialParticle(pid[i]);
   }
   //d matrix (evaluate constraint eqn.)
   fmd[fNconi][0]=ptot.M2()-Minv*Minv;
@@ -207,7 +207,7 @@ void GKinFitter::AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t 
   //Add up the particle 4 vectors
   TLorentzVector Ptot(0.0,0.0,0.0,0.0);
   for(Int_t i=0; i<Np; i++){
-    Ptot += GetInitialParticle(pid[i]).Get4Vector();
+    Ptot += GetInitialParticle(pid[i]);
   }
 
   //d matrix (evaluate constraint eqn.)
@@ -277,92 +277,57 @@ void GKinFitter::AddNegKFParticle(GKinFitterParticle kfp){
 }
 
 //-----------------------------------------------------------------------------
-GKinFitterParticle GKinFitter::GetTotalFitParticle(){
-
-  GKinFitterParticle kfp;
+TLorentzVector GKinFitter::GetTotalFitParticle()
+{
   TMatrixD mtot(fNvar,1);
 
   //loop over the sub matrices in alpha and add to total
   for(Int_t i=0; i<fNpart; i++){
     mtot+=fmAlpha2.GetSub(i*fNvar,(i+1)*fNvar-1,0,0);
   }
-
-  //Set 4 vector, automatically sets alpha.
-  kfp.Set4Vector(TLorentzVector(mtot[0][0],mtot[1][0],mtot[2][0],mtot[3][0]));
-  // Add the error matrixes
-  TMatrixD mV_tot(fNvar,fNvar);
-
-  for(Int_t i=0; i<fNpart; i++){
-    mV_tot+=fmV_Alpha.GetSub(i*fNvar,(i+1)*fNvar-1,i*fNvar,(i+1)*fNvar-1);
-  }
-
-  kfp.SetVAlpha(mV_tot);
-
-  return kfp;
-
+  return TLorentzVector(mtot[0][0],mtot[1][0],mtot[2][0],mtot[3][0]);
 }
 
 //-----------------------------------------------------------------------------
-GKinFitterParticle GKinFitter::GetParticle(Int_t ip){
+TLorentzVector GKinFitter::GetParticle(Int_t ip){
 
   //Return the fitted particle that was added ith
   if(ip>fNpari){
     std::cout<<"GKinFitter::GetParticle particle not in fit"<<std::endl;
-    return GKinFitterParticle();
+    return TLorentzVector(0.0,0.0,0.0,0.0);
   }
 
-  GKinFitterParticle kfp;
   TMatrixD mi(fNvar,1);
-
   mi=fmAlpha2.GetSub(ip*fNvar,(ip+1)*fNvar-1,0,0);
-  kfp.Set4Vector(TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]));
-  TMatrixD mVi(fNvar,fNvar);
-  mVi=fmV_Alpha.GetSub(ip*fNvar,(ip+1)*fNvar-1,ip*fNvar,(ip+1)*fNvar-1);
-  kfp.SetVAlpha(mVi);
-  return kfp;
-
+  return TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]);
 }
 
 //-----------------------------------------------------------------------------
-GKinFitterParticle GKinFitter::GetInitialParticle(Int_t ip){
+TLorentzVector GKinFitter::GetInitialParticle(Int_t ip){
 
   //Return the unfitted particle that was added ith
   if(ip>fNpari){
     std::cout<<"GKinFitter::GetInitialParticle particle not in fit"<<std::endl;
-    return GKinFitterParticle();
+    return TLorentzVector(0.0,0.0,0.0,0.0);
   }
 
-  GKinFitterParticle kfp;
   TMatrixD mi(fNvar,1);
-
   mi=fmAlpha1.GetSub(ip*fNvar,(ip+1)*fNvar-1,0,0);
-  kfp.Set4Vector(TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]));
-  TMatrixD mVi(fNvar,fNvar);
-  mVi=fmV_Alpha0.GetSub(ip*fNvar,(ip+1)*fNvar-1,ip*fNvar,(ip+1)*fNvar-1);
-  kfp.SetVAlpha(mVi);
-  return kfp;
-
+  return TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]);
 }
 
 //-----------------------------------------------------------------------------
-GKinFitterParticle GKinFitter::GetOriginalParticle(Int_t ip){
+TLorentzVector GKinFitter::GetOriginalParticle(Int_t ip){
 
   //Return the unfitted particle that was added ith
   if(ip>fNpari){
     std::cout<<"GKinFitter::GetInitialParticle particle not in fit"<<std::endl;
-    return GKinFitterParticle();
+    return TLorentzVector(0.0,0.0,0.0,0.0);
   }
 
-  GKinFitterParticle kfp;
   TMatrixD mi(fNvar,1);
-
   mi=fmAlpha0.GetSub(ip*fNvar,(ip+1)*fNvar-1,0,0);
-  kfp.Set4Vector(TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]));
-  TMatrixD mVi(fNvar,fNvar);
-  mVi=fmV_Alpha0.GetSub(ip*fNvar,(ip+1)*fNvar-1,ip*fNvar,(ip+1)*fNvar-1);
-  kfp.SetVAlpha(mVi);
-  return kfp;
-
+  return TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]);
 }
 
 //-----------------------------------------------------------------------------
