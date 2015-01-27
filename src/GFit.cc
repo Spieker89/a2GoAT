@@ -3,7 +3,6 @@
 
 
 GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
-    solved(kFALSE),
     isEtap(_IsEtap),
     GFit(6, 3)
 {
@@ -62,7 +61,6 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
 
 
 GFit4Constraints::GFit4Constraints(const Bool_t _IsEtap)    :
-    solved(kFALSE),
     isEtap(_IsEtap),
     GFit(6, 4)
 {
@@ -80,8 +78,10 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
                               const TLorentzVector& p3,
                               const TLorentzVector& p4,
                               const TLorentzVector& p5,
-                              const TLorentzVector& beamAndTarget)
+                              const TLorentzVector& _BeamAndTarget)
 {
+    beamAndTarget  = _BeamAndTarget;
+
     solved = kFALSE;
     fitter.Reset();
 
@@ -128,7 +128,6 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
 
 
 GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t _IsEtap)    :
-    solved(kFALSE),
     isEtap(_IsEtap),
     GFit(7, 4)
 {
@@ -140,7 +139,7 @@ GFit4ConstraintsBeam::~GFit4ConstraintsBeam()
 
 }
 
-TLorentzVector  GFit4ConstraintsBeam::GetTotalFitParticle()
+TLorentzVector  GFit4ConstraintsBeam::GetMeson()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
@@ -201,7 +200,6 @@ void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
 
 
 GFit7ConstraintsProton::GFit7ConstraintsProton(const Bool_t _IsEtap)    :
-    solved(kFALSE),
     isEtap(_IsEtap),
     GFit(7, 7)
 {
@@ -213,7 +211,7 @@ GFit7ConstraintsProton::~GFit7ConstraintsProton()
 
 }
 
-TLorentzVector  GFit7ConstraintsProton::GetTotalFitParticle()
+TLorentzVector  GFit7ConstraintsProton::GetMeson()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
@@ -227,9 +225,11 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
                                     const TLorentzVector& p3,
                                     const TLorentzVector& p4,
                                     const TLorentzVector& p5,
-                                    const TLorentzVector& beamAndTarget,
+                                    const TLorentzVector& _BeamAndTarget,
                                     const TLorentzVector& proton)
 {
+    beamAndTarget = _BeamAndTarget;
+
     solved = kFALSE;
     fitter.Reset();
 
@@ -289,7 +289,6 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
 
 
 GFit7ConstraintsBeamProton::GFit7ConstraintsBeamProton(const Bool_t _IsEtap)    :
-    solved(kFALSE),
     isEtap(_IsEtap),
     GFit(8, 7)
 {
@@ -301,7 +300,7 @@ GFit7ConstraintsBeamProton::~GFit7ConstraintsBeamProton()
 
 }
 
-TLorentzVector  GFit7ConstraintsBeamProton::GetTotalFitParticle()
+TLorentzVector  GFit7ConstraintsBeamProton::GetMeson()
 {
     TLorentzVector ret(0, 0, 0, 0);
     for(int i=0; i<6; i++)
@@ -420,7 +419,7 @@ void        GHistFit::CalcResult()
 
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
 {
-    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    TLorentzVector  etap(fitter.GetMeson());
     im.Fill(etap.M(), taggerTime);
     sub0im.Fill(fitter.GetSub(0).M(), taggerTime);
     sub1im.Fill(fitter.GetSub(1).M(), taggerTime);
@@ -443,7 +442,7 @@ Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)
 {
 
-    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    TLorentzVector  etap(fitter.GetMeson());
     im.Fill(etap.M(), taggerTime, taggerChannel);
     sub0im.Fill(fitter.GetSub(0).M(), taggerTime, taggerChannel);
     sub1im.Fill(fitter.GetSub(1).M(), taggerTime, taggerChannel);
@@ -558,17 +557,21 @@ void        GHistFit::ScalerReadCorrection(const Double_t CorrectionFactor, cons
 
 GHistIterativeFit::GHistIterativeFit(const char* name, const char* title, const Int_t _NPulls, const Int_t _NSteps, Bool_t linkHistogram)   :
     GHistLinked(linkHistogram),
-    im(TString(name).Append("im"), TString(title).Append(" inv. Mass"), 2000, 0, 2000, _NSteps, 0, _NSteps, kFALSE),
-    sub0im(TString(name).Append("sub0im"), TString(title).Append(" sub0 inv. Mass"), 800, 0, 800, _NSteps, 0, _NSteps, kFALSE),
-    sub1im(TString(name).Append("sub1im"), TString(title).Append(" sub1 inv. Mass"), 400, 0, 400, _NSteps, 0, _NSteps, kFALSE),
-    sub2im(TString(name).Append("sub2im"), TString(title).Append(" sub2 inv. Mass"), 400, 0, 400, _NSteps, 0, _NSteps, kFALSE),
-    mm(TString(name).Append("mm"), TString(title).Append(" mm"), 3000, 0, 2000, _NSteps, 0, _NSteps, kFALSE),
-    totE(TString(name).Append("totE"), TString(title).Append(" totE"), 3000, 0, 3000, _NSteps, 0, _NSteps, kFALSE),
-    totPx(TString(name).Append("totPx"), TString(title).Append(" totPx"), 2000, -1000, 1000, _NSteps, 0, _NSteps, kFALSE),
-    totPy(TString(name).Append("totPy"), TString(title).Append(" totPy"), 2000, -1000, 1000, _NSteps, 0, _NSteps, kFALSE),
-    totPz(TString(name).Append("totPz"), TString(title).Append(" totPz"), 2000, 0, 2000, _NSteps, 0, _NSteps, kFALSE),
+    im(TString(name).Append("im"), TString(title).Append(" inv. Mass"), 750, 500, 1250, _NSteps, 0, _NSteps, kFALSE),
+    sub0im(TString(name).Append("sub0im"), TString(title).Append(" sub0 inv. Mass"), 1000, 500, 600, _NSteps, 0, _NSteps, kFALSE),
+    sub1im(TString(name).Append("sub1im"), TString(title).Append(" sub1 inv. Mass"), 1000, 85, 185, _NSteps, 0, _NSteps, kFALSE),
+    sub2im(TString(name).Append("sub2im"), TString(title).Append(" sub2 inv. Mass"), 1000, 85, 185, _NSteps, 0, _NSteps, kFALSE),
+    mm(TString(name).Append("mm"), TString(title).Append(" mm"), 10500, -50, 1000, _NSteps, 0, _NSteps, kFALSE),
+    totE(TString(name).Append("totE"), TString(title).Append(" totE"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
+    totPx(TString(name).Append("totPx"), TString(title).Append(" totPx"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
+    totPy(TString(name).Append("totPy"), TString(title).Append(" totPy"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
+    totPz(TString(name).Append("totPz"), TString(title).Append(" totPz"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
+    VchiSq(TString(name).Append("VChiSq"), TString(title).Append(" VChiSq"), 1000, 0, 1000000, _NSteps, 0, _NSteps, kFALSE),
+    VconfidenceLevel(TString(name).Append("VConfLev"), TString(title).Append(" VConfLev"), 1000, 0, 1, _NSteps, 0, _NSteps, kFALSE),
     CchiSq(TString(name).Append("CChiSq"), TString(title).Append(" CChiSq"), 1000, 0, 100, _NSteps, 0, _NSteps, kFALSE),
     CconfidenceLevel(TString(name).Append("CConfLev"), TString(title).Append(" CConfLev"), 1000, 0, 1, _NSteps, 0, _NSteps, kFALSE),
+    chiSq(TString(name).Append("ChiSq"), TString(title).Append(" ChiSq"), 1000, 0, 1000000, _NSteps, 0, _NSteps, kFALSE),
+    confidenceLevel(TString(name).Append("ConfLev"), TString(title).Append(" ConfLev"), 1000, 0, 1, _NSteps, 0, _NSteps, kFALSE),
     final(TString(name).Append("Final"), TString(title).Append(" Final"), _NPulls, kFALSE)
 {
 
@@ -592,47 +595,35 @@ void        GHistIterativeFit::CalcResult()
     totPx.CalcResult();
     totPy.CalcResult();
     totPz.CalcResult();
+    VchiSq.CalcResult();
+    VconfidenceLevel.CalcResult();
     CchiSq.CalcResult();
     CconfidenceLevel.CalcResult();
+    chiSq.CalcResult();
+    confidenceLevel.CalcResult();
 
     final.CalcResult();
 }
 
-Int_t       GHistIterativeFit::Fill(GFit& fitter, const Double_t taggerTime)
+Int_t       GHistIterativeFit::Fill(GFit& fitter)
 {
-    TLorentzVector  etap(fitter.GetTotalFitParticle());
+    TLorentzVector  etap(fitter.GetMeson());
+    TLorentzVector  tot(fitter.GetTotal());
     im.Fill(etap.M(), fitter.GetIterations());
     sub0im.Fill(fitter.GetSub(0).M(), fitter.GetIterations());
     sub1im.Fill(fitter.GetSub(1).M(), fitter.GetIterations());
     sub2im.Fill(fitter.GetSub(2).M(), fitter.GetIterations());
-    mm.Fill(fitter.GetTotalFitParticle().M(), fitter.GetIterations());
-    totE.Fill(fitter.GetTotalFitParticle().E(), fitter.GetIterations());
-    totPx.Fill(fitter.GetTotalFitParticle().Px(), fitter.GetIterations());
-    totPy.Fill(fitter.GetTotalFitParticle().Py(), fitter.GetIterations());
-    totPz.Fill(fitter.GetTotalFitParticle().Pz(), fitter.GetIterations());
+    mm.Fill(tot.M(), fitter.GetIterations());
+    totE.Fill(tot.E(), fitter.GetIterations());
+    totPx.Fill(tot.Px(), fitter.GetIterations());
+    totPy.Fill(tot.Py(), fitter.GetIterations());
+    totPz.Fill(tot.Pz(), fitter.GetIterations());
+    VchiSq.Fill(fitter.GetVariablesChi2(), fitter.GetIterations());
+    VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), fitter.GetIterations());
     CchiSq.Fill(fitter.GetConstraintsChi2(), fitter.GetIterations());
     CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), fitter.GetIterations());
-
-    final.Fill(fitter, taggerTime);
-}
-
-Int_t       GHistIterativeFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)
-{
-
-    TLorentzVector  etap(fitter.GetTotalFitParticle());
-    im.Fill(etap.M(), fitter.GetIterations());
-    sub0im.Fill(fitter.GetSub(0).M(), fitter.GetIterations());
-    sub1im.Fill(fitter.GetSub(1).M(), fitter.GetIterations());
-    sub2im.Fill(fitter.GetSub(2).M(), fitter.GetIterations());
-    mm.Fill(fitter.GetTotalFitParticle().M(), fitter.GetIterations());
-    totE.Fill(fitter.GetTotalFitParticle().E(), fitter.GetIterations());
-    totPx.Fill(fitter.GetTotalFitParticle().Px(), fitter.GetIterations());
-    totPy.Fill(fitter.GetTotalFitParticle().Py(), fitter.GetIterations());
-    totPz.Fill(fitter.GetTotalFitParticle().Pz(), fitter.GetIterations());
-    CchiSq.Fill(fitter.GetConstraintsChi2(), fitter.GetIterations());
-    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), fitter.GetIterations());
-
-    final.Fill(fitter, taggerTime, taggerChannel);
+    chiSq.Fill(fitter.GetChi2(), fitter.GetIterations());
+    confidenceLevel.Fill(fitter.ConfidenceLevel(), fitter.GetIterations());
 }
 
 void    GHistIterativeFit::PrepareWriteList(GHistWriteList* arr, const char* name)
@@ -649,8 +640,12 @@ void    GHistIterativeFit::PrepareWriteList(GHistWriteList* arr, const char* nam
         totPx.PrepareWriteList(arr, "_TotPx");
         totPy.PrepareWriteList(arr, "_TotPy");
         totPz.PrepareWriteList(arr, "_TotPz");
+        VchiSq.PrepareWriteList(arr, "_VChiSq");
+        VconfidenceLevel.PrepareWriteList(arr, "_VConfLev");
         CchiSq.PrepareWriteList(arr, "_CChiSq");
         CconfidenceLevel.PrepareWriteList(arr, "_CConfLev");
+        chiSq.PrepareWriteList(arr, "_ChiSq");
+        confidenceLevel.PrepareWriteList(arr, "_ConfLev");
 
     GHistWriteList* finalDir    = arr->GetDirectory("Final");
     final.PrepareWriteList(finalDir, "Final");
@@ -667,8 +662,12 @@ void        GHistIterativeFit::Reset(Option_t* option)
     totPx.Reset(option);
     totPy.Reset(option);
     totPz.Reset(option);
+    VchiSq.Reset(option);
+    VconfidenceLevel.Reset(option);
     CchiSq.Reset(option);
     CconfidenceLevel.Reset(option);
+    chiSq.Reset(option);
+    confidenceLevel.Reset(option);
 
     final.Reset(option);
 }
@@ -684,8 +683,12 @@ void        GHistIterativeFit::ScalerReadCorrection(const Double_t CorrectionFac
     totPx.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     totPy.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     totPz.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    VchiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    VconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     CchiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     CconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    chiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 
     final.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }

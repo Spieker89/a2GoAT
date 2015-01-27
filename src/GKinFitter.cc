@@ -424,11 +424,21 @@ void GIterativeKinFitter::AddSubMissMassConstraint(const TLorentzVector Mom, con
 Int_t GIterativeKinFitter::Solve()
 {
     if(nIter==0)
-        return GKinFitter::Solve();
+    {
+        if(GKinFitter::Solve()<0)
+            return -1;
+        nIter++;
+        return 1;
+    }
+    if(nIter==5)
+        return -1;
 
     fmAlpha1    = fmAlpha2;
+    TMatrixD    V(fmV_Alpha);
+    Double_t    CChiSq  = GetConstraintsChi2();
+    Double_t    VChiSq  = GetVariablesChi2();
 
-    GKinFitter::ResetConstraints();
+    ResetConstraints();
     fmD.Zero();
     fmd.Zero();
     fmlamda.Zero();
@@ -448,6 +458,7 @@ Int_t GIterativeKinFitter::Solve()
             break;
         case ConstraintType_InvMomentum:
             GKinFitter::AddTotMomentumConstraint(momentum[i]);
+            i+=2;
             break;
         case ConstraintType_MisMass:
             GKinFitter::AddSubMissMassConstraint(beam[i], nIndices[i], indices[i], var[i]);
@@ -458,6 +469,10 @@ Int_t GIterativeKinFitter::Solve()
     if(GKinFitter::Solve()<0)
     {
         fmAlpha2    = fmAlpha1;
+        fmV_Alpha   = V;
+        Cchi2       = CChiSq;
+        Vchi2       = VChiSq;
+        return -1;
     }
     else
         nIter++;

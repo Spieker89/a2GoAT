@@ -14,49 +14,50 @@
 class	GFit
 {
 protected:
-    GIterativeKinFitter          fitter;
+    Bool_t                  solved;
+    GIterativeKinFitter     fitter;
 
 public:
-    GFit(const Int_t npart, const Int_t ncon)   : fitter(npart, ncon)   {}
+    GFit(const Int_t npart, const Int_t ncon)   : solved(kFALSE), fitter(npart, ncon)   {}
     ~GFit()                                                             {}
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual Double_t        ConstraintsConfidenceLevel()    {return fitter.ConstraintsConfidenceLevel();}
     virtual Double_t        VariablesConfidenceLevel()      {return fitter.VariablesConfidenceLevel();}
-    virtual Int_t           GetIterations()                 {return fitter.GetIterations();}
-    virtual TLorentzVector  GetTotalFitParticle()       = 0;
+    virtual Int_t           GetIterations()                 {return fitter.GetIterations()-1;}
+    virtual TLorentzVector  GetTotal()                  = 0;
+    virtual TLorentzVector  GetMeson()                  = 0;
     virtual TLorentzVector  GetSub(const int i)         = 0;
     virtual TLorentzVector  GetRecoil()                 = 0;
     virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
     virtual Double_t        GetVariablesChi2()              {return fitter.GetVariablesChi2();}
     virtual Double_t        GetConstraintsChi2()            {return fitter.GetConstraintsChi2();}
     virtual Double_t        GetPull(const Int_t index)  = 0;
-    virtual Bool_t          IsSolved()                  = 0;
+            Bool_t          IsSolved()                      {return solved;}
+            Bool_t          Solve()                         {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
 class	GFit3Constraints    : public GFit
 {
 private:
-    Bool_t              solved;
     Bool_t              isEtap;
 
 public:
     GFit3Constraints(const Bool_t _IsEtap);
     ~GFit3Constraints();
 
-    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle();}
+    virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
+    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
                 const TLorentzVector& p5);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -65,26 +66,25 @@ public:
 class	GFit4Constraints    : public GFit
 {
 private:
-    Bool_t              solved;
     Bool_t              isEtap;
+    TLorentzVector      beamAndTarget;
 
 public:
     GFit4Constraints(const Bool_t _IsEtap);
     ~GFit4Constraints();
 
-    virtual TLorentzVector  GetTotalFitParticle()           {return fitter.GetTotalFitParticle();}
+    virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
+    virtual TLorentzVector  GetTotal()                      {return beamAndTarget - GetMeson();}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
-                const TLorentzVector& beamAndTarget);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
+                const TLorentzVector& _BeamAndTarget);
 };
 
 
@@ -97,18 +97,17 @@ public:
 class	GFit4ConstraintsBeam    : public GFit
 {
 private:
-    Bool_t              solved;
     Bool_t              isEtap;
 
 public:
     GFit4ConstraintsBeam(const Bool_t _IsEtap);
     ~GFit4ConstraintsBeam();
 
-    virtual TLorentzVector  GetTotalFitParticle();
+    virtual TLorentzVector  GetMeson();
+    virtual TLorentzVector  GetTotal()                      {return -fitter.GetParticle(6) - GetMeson();}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -116,7 +115,6 @@ public:
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -133,27 +131,26 @@ public:
 class	GFit7ConstraintsProton    : public GFit
 {
 private:
-    Bool_t              solved;
     Bool_t              isEtap;
+    TLorentzVector      beamAndTarget;
 
 public:
     GFit7ConstraintsProton(const Bool_t _IsEtap);
     ~GFit7ConstraintsProton();
 
-    virtual TLorentzVector  GetTotalFitParticle();
+    virtual TLorentzVector  GetMeson();
+    virtual TLorentzVector  GetTotal()                      {return beamAndTarget - GetMeson() - fitter.GetParticle(6);}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
-                const TLorentzVector& beamAndTarget,
+                const TLorentzVector& _BeamAndTarget,
                 const TLorentzVector& proton);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -163,18 +160,17 @@ public:
 class	GFit7ConstraintsBeamProton    : public GFit
 {
 private:
-    Bool_t              solved;
     Bool_t              isEtap;
 
 public:
     GFit7ConstraintsBeamProton(const Bool_t _IsEtap);
     ~GFit7ConstraintsBeamProton();
 
-    virtual TLorentzVector  GetTotalFitParticle();
+    virtual TLorentzVector  GetMeson();
+    virtual TLorentzVector  GetTotal()                      {return -fitter.GetParticle(6) - GetMeson() - fitter.GetParticle(7);}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    virtual Bool_t          IsSolved()                      {return solved;}
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -183,7 +179,6 @@ public:
                 const TLorentzVector& p5,
                 const TLorentzVector& beamAndTarget,
                 const TLorentzVector& proton);
-    Bool_t  Solve()                                 {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
 };
 
 
@@ -241,8 +236,12 @@ private:
     GHistBGSub2 totPx;
     GHistBGSub2 totPy;
     GHistBGSub2 totPz;
+    GHistBGSub2 VchiSq;
+    GHistBGSub2 VconfidenceLevel;
     GHistBGSub2 CchiSq;
     GHistBGSub2 CconfidenceLevel;
+    GHistBGSub2 chiSq;
+    GHistBGSub2 confidenceLevel;
     GHistFit    final;
 
 public:
@@ -251,8 +250,9 @@ public:
 
     virtual void        CalcResult();
     virtual Int_t       Fill(Double_t x)                {}
-    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime);
-    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel);
+    virtual Int_t       Fill(GFit& fitter);
+    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime)                              {final.Fill(fitter, taggerTime);}
+    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)   {final.Fill(fitter, taggerTime, taggerChannel);}
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void        Reset(Option_t* option = "");
     virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);

@@ -77,78 +77,37 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeTagger& tagge
             else
                 hist_SubImCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
 
-            fit3.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5));
-            fit4.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
-            fit4Beam.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
-
-            if(fit3.Solve()>0)
-            {
-                if(fit3.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i));
-                }
-            }
-            if(fit4.Solve()>0)
-            {
-                if(fit4.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit4.Fill(fit4, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit4.Fill(fit4, tagger.GetTagged_t(i));
-                }
-            }
-            if(fit4Beam.Solve()>0)
-            {
-                if(fit4Beam.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i));
-                }
-            }
-
             if(mm>850 && mm<1025)
             {
+                fit3.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5));
+                fit4.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
+                fit4Beam.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
+
                 if(CreateHistogramsForTaggerBinning==kTRUE)
                     hist_MMCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
                 else
                     hist_MMCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
 
-                if(fit3.IsSolved()==kTRUE)
-                {
-                    if(fit3.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit3.Fill(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit3.Fill(fit3, tagger.GetTagged_t(i));
-                    }
-                }
-                if(fit4.IsSolved()==kTRUE)
-                {
-                    if(fit4.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit4.Fill(fit4, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit4.Fill(fit4, tagger.GetTagged_t(i));
-                    }
-                }
-                if(fit4Beam.IsSolved()==kTRUE)
-                {
-                    if(fit4Beam.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i));
-                    }
-                }
+                while(fit3.Solve()>0)
+                    hist_fit3.Fill(fit3);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit3.FillFinal(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit3.FillFinal(fit3, tagger.GetTagged_t(i));
+
+                while(fit4.Solve()>0)
+                    hist_fit4.Fill(fit4);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit4.FillFinal(fit4, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit4.FillFinal(fit4, tagger.GetTagged_t(i));
+
+                while(fit4Beam.Solve()>0)
+                    hist_fit4Beam.Fill(fit4Beam);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit4Beam.FillFinal(fit4Beam, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit4Beam.FillFinal(fit4Beam, tagger.GetTagged_t(i));
             }
         }
     }
@@ -325,63 +284,6 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
             else
                 hist_SubImCut.Fill(im, mm, theta, phi, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
 
-            fit3.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5));
-            fit4.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
-            fit4Beam.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
-            fit4Proton.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i), GetCorrectedProton(proton));
-            fit4BeamProton.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i), GetCorrectedProton(proton));
-
-            if(fit3.Solve()>0)
-            {
-                if(fit3.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit3.Fill(fit3, tagger.GetTagged_t(i));
-                }
-            }
-            if(fit4.Solve()>0)
-            {
-                if(fit4.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit4.Fill(fit4, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit4.Fill(fit4, tagger.GetTagged_t(i));
-                }
-            }
-            if(fit4Beam.Solve()>0)
-            {
-                if(fit4Beam.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i));
-                }
-            }
-            if(fit4Proton.Solve()>0)
-            {
-                if(fit4Proton.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit4Proton.Fill(fit4Proton, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit4Proton.Fill(fit4Proton, tagger.GetTagged_t(i));
-                }
-            }
-            if(fit4BeamProton.Solve()>0)
-            {
-                if(fit4BeamProton.ConfidenceLevel()>=0)//>0.02)
-                {
-                    if(CreateHistogramsForTaggerBinning==kTRUE)
-                        hist_SubImCut_fit4BeamProton.Fill(fit4BeamProton, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                    else
-                        hist_SubImCut_fit4BeamProton.Fill(fit4BeamProton, tagger.GetTagged_t(i));
-                }
-            }
-
             if(mm>850 && mm<1025)
             {
                 if(CreateHistogramsForTaggerBinning==kTRUE)
@@ -389,56 +291,46 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 else
                     hist_MMCut.Fill(im, mm, theta, phi, sub_im_0, sub_im_1, sub_im_2, tagger.GetTagged_t(i));
 
-                if(fit3.IsSolved()==kTRUE)
-                {
-                    if(fit3.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit3.Fill(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit3.Fill(fit3, tagger.GetTagged_t(i));
-                    }
-                }
-                if(fit4.IsSolved()==kTRUE)
-                {
-                    if(fit4.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit4.Fill(fit4, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit4.Fill(fit4, tagger.GetTagged_t(i));
-                    }
-                }
-                if(fit4Beam.IsSolved()==kTRUE)
-                {
-                    if(fit4Beam.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit4Beam.Fill(fit4Beam, tagger.GetTagged_t(i));
-                    }
-                }
-                if(fit4Proton.IsSolved()==kTRUE)
-                {
-                    if(fit4Proton.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit4Proton.Fill(fit4Proton, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit4Proton.Fill(fit4Proton, tagger.GetTagged_t(i));
-                    }
-                }
-                if(fit4BeamProton.IsSolved()==kTRUE)
-                {
-                    if(fit4BeamProton.ConfidenceLevel()>=0)//>0.02)
-                    {
-                        if(CreateHistogramsForTaggerBinning==kTRUE)
-                            hist_fit4BeamProton.Fill(fit4BeamProton, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
-                        else
-                            hist_fit4BeamProton.Fill(fit4BeamProton, tagger.GetTagged_t(i));
-                    }
-                }
+                fit3.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5));
+                fit4.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
+                fit4Beam.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i));
+                fit4Proton.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i), GetCorrectedProton(proton));
+                fit4BeamProton.Set(meson.SubPhotons(0, 0), meson.SubPhotons(0, 1), meson.SubPhotons(0, 2), meson.SubPhotons(0, 3), meson.SubPhotons(0, 4), meson.SubPhotons(0, 5), tagger.GetVectorProtonTarget(i), GetCorrectedProton(proton));
+
+                while(fit3.Solve()>0)
+                    hist_fit3.Fill(fit3);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit3.FillFinal(fit3, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit3.FillFinal(fit3, tagger.GetTagged_t(i));
+
+                while(fit4.Solve()>0)
+                    hist_fit4.Fill(fit4);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit4.FillFinal(fit4, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit4.FillFinal(fit4, tagger.GetTagged_t(i));
+
+                while(fit4Beam.Solve()>0)
+                    hist_fit4Beam.Fill(fit4Beam);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit4Beam.FillFinal(fit4Beam, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit4Beam.FillFinal(fit4Beam, tagger.GetTagged_t(i));
+
+                while(fit4Proton.Solve()>0)
+                    hist_fit4Proton.Fill(fit4Proton);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit4Proton.FillFinal(fit4Proton, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit4Proton.FillFinal(fit4Proton, tagger.GetTagged_t(i));
+
+                while(fit4BeamProton.Solve()>0)
+                    hist_fit4BeamProton.Fill(fit4BeamProton);
+                if(CreateHistogramsForTaggerBinning==kTRUE)
+                    hist_fit4BeamProton.FillFinal(fit4BeamProton, tagger.GetTagged_t(i), tagger.GetTagged_ch(i));
+                else
+                    hist_fit4BeamProton.FillFinal(fit4BeamProton, tagger.GetTagged_t(i));
             }
         }
     }
