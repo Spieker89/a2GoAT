@@ -14,7 +14,7 @@
 class	GFit
 {
 protected:
-    GKinFitter          fitter;
+    GIterativeKinFitter          fitter;
 
 public:
     GFit(const Int_t npart, const Int_t ncon)   : fitter(npart, ncon)   {}

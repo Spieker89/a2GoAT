@@ -10,11 +10,11 @@
 
 class GKinFitter 
 {
-	private:
-	Int_t fNvar; //Number of variables (=4 for 4 vector)
-	Int_t fNpar; //Number of parameters=Npart*fNvar
-	Int_t fNpart; //Number of particles
-	Int_t fNcon; //Number of constraints
+protected:
+    Int_t fNvar; //Number of variables (=4 for 4 vector)
+    Int_t fNpar; //Number of parameters=Npart*fNvar
+    Int_t fNpart; //Number of particles
+    Int_t fNcon; //Number of constraints
 	Int_t fNparti; //count Number of particles added
 	Int_t fNpari; //count Number of particles added
     Int_t fNconi; // countNumber of constraints added
@@ -23,6 +23,8 @@ class GKinFitter
     TMatrixD fmAlpha2;	//fitted parameters
 	TMatrixD fmV_Alpha0;//Covariance matrix for original parameters
 	TMatrixD fmV_Alpha; //Covariance matrix for fitted parameters
+
+private:
 	TMatrixD fmD;      	//Matrix of constraint derivitives
 	TMatrixD fmd;      	//Vector of evaluated constraints
 	TMatrixD fmlamda;  	//Vector of lagrangian multipliers
@@ -34,14 +36,14 @@ public:
     GKinFitter(const Int_t npart, const Int_t ncon);
     virtual ~GKinFitter()							{}
 
-	Int_t Solve(); //do the least squares fit
+    virtual Int_t Solve(); //do the least squares fit
 
 	//Form the D and d matrixes for the fit
-    void AddInvMassConstraint(const Double_t Minv);   //based on Invariant mass of added particles
-    void AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], const Double_t Minv);//Add invariant mass constraint to subset of particles
-    void AddTotEnergyConstraint(const Double_t Etot);  //based on total energy of added particles
-    void AddTotMomentumConstraint(const TVector3 mom); //based on total 3 momentum of added particles
-    void AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass); // Based on missing mass of particles in subset
+    virtual void AddInvMassConstraint(const Double_t Minv);   //based on Invariant mass of added particles
+    virtual void AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], const Double_t Minv);//Add invariant mass constraint to subset of particles
+    virtual void AddTotEnergyConstraint(const Double_t Etot);  //based on total energy of added particles
+    virtual void AddTotMomentumConstraint(const TVector3 mom); //based on total 3 momentum of added particles
+    virtual void AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass); // Based on missing mass of particles in subset
 
     void AddPosKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted
     void AddNegKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted
@@ -65,6 +67,48 @@ public:
     void Reset()            {ResetConstraints();ResetParticles();ResetMatrices();}
 	void Debug();
 };
+
+
+
+
+
+
+class GIterativeKinFitter    : public GKinFitter
+{
+public:
+    enum    ConstraintType
+    {
+        ConstraintType_InvMass,
+        ConstraintType_SubInvMass,
+        ConstraintType_MisMass,
+        ConstraintType_InvEnergy,
+        ConstraintType_InvMomentum
+    };
+
+private:
+    ConstraintType  conType[20];
+    Double_t        mass[20];
+    Int_t           nIndices[20];
+    Int_t           indices[20][20];
+    Double_t        energy[20];
+    TVector3        momentum[20];
+    TLorentzVector  beam[20];
+
+public:
+    GIterativeKinFitter(const Int_t npart, const Int_t ncon);
+    ~GIterativeKinFitter();
+
+    virtual void AddInvMassConstraint(const Double_t Minv);   //based on Invariant mass of added particles
+    virtual void AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], const Double_t Minv);//Add invariant mass constraint to subset of particles
+    virtual void AddTotEnergyConstraint(const Double_t Etot);  //based on total energy of added particles
+    virtual void AddTotMomentumConstraint(const TVector3 mom); //based on total 3 momentum of added particles
+    virtual void AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass); // Based on missing mass of particles in subset
+
+    virtual Int_t Solve();
+};
+
+
+
 
 #endif
 

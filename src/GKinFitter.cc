@@ -355,3 +355,74 @@ void GKinFitter::Debug(){
   mCheck1.Print();
 
 }
+
+
+
+
+
+
+
+
+
+
+GIterativeKinFitter::GIterativeKinFitter(const Int_t npart, const Int_t ncon) :
+    GKinFitter(npart, ncon)
+{
+}
+
+GIterativeKinFitter::~GIterativeKinFitter()
+{
+
+}
+
+void GIterativeKinFitter::AddInvMassConstraint(const Double_t Minv)
+{
+    conType[fNconi] = ConstraintType_InvMass;
+    mass[fNconi]    = Minv;
+
+    GKinFitter::AddInvMassConstraint(Minv);
+}
+
+void GIterativeKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], const Double_t Minv)
+{
+    conType[fNconi] = ConstraintType_SubInvMass;
+    nIndices[fNconi]      = Np;
+    for(int i=0; i<Np; i++)
+        indices[fNconi][i]  = pid[i];
+    mass[fNconi]    = Minv;
+
+    GKinFitter::AddSubInvMassConstraint(Np, pid, Minv);
+}
+
+void GIterativeKinFitter::AddTotEnergyConstraint(const Double_t Etot)
+{
+    conType[fNconi] = ConstraintType_InvEnergy;
+    energy[fNconi]  = Etot;
+
+    GKinFitter::AddTotEnergyConstraint(Etot);
+}
+
+void GIterativeKinFitter::AddTotMomentumConstraint(const TVector3 mom)
+{
+    conType[fNconi] = ConstraintType_InvMomentum;
+    momentum[fNconi]     = mom;
+
+    GKinFitter::AddTotMomentumConstraint(mom);
+}
+
+void GIterativeKinFitter::AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass)
+{
+    conType[fNconi] = ConstraintType_MisMass;
+    beam[fNconi]    = Mom;
+    nIndices[fNconi]      = Np;
+    for(int i=0; i<Np; i++)
+        indices[fNconi][i]  = pid[i];
+    mass[fNconi]    = MissMass;
+
+    GKinFitter::AddSubMissMassConstraint(Mom, Np, pid, MissMass);
+}
+
+Int_t GIterativeKinFitter::Solve()
+{
+    GKinFitter::Solve();
+}
