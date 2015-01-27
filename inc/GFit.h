@@ -17,8 +17,8 @@ protected:
     GKinFitter          fitter;
 
 public:
-    GFit(const Int_t npart, const Int_t ncon)   : fitter(npart, ncon, 0)    {}
-    ~GFit()                                                                 {}
+    GFit(const Int_t npart, const Int_t ncon)   : fitter(npart, ncon)   {}
+    ~GFit()                                                             {}
 
     virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
     virtual Double_t        ConstraintsConfidenceLevel()    {return fitter.ConstraintsConfidenceLevel();}

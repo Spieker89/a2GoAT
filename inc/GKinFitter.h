@@ -17,9 +17,7 @@ class GKinFitter
 	Int_t fNcon; //Number of constraints
 	Int_t fNparti; //count Number of particles added
 	Int_t fNpari; //count Number of particles added
-	Int_t fNconi; // countNumber of constraints added
-	Int_t fNiter; // Number of times Solve has been called
-	Int_t fNunKnown; // Number of unknowns
+    Int_t fNconi; // countNumber of constraints added
 	TMatrixD fmAlpha0;	//original parameters
     TMatrixD fmAlpha1; 	//initial parameters
     TMatrixD fmAlpha2;	//fitted parameters
@@ -33,7 +31,7 @@ class GKinFitter
     Double_t Vchi2;
 
 public:
-    GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk);
+    GKinFitter(const Int_t npart, const Int_t ncon);
     virtual ~GKinFitter()							{}
 
 	Int_t Solve(); //do the least squares fit
@@ -56,8 +54,8 @@ public:
     Double_t GetVariablesChi2()                             {return Vchi2;}
     Double_t GetChi2()                                      {return Cchi2+Vchi2;}
 
-    Double_t ConfidenceLevel()              {return TMath::Prob(GetChi2(),fNpar+fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
-    Double_t ConstraintsConfidenceLevel()   {return TMath::Prob(GetConstraintsChi2(),fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
+    Double_t ConfidenceLevel()              {return TMath::Prob(GetChi2(),fNpar+fNcon);}//Note should be Ncon-Nunknowns
+    Double_t ConstraintsConfidenceLevel()   {return TMath::Prob(GetConstraintsChi2(),fNcon);}//Note should be Ncon-Nunknowns
     Double_t VariablesConfidenceLevel()     {return TMath::Prob(GetVariablesChi2(),fNpar);}//Note should be Ncon-Nunknowns
     Double_t Pull(const Int_t i)    {return (fmAlpha0[i][0]-fmAlpha2[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
 

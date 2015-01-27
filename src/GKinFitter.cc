@@ -9,7 +9,7 @@
 //ClassImp(GKinFitter);
 
 //-----------------------------------------------------------------------------
-GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
+GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon){
 
   fNvar=4;
   fNpart=npart;
@@ -18,8 +18,6 @@ GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
   fNparti=0;
   fNpari=0;
   fNconi=0;
-  fNiter=0;
-  fNunKnown=unk;
 
   fmAlpha0.ResizeTo(fNpar,1);
   fmAlpha1.ResizeTo(fNpar,1);
@@ -92,9 +90,6 @@ Int_t GKinFitter::Solve(){
   diffT.T();
   TMatrixD mvchi2(diffT*fmV_Alpha0*diff);
   Vchi2=mvchi2[0][0];
-
-
-  fNiter++;
 
   return 1;
 
