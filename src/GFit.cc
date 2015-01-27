@@ -5,7 +5,7 @@
 GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(6, 3, 0)
+    GFit(6, 3)
 {
 
 }
@@ -64,7 +64,7 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
 GFit4Constraints::GFit4Constraints(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(6, 4, 0)
+    GFit(6, 4)
 {
 
 }
@@ -130,7 +130,7 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
 GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(7, 4, 0)
+    GFit(7, 4)
 {
 
 }
@@ -203,7 +203,7 @@ void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
 GFit7ConstraintsProton::GFit7ConstraintsProton(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(7, 7, 0)
+    GFit(7, 7)
 {
 
 }
@@ -291,7 +291,7 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
 GFit7ConstraintsBeamProton::GFit7ConstraintsBeamProton(const Bool_t _IsEtap)    :
     solved(kFALSE),
     isEtap(_IsEtap),
-    fitter(8, 7, 0)
+    GFit(8, 7)
 {
 
 }
@@ -383,7 +383,11 @@ GHistFit::GHistFit(const char* name, const char* title, const Int_t _NPulls, Boo
     Ptheta(TString(name).Append("_Ptheta"), TString(title).Append(" Proton theta"), 180, 0, 180, 48, kFALSE),
     Pphi(TString(name).Append("_Pphi"), TString(title).Append(" Proton phi"), 360, -180, 180, 48, kFALSE),
     chiSq(TString(name).Append("_ChiSq"), TString(title).Append(" ChiSq"), 1000, 0, 100, 48, kFALSE),
+    VchiSq(TString(name).Append("_VChiSq"), TString(title).Append(" VChiSq"), 1000, 0, 100, 48, kFALSE),
+    CchiSq(TString(name).Append("_CChiSq"), TString(title).Append(" CChiSq"), 1000, 0, 100, 48, kFALSE),
     confidenceLevel(TString(name).Append("_ConfLev"), TString(title).Append(" ConfLev"), 1000, 0, 1, 48, kFALSE),
+    VconfidenceLevel(TString(name).Append("_VConfLev"), TString(title).Append(" VConfLev"), 1000, 0, 1, 48, kFALSE),
+    CconfidenceLevel(TString(name).Append("_CConfLev"), TString(title).Append(" CConfLev"), 1000, 0, 1, 48, kFALSE),
     pulls(TString(name).Append("_Pulls"), TString(title).Append(" Pulls"), 100, -5, 5, nPulls, 0, nPulls, kFALSE)
 {
 
@@ -406,7 +410,11 @@ void        GHistFit::CalcResult()
     Ptheta.CalcResult();
     Pphi.CalcResult();
     chiSq.CalcResult();
+    VchiSq.CalcResult();
+    CchiSq.CalcResult();
     confidenceLevel.CalcResult();
+    VconfidenceLevel.CalcResult();
+    CconfidenceLevel.CalcResult();
     pulls.CalcResult();
 }
 
@@ -423,7 +431,11 @@ Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
     Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime);
     Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime);
     chiSq.Fill(fitter.GetChi2(), taggerTime);
+    VchiSq.Fill(fitter.GetVariablesChi2(), taggerTime);
+    CchiSq.Fill(fitter.GetConstraintsChi2(), taggerTime);
     confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
+    VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), taggerTime);
+    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), taggerTime);
     for(int i=0; i<nPulls; i++)
         pulls.Fill(fitter.GetPull(i), i);
 }
@@ -442,7 +454,11 @@ Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t 
     Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
     Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
     chiSq.Fill(fitter.GetChi2(), taggerTime, taggerChannel);
+    VchiSq.Fill(fitter.GetVariablesChi2(), taggerTime, taggerChannel);
+    CchiSq.Fill(fitter.GetConstraintsChi2(), taggerTime, taggerChannel);
     confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime, taggerChannel);
+    VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), taggerTime, taggerChannel);
+    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), taggerTime, taggerChannel);
     for(int i=0; i<nPulls; i++)
         pulls.Fill(fitter.GetPull(i), i);
 }
@@ -464,7 +480,11 @@ void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
         Ptheta.PrepareWriteList(arr, TString(name).Append("_PrTheta").Data());
         Pphi.PrepareWriteList(arr, TString(name).Append("_PrPhi").Data());
         chiSq.PrepareWriteList(arr, TString(name).Append("_ChiSq").Data());
+        VchiSq.PrepareWriteList(arr, TString(name).Append("_VChiSq").Data());
+        CchiSq.PrepareWriteList(arr, TString(name).Append("_CChiSq").Data());
         confidenceLevel.PrepareWriteList(arr, TString(name).Append("_ConfLev").Data());
+        VconfidenceLevel.PrepareWriteList(arr, TString(name).Append("_VConfLev").Data());
+        CconfidenceLevel.PrepareWriteList(arr, TString(name).Append("_CConfLev").Data());
         pulls.PrepareWriteList(arr, TString(name).Append("_Pulls").Data());
     }
     else
@@ -479,7 +499,11 @@ void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
         Ptheta.PrepareWriteList(arr);
         Pphi.PrepareWriteList(arr);
         chiSq.PrepareWriteList(arr);
+        VchiSq.PrepareWriteList(arr);
+        CchiSq.PrepareWriteList(arr);
         confidenceLevel.PrepareWriteList(arr);
+        VconfidenceLevel.PrepareWriteList(arr);
+        CconfidenceLevel.PrepareWriteList(arr);
         pulls.PrepareWriteList(arr);
     }
 }
@@ -496,7 +520,11 @@ void        GHistFit::Reset(Option_t* option)
     Ptheta.Reset(option);
     Pphi.Reset(option);
     chiSq.Reset(option);
+    VchiSq.Reset(option);
+    CchiSq.Reset(option);
     confidenceLevel.Reset(option);
+    VconfidenceLevel.Reset(option);
+    CconfidenceLevel.Reset(option);
     pulls.Reset(option);
 }
 
@@ -512,6 +540,10 @@ void        GHistFit::ScalerReadCorrection(const Double_t CorrectionFactor, cons
     Ptheta.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     Pphi.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     chiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    VchiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CchiSq.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    VconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
+    CconfidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     pulls.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }

@@ -81,10 +81,19 @@ Int_t GKinFitter::Solve(){
   //New Covariant matrix
   fmV_Alpha=fmV_Alpha0-fmV_Alpha0*mDT*fmV_D*fmD*fmV_Alpha0;
   //chi2
-  TMatrixD mlamdaT=fmlamda;
+  TMatrixD mlamdaT(fmlamda);
   mlamdaT.T();
-  TMatrixD mchi2=mlamdaT*fmd;
-  fchi2=mchi2[0][0];
+  TMatrixD mchi2(mlamdaT*fmd);
+  Cchi2=mchi2[0][0];
+
+  TMatrixD diff(fmAlpha0);
+  diff  -= fmAlpha2;
+  TMatrixD diffT(diff);
+  diffT.T();
+  TMatrixD mvchi2(diffT*fmV_Alpha0*diff);
+  Vchi2=mvchi2[0][0];
+
+
   fNiter++;
 
   return 1;

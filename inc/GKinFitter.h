@@ -4,6 +4,7 @@
 #include "TMatrixD.h"
 #include "TMath.h"
 #include "TLorentzVector.h"
+#include "iostream"
 
 #include "GKinFitterParticle.h"
 
@@ -28,7 +29,8 @@ class GKinFitter
 	TMatrixD fmd;      	//Vector of evaluated constraints
 	TMatrixD fmlamda;  	//Vector of lagrangian multipliers
 	TMatrixD fmV_D;    	//Covariance matrix of constraints (TO BE INVERTED)
-    Double_t fchi2;
+    Double_t Cchi2;
+    Double_t Vchi2;
 
 public:
     GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk);
@@ -50,9 +52,13 @@ public:
     TLorentzVector GetParticle(const Int_t ip);
     TLorentzVector GetInitialParticle(const Int_t ip);
     TLorentzVector GetOriginalParticle(const Int_t ip);
-    Double_t GetChi2()                                      {return fchi2;}
+    Double_t GetConstraintsChi2()                           {return Cchi2;}
+    Double_t GetVariablesChi2()                             {return Vchi2;}
+    Double_t GetChi2()                                      {return Cchi2+Vchi2;}
 
-    Double_t ConfidenceLevel()      {return TMath::Prob(fchi2,fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
+    Double_t ConfidenceLevel()              {return TMath::Prob(GetChi2(),fNpar+fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
+    Double_t ConstraintsConfidenceLevel()   {return TMath::Prob(GetConstraintsChi2(),fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
+    Double_t VariablesConfidenceLevel()     {return TMath::Prob(GetVariablesChi2(),fNpar);}//Note should be Ncon-Nunknowns
     Double_t Pull(const Int_t i)    {return (fmAlpha0[i][0]-fmAlpha2[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
 
     void ResetConstraints() {fNconi=0;}
