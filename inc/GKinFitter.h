@@ -20,7 +20,8 @@ class GKinFitter
 	Int_t fNiter; // Number of times Solve has been called
 	Int_t fNunKnown; // Number of unknowns
 	TMatrixD fmAlpha0;	//original parameters
-	TMatrixD fmAlpha;  	//fitted parameters
+    TMatrixD fmAlpha1; 	//initial parameters
+    TMatrixD fmAlpha2;	//fitted parameters
 	TMatrixD fmV_Alpha0;//Covariance matrix for original parameters
 	TMatrixD fmV_Alpha; //Covariance matrix for fitted parameters
 	TMatrixD fmD;      	//Matrix of constraint derivitives
@@ -51,10 +52,11 @@ public:
     TLorentzVector Get4Vector()                             {return fPtot;}
     GKinFitterParticle GetParticle(const Int_t ip);
     GKinFitterParticle GetInitialParticle(const Int_t ip);
+    GKinFitterParticle GetOriginalParticle(const Int_t ip);
     Double_t GetChi2()                                      {return fchi2;}
 
     Double_t ConfidenceLevel()      {return TMath::Prob(fchi2,fNcon-fNunKnown);}//Note should be Ncon-Nunknowns
-    Double_t Pull(const Int_t i)    {return (fmAlpha0[i][0]-fmAlpha[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
+    Double_t Pull(const Int_t i)    {return (fmAlpha0[i][0]-fmAlpha2[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
 
     void ResetConstraints() {fNconi=0;}
     void ResetParticles()   {fNpari=0;fNparti=0;fPtot.SetXYZT(0,0,0,0);}

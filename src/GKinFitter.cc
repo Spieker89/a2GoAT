@@ -22,7 +22,8 @@ GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
   fNunKnown=unk;
 
   fmAlpha0.ResizeTo(fNpar,1);
-  fmAlpha.ResizeTo(fNpar,1);
+  fmAlpha1.ResizeTo(fNpar,1);
+  fmAlpha2.ResizeTo(fNpar,1);
   fmV_Alpha0.ResizeTo(fNpar,fNpar);
   fmV_Alpha.ResizeTo(fNpar,fNpar);
   fmD.ResizeTo(fNcon,fNpar);
@@ -39,7 +40,8 @@ GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
 void GKinFitter::ResetMatrices(){
 
   fmAlpha0.Zero();
-  fmAlpha.Zero();
+  fmAlpha1.Zero();
+  fmAlpha2.Zero();
   fmV_Alpha0.Zero();
   fmV_Alpha.Zero();
   fmD.Zero();
@@ -79,7 +81,7 @@ Int_t GKinFitter::Solve(){
   //Derive langrian multipliers
   fmlamda=fmV_D*fmd;
   //New parameters
-  fmAlpha=fmAlpha0-fmV_Alpha0*mDT*fmlamda;
+  fmAlpha2=fmAlpha1-fmV_Alpha0*mDT*fmlamda;
   //New Covariant matrix
   fmV_Alpha=fmV_Alpha0-fmV_Alpha0*mDT*fmV_D*fmD*fmV_Alpha0;
   //chi2
@@ -130,7 +132,6 @@ void GKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], cons
   for(Int_t i=0; i<Np; i++){
     ptot+=GetInitialParticle(pid[i]).Get4Vector();
   }
-
   //d matrix (evaluate constraint eqn.)
   fmd[fNconi][0]=ptot.M2()-Minv*Minv;
 
@@ -247,6 +248,7 @@ void GKinFitter::AddPosKFParticle(GKinFitterParticle kfp){
   fNpari+=fNvar;
   fNparti++;
 
+  fmAlpha1  = fmAlpha0;
 }
 
 //-----------------------------------------------------------------------------
@@ -271,6 +273,7 @@ void GKinFitter::AddNegKFParticle(GKinFitterParticle kfp){
   fNpari+=fNvar;
   fNparti++;
 
+  fmAlpha1  = fmAlpha0;
 }
 
 //-----------------------------------------------------------------------------
@@ -281,7 +284,7 @@ GKinFitterParticle GKinFitter::GetTotalFitParticle(){
 
   //loop over the sub matrices in alpha and add to total
   for(Int_t i=0; i<fNpart; i++){
-    mtot+=fmAlpha.GetSub(i*fNvar,(i+1)*fNvar-1,0,0);
+    mtot+=fmAlpha2.GetSub(i*fNvar,(i+1)*fNvar-1,0,0);
   }
 
   //Set 4 vector, automatically sets alpha.
@@ -311,7 +314,7 @@ GKinFitterParticle GKinFitter::GetParticle(Int_t ip){
   GKinFitterParticle kfp;
   TMatrixD mi(fNvar,1);
 
-  mi=fmAlpha.GetSub(ip*fNvar,(ip+1)*fNvar-1,0,0);
+  mi=fmAlpha2.GetSub(ip*fNvar,(ip+1)*fNvar-1,0,0);
   kfp.Set4Vector(TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]));
   TMatrixD mVi(fNvar,fNvar);
   mVi=fmV_Alpha.GetSub(ip*fNvar,(ip+1)*fNvar-1,ip*fNvar,(ip+1)*fNvar-1);
@@ -322,6 +325,27 @@ GKinFitterParticle GKinFitter::GetParticle(Int_t ip){
 
 //-----------------------------------------------------------------------------
 GKinFitterParticle GKinFitter::GetInitialParticle(Int_t ip){
+
+  //Return the unfitted particle that was added ith
+  if(ip>fNpari){
+    std::cout<<"GKinFitter::GetInitialParticle particle not in fit"<<std::endl;
+    return GKinFitterParticle();
+  }
+
+  GKinFitterParticle kfp;
+  TMatrixD mi(fNvar,1);
+
+  mi=fmAlpha1.GetSub(ip*fNvar,(ip+1)*fNvar-1,0,0);
+  kfp.Set4Vector(TLorentzVector(mi[0][0],mi[1][0],mi[2][0],mi[3][0]));
+  TMatrixD mVi(fNvar,fNvar);
+  mVi=fmV_Alpha0.GetSub(ip*fNvar,(ip+1)*fNvar-1,ip*fNvar,(ip+1)*fNvar-1);
+  kfp.SetVAlpha(mVi);
+  return kfp;
+
+}
+
+//-----------------------------------------------------------------------------
+GKinFitterParticle GKinFitter::GetOriginalParticle(Int_t ip){
 
   //Return the unfitted particle that was added ith
   if(ip>fNpari){
@@ -346,8 +370,10 @@ void GKinFitter::Debug(){
 
   std::cout<<"Alpha0 "<<std::endl;
   fmAlpha0.Print();
-  std::cout<<"Alpha "<<std::endl;
-  fmAlpha.Print();
+  std::cout<<"Alpha1 "<<std::endl;
+  fmAlpha1.Print();
+  std::cout<<"Alpha2 "<<std::endl;
+  fmAlpha2.Print();
   std::cout<<"V_Alpha0 "<<std::endl;
   fmV_Alpha0.Print();
   std::cout<<"V_Alpha "<<std::endl;
@@ -364,7 +390,7 @@ void GKinFitter::Debug(){
   fT.Print();
 
   //Check D*deltaAlpha+d=0
-  TMatrixD mdelAlpha=fmAlpha-fmAlpha0;
+  TMatrixD mdelAlpha=fmAlpha2-fmAlpha0;
   TMatrix mCheck1=fmD*mdelAlpha + fmd;
   std::cout<<"delAlpha"<<std::endl;
   mdelAlpha.Print();
