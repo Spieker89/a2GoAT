@@ -42,7 +42,6 @@ void GKinFitter::ResetMatrices(){
   fmd.Zero();
   fmlamda.Zero();
   fmV_D.Zero();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -378,7 +377,7 @@ GIterativeKinFitter::~GIterativeKinFitter()
 void GIterativeKinFitter::AddInvMassConstraint(const Double_t Minv)
 {
     conType[fNconi] = ConstraintType_InvMass;
-    mass[fNconi]    = Minv;
+    var[fNconi]    = Minv;
 
     GKinFitter::AddInvMassConstraint(Minv);
 }
@@ -389,7 +388,7 @@ void GIterativeKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pi
     nIndices[fNconi]      = Np;
     for(int i=0; i<Np; i++)
         indices[fNconi][i]  = pid[i];
-    mass[fNconi]    = Minv;
+    var[fNconi]    = Minv;
 
     GKinFitter::AddSubInvMassConstraint(Np, pid, Minv);
 }
@@ -397,7 +396,7 @@ void GIterativeKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pi
 void GIterativeKinFitter::AddTotEnergyConstraint(const Double_t Etot)
 {
     conType[fNconi] = ConstraintType_InvEnergy;
-    energy[fNconi]  = Etot;
+    var[fNconi]  = Etot;
 
     GKinFitter::AddTotEnergyConstraint(Etot);
 }
@@ -417,12 +416,51 @@ void GIterativeKinFitter::AddSubMissMassConstraint(const TLorentzVector Mom, con
     nIndices[fNconi]      = Np;
     for(int i=0; i<Np; i++)
         indices[fNconi][i]  = pid[i];
-    mass[fNconi]    = MissMass;
+    var[fNconi]    = MissMass;
 
     GKinFitter::AddSubMissMassConstraint(Mom, Np, pid, MissMass);
 }
 
 Int_t GIterativeKinFitter::Solve()
 {
-    GKinFitter::Solve();
+    if(nIter==0)
+        return GKinFitter::Solve();
+
+    fmAlpha1    = fmAlpha2;
+
+    GKinFitter::ResetConstraints();
+    fmD.Zero();
+    fmd.Zero();
+    fmlamda.Zero();
+    fmV_D.Zero();
+    for(int i=0; i<fNcon; i++)
+    {
+        switch(conType[i])
+        {
+        case ConstraintType_InvMass:
+            GKinFitter::AddInvMassConstraint(var[i]);
+            break;
+        case ConstraintType_SubInvMass:
+            GKinFitter::AddSubInvMassConstraint(nIndices[i], indices[i], var[i]);
+            break;
+        case ConstraintType_InvEnergy:
+            GKinFitter::AddTotEnergyConstraint(var[i]);
+            break;
+        case ConstraintType_InvMomentum:
+            GKinFitter::AddTotMomentumConstraint(momentum[i]);
+            break;
+        case ConstraintType_MisMass:
+            GKinFitter::AddSubMissMassConstraint(beam[i], nIndices[i], indices[i], var[i]);
+            break;
+        }
+    }
+
+    if(GKinFitter::Solve()<0)
+    {
+        fmAlpha2    = fmAlpha1;
+    }
+    else
+        nIter++;
+
+    return 1;
 }

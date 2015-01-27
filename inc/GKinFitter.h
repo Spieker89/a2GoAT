@@ -23,8 +23,6 @@ protected:
     TMatrixD fmAlpha2;	//fitted parameters
 	TMatrixD fmV_Alpha0;//Covariance matrix for original parameters
 	TMatrixD fmV_Alpha; //Covariance matrix for fitted parameters
-
-private:
 	TMatrixD fmD;      	//Matrix of constraint derivitives
 	TMatrixD fmd;      	//Vector of evaluated constraints
 	TMatrixD fmlamda;  	//Vector of lagrangian multipliers
@@ -88,10 +86,9 @@ public:
 private:
     Int_t           nIter;
     ConstraintType  conType[20];
-    Double_t        mass[20];
+    Double_t        var[20];
     Int_t           nIndices[20];
     Int_t           indices[20][20];
-    Double_t        energy[20];
     TVector3        momentum[20];
     TLorentzVector  beam[20];
 
