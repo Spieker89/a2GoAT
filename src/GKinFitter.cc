@@ -30,9 +30,6 @@ GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
   fmd.ResizeTo(fNcon,1);
   fmlamda.ResizeTo(fNcon,1);
   fmV_D.ResizeTo(fNcon,fNcon);
-
-  fPtot.SetXYZT(0,0,0,0);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -95,18 +92,23 @@ Int_t GKinFitter::Solve(){
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddInvMassConstraint(const Double_t Minv){
+void GKinFitter::AddInvMassConstraint(const Double_t Minv)
+{
+    TLorentzVector ptot(0.0,0.0,0.0,0.0);
+    for(Int_t i=0; i<fNpart; i++)
+        ptot+=GetInitialParticle(i);
+
 
   // d matrix (evaluate constraint eqn.)
-  fmd[fNconi][0]=fPtot.M2()-Minv*Minv;
+  fmd[fNconi][0]=ptot.M2()-Minv*Minv;
 
   // D matrix (derivitives of constraint eqn)
   for(Int_t i=0; i<fNpart; i++){
     //[Cons Number][Var Number]
-    fmD[fNconi][0+i*fNvar]=-2*fPtot.X();
-    fmD[fNconi][1+i*fNvar]=-2*fPtot.Y();
-    fmD[fNconi][2+i*fNvar]=-2*fPtot.Z();
-    fmD[fNconi][3+i*fNvar]= 2*fPtot.T();
+    fmD[fNconi][0+i*fNvar]=-2*ptot.X();
+    fmD[fNconi][1+i*fNvar]=-2*ptot.Y();
+    fmD[fNconi][2+i*fNvar]=-2*ptot.Z();
+    fmD[fNconi][3+i*fNvar]= 2*ptot.T();
   }
 
   //increment constraint counter
@@ -149,10 +151,14 @@ void GKinFitter::AddSubInvMassConstraint(const Int_t Np, const Int_t pid[], cons
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddTotEnergyConstraint(const Double_t Etot){
+void GKinFitter::AddTotEnergyConstraint(const Double_t Etot)
+{
+    TLorentzVector ptot(0.0,0.0,0.0,0.0);
+    for(Int_t i=0; i<fNpart; i++)
+        ptot+=GetInitialParticle(i);
 
   //d matrix (evaluate constraint eqn.)
-  fmd[fNconi][0]=fPtot.E()-Etot;
+  fmd[fNconi][0]=ptot.E()-Etot;
 
   //D matrix (derivitives of constraint eqn)
   for(Int_t i=0; i<fNpart; i++){
@@ -169,12 +175,16 @@ void GKinFitter::AddTotEnergyConstraint(const Double_t Etot){
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddTotMomentumConstraint(TVector3 mom){
+void GKinFitter::AddTotMomentumConstraint(TVector3 mom)
+{
+    TLorentzVector ptot(0.0,0.0,0.0,0.0);
+    for(Int_t i=0; i<fNpart; i++)
+        ptot+=GetInitialParticle(i);
 
   //d matrix (evaluate constraint eqn.)
-  fmd[fNconi+0][0]=fPtot.X()-mom.X();
-  fmd[fNconi+1][0]=fPtot.Y()-mom.Y();
-  fmd[fNconi+2][0]=fPtot.Z()-mom.Z();
+  fmd[fNconi+0][0]=ptot.X()-mom.X();
+  fmd[fNconi+1][0]=ptot.Y()-mom.Y();
+  fmd[fNconi+2][0]=ptot.Z()-mom.Z();
 
   //D matrix (derivitives of constraint eqn)
   Double_t D[3][4]={{1,0,0,0},{0,1,0,0},{0,0,1,0}};
@@ -226,8 +236,8 @@ void GKinFitter::AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t 
 }
 
 //-----------------------------------------------------------------------------
-void GKinFitter::AddPosKFParticle(GKinFitterParticle kfp){
-
+void GKinFitter::AddPosKFParticle(GKinFitterParticle kfp)
+{
   if(fNparti>fNpart){
     std::cout<<"GKinFitter::AddPosKFParticle already at max particles"<<std::endl;
     return;
@@ -235,40 +245,25 @@ void GKinFitter::AddPosKFParticle(GKinFitterParticle kfp){
 
   //Add parameters to Alpha0
   fmAlpha0.SetSub(fNpari,0,kfp.GetAlpha());
+  fmAlpha1.SetSub(fNpari,0,kfp.GetAlpha());
   //Add error matrix to V_Alpha0
   fmV_Alpha0.SetSub(fNpari,fNpari,kfp.GetVAlpha());
-  //ADD Lorentz Vector !!
-  if(fNparti) fPtot=fPtot+kfp.Get4Vector();
-  else fPtot=kfp.Get4Vector();
 
   //increment counters
   fNpari+=fNvar;
   fNparti++;
-
-  fmAlpha1  = fmAlpha0;
 }
 
+
 //-----------------------------------------------------------------------------
-void GKinFitter::AddNegKFParticle(GKinFitterParticle kfp){
-
-  if(fNparti>fNpart){
-    std::cout<<"GKinFitter::AddPosKFParticle already at max particles"<<std::endl;
-    return;
+void GKinFitter::AddNegKFParticle(GKinFitterParticle kfp)
+{
+  AddPosKFParticle(kfp);
+  for(int i=fNpari-fNvar; i<fNpari; i++)
+  {
+      fmAlpha0[i][0]    = -fmAlpha0[i][0];
+      fmAlpha1[i][0]    = -fmAlpha1[i][0];
   }
-
-  //Add parameters to Alpha0
-  fmAlpha0.SetSub(fNpari,0,kfp.GetAlpha());
-  //Add error matrix to V_Alpha0
-  fmV_Alpha0.SetSub(fNpari,fNpari,kfp.GetVAlpha());
-  //SUBTRACT Lorentz Vector !!
-  if(fNparti) fPtot=fPtot-kfp.Get4Vector();
-  else fPtot=kfp.Get4Vector();
-
-  //increment counters
-  fNpari+=fNvar;
-  fNparti++;
-
-  fmAlpha1  = fmAlpha0;
 }
 
 //-----------------------------------------------------------------------------

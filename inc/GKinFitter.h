@@ -29,7 +29,6 @@ class GKinFitter
 	TMatrixD fmlamda;  	//Vector of lagrangian multipliers
 	TMatrixD fmV_D;    	//Covariance matrix of constraints (TO BE INVERTED)
     Double_t fchi2;
-	TLorentzVector fPtot;
 
 public:
     GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk);
@@ -44,11 +43,10 @@ public:
     void AddTotMomentumConstraint(const TVector3 mom); //based on total 3 momentum of added particles
     void AddSubMissMassConstraint(const TLorentzVector Mom, const Int_t Np, const Int_t pid[], const Double_t MissMass); // Based on missing mass of particles in subset
 
-    void AddPosKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute + to fPtot
-    void AddNegKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted contribute - to fPtot
+    void AddPosKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted
+    void AddNegKFParticle(const GKinFitterParticle kfp);//Add GKinFitterParticles to be fitted
 
     TLorentzVector GetTotalFitParticle();//returns alpha=fPtot and sum of error matrices  from each particle
-    TLorentzVector Get4Vector()                             {return fPtot;}
     TLorentzVector GetParticle(const Int_t ip);
     TLorentzVector GetInitialParticle(const Int_t ip);
     TLorentzVector GetOriginalParticle(const Int_t ip);
@@ -58,7 +56,7 @@ public:
     Double_t Pull(const Int_t i)    {return (fmAlpha0[i][0]-fmAlpha2[i][0])/sqrt(fmV_Alpha0[i][i]-fmV_Alpha[i][i]);}
 
     void ResetConstraints() {fNconi=0;}
-    void ResetParticles()   {fNpari=0;fNparti=0;fPtot.SetXYZT(0,0,0,0);}
+    void ResetParticles()   {fNpari=0;fNparti=0;}
 	void ResetMatrices();
     void Reset()            {ResetConstraints();ResetParticles();ResetMatrices();}
 	void Debug();
