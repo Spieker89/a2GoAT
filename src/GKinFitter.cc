@@ -30,7 +30,6 @@ GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon, const Int_t unk){
   fmd.ResizeTo(fNcon,1);
   fmlamda.ResizeTo(fNcon,1);
   fmV_D.ResizeTo(fNcon,fNcon);
-  fT.ResizeTo(fNpar,fNpar);
 
   fPtot.SetXYZT(0,0,0,0);
 
@@ -238,8 +237,6 @@ void GKinFitter::AddPosKFParticle(GKinFitterParticle kfp){
   fmAlpha0.SetSub(fNpari,0,kfp.GetAlpha());
   //Add error matrix to V_Alpha0
   fmV_Alpha0.SetSub(fNpari,fNpari,kfp.GetVAlpha());
-  //Add transformation matrice to fT
-  fT.SetSub(fNpari,fNpari,kfp.GetT());
   //ADD Lorentz Vector !!
   if(fNparti) fPtot=fPtot+kfp.Get4Vector();
   else fPtot=kfp.Get4Vector();
@@ -263,8 +260,6 @@ void GKinFitter::AddNegKFParticle(GKinFitterParticle kfp){
   fmAlpha0.SetSub(fNpari,0,kfp.GetAlpha());
   //Add error matrix to V_Alpha0
   fmV_Alpha0.SetSub(fNpari,fNpari,kfp.GetVAlpha());
-  //Add transformation matrice to fT
-  fT.SetSub(fNpari,fNpari,kfp.GetT());
   //SUBTRACT Lorentz Vector !!
   if(fNparti) fPtot=fPtot-kfp.Get4Vector();
   else fPtot=kfp.Get4Vector();
@@ -351,8 +346,6 @@ void GKinFitter::Debug(){
   fmV_D.Print();
   std::cout<<"lamda "<<std::endl;
   fmlamda.Print();
-  std::cout<<"T "<<std::endl;
-  fT.Print();
 
   //Check D*deltaAlpha+d=0
   TMatrixD mdelAlpha=fmAlpha2-fmAlpha0;

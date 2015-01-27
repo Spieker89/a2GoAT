@@ -28,8 +28,7 @@ class GKinFitter
 	TMatrixD fmd;      	//Vector of evaluated constraints
 	TMatrixD fmlamda;  	//Vector of lagrangian multipliers
 	TMatrixD fmV_D;    	//Covariance matrix of constraints (TO BE INVERTED)
-	Double_t fchi2;
-	TMatrixD fT;     	//Overall transforamtin matrix from Spherical->Cart
+    Double_t fchi2;
 	TLorentzVector fPtot;
 
 public:
