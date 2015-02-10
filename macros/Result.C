@@ -33,8 +33,37 @@ void	OpenHistogram(const TFile* dataFile, const TFile* mcSignalFile, const TFile
 	ShowHistogram(data, mcSignal, mcBG);
 }
 
+void	FitProfile(const TH2D* data, const int i, Double_t& nEtapFit, Double_t& dNEtapFit, Double_t& nEtapCut, Double_t& etapWidth, Double_t& BGWidth)
+{
+	TH1D*	slice		= (TH1D*)data->ProjectionX(TString("Bin").Append(TString().Itoa(i,10)).Data(), i+1, i+1);
+	slice->SetAxisRange(850, 1020);
+	slice->Draw();
+	
+	nEtapCut	= 0;
+	for(int i=1; i<=slice->GetNbinsX(); i++)
+	{
+		if(slice->GetBinCenter(i)>(957-8.83) && slice->GetBinCenter(i)<(957+8.83))
+			nEtapCut	+= slice->GetBinContent(i);
+	}
+	
+	Double_t	max	= slice->GetMaximum();
+	
+	TF1*	fit = new TF1("fit","gaus(0) + gaus(3)",850,1020);
+	fit->SetParameters(max, 958, etapWidth, max/10, 930, BGWidth);
+	fit->SetParLimits(0, 0, max *2);
+	fit->SetParLimits(1, 950, 970);
+	fit->SetParLimits(2, etapWidth, etapWidth);
+	fit->SetParLimits(3, 0, max/2);
+	fit->SetParLimits(4, 900, 980);
+	fit->SetParLimits(5, BGWidth, BGWidth);
+	
+	slice->Fit(fit, "R");
+	
+	nEtapFit	= fit->GetParameter(0) * fit->GetParameter(2) * 1.7724;
+	dNEtapFit	= fit->GetParError(0) * fit->GetParameter(2) * 1.7724;
+}
 
-void	FitProfile(const TH2D* data, const int i, Double_t& nEtapFit, Double_t& dNEtapFit, Double_t& nEtapCut)
+void	FitProfileSim(const TH2D* data, const int i, Double_t& nEtapFit, Double_t& dNEtapFit, Double_t& nEtapCut, Double_t& etapWidth, Double_t& BGWidth)
 {
 	TH1D*	slice		= (TH1D*)data->ProjectionX(TString("Bin").Append(TString().Itoa(i,10)).Data(), i+1, i+1);
 	slice->SetAxisRange(850, 1020);
@@ -62,6 +91,9 @@ void	FitProfile(const TH2D* data, const int i, Double_t& nEtapFit, Double_t& dNE
 	
 	nEtapFit	= fit->GetParameter(0) * fit->GetParameter(2) * 1.7724;
 	dNEtapFit	= fit->GetParError(0) * fit->GetParameter(2) * 1.7724;
+	
+	etapWidth	= fit->GetParameter(2);
+	BGWidth		= fit->GetParameter(5);
 }
 
 void	ReconstructionEff(const TH2D* mcSignal, TH1D* RecEff)
@@ -267,7 +299,7 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	out->cd();
 	can->Write();
 	
-	can	= new TCanvas("CanFitBins", "FitBins", 1500, 800);
+	can	= new TCanvas("CanFitBins_Sim", "FitBins_Sim", 1500, 800);
 	can->Divide(8,5);
 	Double_t	nEtapFit[48];
 	Double_t	dNEtapFit[48];
@@ -275,10 +307,27 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	Double_t	dNEtapCut[48];
 	Double_t	x[48];
 	Double_t	dx[48];
+	Double_t	etapWidth[48];
+	Double_t	BGWidth[48];
 	for(int i=0; i<48; i++)
 	{
 		can->cd(i+1);
-		FitProfile(data, i, nEtapFit[i], dNEtapFit[i], nEtapCut[i]);
+		FitProfileSim(data, i, nEtapFit[i], dNEtapFit[i], nEtapCut[i], etapWidth[i], BGWidth[i]);
+		dNEtapCut[i]	= sqrt(nEtapCut[i]);
+		x[i]			= i;
+		dx[i]			= 0;
+		//std::cout << nEtapFit[i] << "   " << dNEtapFit[i] << "   " << nEtapCut[i] << "   " << dNEtapCut[i] << std::endl;
+	}
+	out->cd();
+	can->Write();
+	
+	
+	can	= new TCanvas("CanFitBins", "FitBins", 1500, 800);
+	can->Divide(8,5);
+	for(int i=0; i<48; i++)
+	{
+		can->cd(i+1);
+		FitProfile(data, i, nEtapFit[i], dNEtapFit[i], nEtapCut[i], etapWidth[i], BGWidth[i]);
 		dNEtapCut[i]	= sqrt(nEtapCut[i]);
 		x[i]			= i;
 		dx[i]			= 0;
