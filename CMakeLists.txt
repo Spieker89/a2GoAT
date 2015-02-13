@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(ROOT "5.30" REQUIRED)
 
 # since all subprojects need ROOT, set that up here
-include_directories(${ROOT_INCLUDES} ${CMAKE_SOURCE_DIR}/inc)
+include_directories(${ROOT_INCLUDES})
 link_directories(${ROOT_LIBRARY_DIR})
 
 include_directories(inc)
@@ -134,6 +134,90 @@ add_executable(pi0-example
    src/pi0_example_main.cc
    )
 target_link_libraries(pi0-example ${LIBS} ${ROOT_LIBRARIES})
+
+add_executable(pi0-analyse
+   inc/GTree.h
+   inc/GTreeRawEvent.h
+   inc/GTreeDetectorHits.h
+   inc/GTreeTagger.h
+   inc/GTreeLinPol.h
+   inc/GTreeScaler.h
+   inc/GTreeParticle.h
+   inc/GTreeMeson.h
+   inc/GTreeTrigger.h
+   inc/GTreeEventParameters.h
+   inc/GHistManager.h
+   inc/GTreeManager.h
+   inc/GConfigFile.h
+   inc/GHistTaggerBinning.h
+   inc/GHistBGSub.h
+   inc/GHistScaCor.h
+   inc/GH1.h
+   inc/PPhysics.h
+   inc/PPi0Analyse.h
+   src/GTree.cc
+   src/GTreeRawEvent.cc
+   src/GTreeDetectorHits.cc
+   src/GTreeTagger.cc
+   src/GTreeLinPol.cc
+   src/GTreeScaler.cc
+   src/GTreeParticle.cc
+   src/GTreeMeson.cc
+   src/GTreeTrigger.cc
+   src/GTreeEventParameters.cc
+   src/GHistManager.cc
+   src/GTreeManager.cc
+   src/GConfigFile.cc
+   src/GHistTaggerBinning.cc
+   src/GHistBGSub.cc
+   src/GHistScaCor.cc
+   src/PPhysics.cc
+   src/PPi0Analyse.cc
+   src/pi0_analyse_main.cc
+   )
+target_link_libraries(pi0-analyse ${ROOT_LIBRARIES})
+
+add_executable(pi0pi0-analyse
+   inc/GTree.h
+   inc/GTreeRawEvent.h
+   inc/GTreeDetectorHits.h
+   inc/GTreeTagger.h
+   inc/GTreeLinPol.h
+   inc/GTreeScaler.h
+   inc/GTreeParticle.h
+   inc/GTreeMeson.h
+   inc/GTreeTrigger.h
+   inc/GTreeEventParameters.h
+   inc/GHistManager.h
+   inc/GTreeManager.h
+   inc/GConfigFile.h
+   inc/GHistTaggerBinning.h
+   inc/GHistBGSub.h
+   inc/GHistScaCor.h
+   inc/GH1.h
+   inc/PPhysics.h
+   inc/PPi0Analyse.h
+   src/GTree.cc
+   src/GTreeRawEvent.cc
+   src/GTreeDetectorHits.cc
+   src/GTreeTagger.cc
+   src/GTreeLinPol.cc
+   src/GTreeScaler.cc
+   src/GTreeParticle.cc
+   src/GTreeMeson.cc
+   src/GTreeTrigger.cc
+   src/GTreeEventParameters.cc
+   src/GHistManager.cc
+   src/GTreeManager.cc
+   src/GConfigFile.cc
+   src/GHistTaggerBinning.cc
+   src/GHistBGSub.cc
+   src/GHistScaCor.cc
+   src/PPhysics.cc
+   src/P2Pi0Analyse.cc
+   src/pi0pi0_analyse_main.cc
+   )
+target_link_libraries(pi0pi0-analyse ${ROOT_LIBRARIES})
 
 # install some scripts to the bin directory
 # by creating symlinks
