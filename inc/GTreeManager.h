@@ -31,7 +31,8 @@
 class  GTreeManager : public GHistManager, public GConfigFile
 {
 private:
-    TFile*      inputFile;
+    //TFile*      inputFile;
+
     TObjArray   treeList;
     TObjArray   treeCorreleatedToScalerReadList;
     TObjArray   treeSingleReadList;
@@ -48,16 +49,20 @@ private:
             Bool_t      TraverseValidEvents_AcquTreeFile();
             Bool_t      TraverseValidEvents_GoATTreeFile();
 
-    //private tree variables
-    GTreeTrack*         tracks;
-    GTreeTagger*        tagger;
-    GTreeLinPol*        linpol;
-    GTreeTrigger*       trigger;
-    GTreeScaler*        scalers;
-
     GTreeSetupParameters* setupParameters;
     GTreeEventParameters* eventParameters;
     GTreeDetectorHits*  detectorHits;
+
+#ifdef hasPluto
+    GTreePluto*         pluto;
+#endif
+    GTreeA2Geant*       geant;
+
+protected:
+    TFile*      inputFile;
+    TFile*      outputFile;
+
+
     GTreeParticle*      rootinos;
     GTreeParticle*      photons;
     GTreeParticle*      electrons;
@@ -68,13 +73,12 @@ private:
     GTreeMeson*         etas;
     GTreeMeson*         etaPrimes;
 
-#ifdef hasPluto
-    GTreePluto*         pluto;
-#endif
-    GTreeA2Geant*       geant;
+    GTreeTrack*         tracks;
+    GTreeTagger*        tagger;
+    GTreeLinPol*        linpol;
+    GTreeTrigger*       trigger;
+    GTreeScaler*        scalers;
 
-protected:
-    TFile*          outputFile;
 
     //protected tree variables Getters
     GTreeTrack*   GetTracks()                 {return tracks;}
