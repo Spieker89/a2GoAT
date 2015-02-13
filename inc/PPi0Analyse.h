@@ -8,11 +8,12 @@
 
 #include "GTreeManager.h"
 #include "GTreeLinPol.h"
+#include "GTreeTrigger.h"
 #include "PPhysics.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
-
+#include "TCutG.h"
 #include <sstream>
 
 class	PPi0Analyse  : public PPhysics
@@ -36,6 +37,11 @@ protected:
     TH1F*        MM_proton;
      TH1F*        theta_proton;
      TH1F*        coplanarity_proton;
+   TCutG *cuttaps = new TCutG("CUT_TAPS_dE_E",10);
+   TCutG *cutcb = new TCutG("CUT_CB_dE_E",12);
+
+Int_t kTAPS;
+Int_t kCB;
 
 //kinematic variables in dependence of energy
 TH3F *IM_energy_kplustplus;
@@ -48,6 +54,9 @@ TH3F *MM_energy_kplustminus;
 TH3F *MM_energy_kminustplus;
 TH3F *MM_energy_kminustminus;
 
+TH2F *invmassverteilung_collerated;
+TH2F *invmassverteilung_collerated_proton;
+
 // //kinematic variables in dependence of energy
 TH3F *IM_energy_kplustplus_proton;
 TH3F *IM_energy_kplustminus_proton;
@@ -59,10 +68,21 @@ TH3F *MM_energy_kplustminus_proton;
 TH3F *MM_energy_kminustplus_proton;
 TH3F *MM_energy_kminustminus_proton;
 
+TH3F *events_all;
+TH3F *events_witherror;
+TH2F *Check_CBdE_E;
+TH2F *Check_CBdE_E_nocuts;
+TH2F *Check_TAPSdE_E;
+TH2F *Check_TAPSdE_E_nocuts;
+TH2F *Check_TAPS_TOF_proton;
+TH2F *Check_TAPS_TOF_photons_3ped;
+TH2F *Check_TAPS_TOF_photons_2_3ped;
 Double_t unten_mass, oben_mass, unten_copl, oben_copl, oben_inv, unten_inv, oben_theta, unten_theta;
 Double_t timebackground;
 Double_t pionmasse;
 Double_t pt;
+Double_t pt1;
+
 string polsetting;
 string planesetting;
 TH1F* test;
@@ -70,6 +90,7 @@ TH1F* test;
 TH2F *cosverteilung_collerated;
 
 TH2F *coplanarityverteilung_collerated;
+TH2F *thetaverteilung_collerated;
 TH2F *missingmassverteilung_collerated;
 TH2F *missingmassverteilung_collerated_proton;
 TH3F *kristallminus_targetplus_collerated;
@@ -103,7 +124,7 @@ TH3F *kristallminus_targetplus_collerated_pt_proton;
 TH3F *kristallminus_targetminus_collerated_pt_proton;
 TH3F *kristallplus_targetplus_collerated_pt_proton;
 TH3F *kristallplus_targetminus_collerated_pt_proton;
-
+TH1F *triggertest;
 TH1F *poltable_energy;
 TH1F *poltable_energy_weight;
 // 	Double_t test1;
@@ -123,8 +144,15 @@ Double_t targetpol(TFile *f){
 	stringstream ss(path1->Data());
 	Int_t runnumber1;
 	ss >> runnumber1;
+	string plane;
+	string poledge;
+
 	ifstream in2;
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_2013_11.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+
+
 	Double_t runnumber;
 	Double_t pol;
 	Double_t runnumber_array[1000];
@@ -135,7 +163,7 @@ Double_t targetpol(TFile *f){
 	if (in2.is_open()) {
 		while (1) {
 		
-		in2 >> runnumber >> pol;
+		in2 >> runnumber >> plane >> poledge >> pol;
 	//  	cout << runnumber << endl;
 		if (!in2.good()){pol1=500.;break;}
 		if(runnumber==runnumber1){pol1=pol;break;}
@@ -147,6 +175,8 @@ Double_t targetpol(TFile *f){
 return pol1/100;
 }
 
+
+
 string poledge(TFile *f){
 
 	TString* filename = new TString(f->GetPath());
@@ -156,16 +186,22 @@ string poledge(TFile *f){
 	Int_t runnumber1;
 	ss >> runnumber1;
 	ifstream in2;
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+
+
+
 	Double_t runnumber;
 	string poledge;
 	string poledge1;
 	Int_t N = 0;
 	string plane;
+	Double_t pol;
 	if (in2.is_open()) {
 		while (1) {
 		
-		in2 >> runnumber >> plane >> poledge;
+		in2 >> runnumber >> plane >> poledge >> pol;
 	//  	cout << runnumber << endl;
 		if (!in2.good()){poledge1="nichtzuordbar";break;}
 		if(runnumber==runnumber1){poledge1=poledge;break;}
@@ -187,18 +223,23 @@ string polplane(TFile *f){
 	Int_t runnumber1;
 	ss >> runnumber1;
 	ifstream in2;
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+
+
 	Double_t runnumber;
 	string poledge;
 	string poledge1;
 	Int_t N = 0;
 	string plane;
 	string plane1;
+	Double_t pol;
 
 	if (in2.is_open()) {
 		while (1) {
 		
-		in2 >> runnumber >> plane >> poledge;
+		in2 >> runnumber >> plane >> poledge >> pol;
 // 	  	cout << runnumber << "\t" << poledge << "\t" << plane << endl;
 		if (!in2.good()){plane1="nichtzuordbar";break;}
 		if(runnumber==runnumber1){plane1=plane;break;}
