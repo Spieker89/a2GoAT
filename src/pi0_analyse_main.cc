@@ -241,7 +241,8 @@ int main(int argc, char *argv[])
                         cout << "ERROR: PPi0Analyse.h failed on file " << file_in << "!" << endl;
 
                 }
-            }        }
+            }
+        }
     }
     if (files_found == 0)
     {
