@@ -154,6 +154,29 @@ add_executable(pi0-example
    )
 target_link_libraries(pi0-example ${LIBS} ${ROOT_LIBRARIES})
 
+add_executable(MyPhysics
+   ${GOAT_BASE}
+   ${GOAT_GHIST}
+   inc/GKinFitterParticle.h
+   inc/GKinFitter.h
+   inc/GFit.h
+   inc/GHistFit.h
+   inc/GHistEvent.h
+   inc/GCheckProton.h
+   inc/GAnalysis3Mesons.h
+   inc/MyPhysics.h
+   src/GKinFitterParticle.cc
+   src/GKinFitter.cc
+   src/GFit.cc
+   #src/GHistFit.cc
+   src/GHistEvent.cc
+   src/GCheckProton.cc
+   src/GAnalysis3Mesons.cc
+   src/MyPhysics.cc
+   src/MyPhysics_main.cc
+   )
+target_link_libraries(MyPhysics ${ROOT_LIBRARIES})
+
 # install some scripts to the bin directory
 # by creating symlinks
 file(GLOB CORE_EXTRA_SCRIPTS "scripts/*")

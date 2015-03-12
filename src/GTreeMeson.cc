@@ -181,6 +181,15 @@ void    GTreeMeson::AddParticle(const Int_t subParticle_index0, const TLorentzVe
     manager->countReconstructed++;
 }
 
+TLorentzVector GTreeMeson::SubPhotons(const Int_t meson, const Int_t photonIndex)
+{
+
+}
+
+const   TLorentzVector GTreeMeson::SubPhotons(const Int_t meson, const Int_t photonIndex) const
+{
+
+}
 
 void    GTreeMeson::Print() const
 {

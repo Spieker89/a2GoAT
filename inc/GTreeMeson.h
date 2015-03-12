@@ -42,7 +42,9 @@ public:
             Bool_t         HasTrack(const Int_t meson, const Int_t track) const {return (trackIndex[meson] & 1<<track);}
             TLorentzVector Meson(const Int_t meson)             {return Particle(meson);}
     const   TLorentzVector Meson(const Int_t meson) const       {return Particle(meson);}
-    virtual void            Print() const;
+            TLorentzVector SubPhotons(const Int_t meson, const Int_t photonIndex);
+    const   TLorentzVector SubPhotons(const Int_t meson, const Int_t photonIndex) const;
+    virtual void           Print() const;
 };
 
 const std::vector<Int_t> GTreeMeson::GetTrackIndexList(const Int_t meson) const

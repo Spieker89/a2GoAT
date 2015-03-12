@@ -35,7 +35,7 @@ Bool_t	MyPhysics::Start()
 
     TraverseValidEvents();
 
-    file_out->cd();
+    outputFile->cd();
     EPTscalersT.Write();
     EPTscalersCorT.Write();
 
@@ -44,17 +44,17 @@ Bool_t	MyPhysics::Start()
 
 void	MyPhysics::ProcessEvent()
 {
-    if(eta->GetNParticles()>0)
+    if(GetEtas()->GetNParticles()>0)
     {
-        hist_eta.Fill(*eta, *tagger, kTRUE);
-        if(protons->GetNParticles()>0)
-            hist_eta_proton.Fill(*eta, *protons, *tagger, kTRUE);
+        hist_eta.Fill(*GetEtas(), *GetTagger(), kTRUE);
+        if(GetProtons()->GetNParticles()>0)
+            hist_eta_proton.Fill(*GetEtas(), *GetProtons(), *GetTagger(), kTRUE);
     }
-    if(etap->GetNParticles()>0)
+    if(GetEtaPrimes()->GetNParticles()>0)
     {
-        hist_etap.Fill(*etap, *tagger, kTRUE);
-        if(protons->GetNParticles()>0)
-            hist_etap_proton.Fill(*etap, *protons, *tagger, kTRUE);
+        hist_etap.Fill(*GetEtaPrimes(), *GetTagger(), kTRUE);
+        if(GetProtons()->GetNParticles()>0)
+            hist_etap_proton.Fill(*GetEtaPrimes(), *GetProtons(), *GetTagger(), kTRUE);
     }
 }
 
@@ -68,10 +68,10 @@ void	MyPhysics::ProcessScalerRead()
     //std::cout << scalers->GetScaler(140) * Double_t(scalers->GetScaler(1)) / scalers->GetScaler(0) << "   " << scalers->GetScaler(140) << "   " << scalers->GetScaler(0) << "   " << scalers->GetScaler(1) << std::endl;
     for(int i=140; i<188; i++)
     {
-        EPTscalers.Fill(Double_t(scalers->GetScaler(i)), 0, i-140);
-        EPTscalersCor.Fill(scalers->GetScaler(i) * Double_t(scalers->GetScaler(1)) / scalers->GetScaler(0), 0, i-140);
-        EPTscalersT.SetBinContent(i-140, EPTscalersT.GetBinContent(i-140) + Double_t(scalers->GetScaler(i)));
-        EPTscalersCorT.SetBinContent(i-140, EPTscalersT.GetBinContent(i-140) + (scalers->GetScaler(i) * Double_t(scalers->GetScaler(1)) / scalers->GetScaler(0)));
+        EPTscalers.Fill(Double_t(GetScalers()->GetScaler(i)), 0, i-140);
+        EPTscalersCor.Fill(GetScalers()->GetScaler(i) * Double_t(GetScalers()->GetScaler(1)) / GetScalers()->GetScaler(0), 0, i-140);
+        EPTscalersT.SetBinContent(i-140, EPTscalersT.GetBinContent(i-140) + Double_t(GetScalers()->GetScaler(i)));
+        EPTscalersCorT.SetBinContent(i-140, EPTscalersT.GetBinContent(i-140) + (GetScalers()->GetScaler(i) * Double_t(GetScalers()->GetScaler(1)) / GetScalers()->GetScaler(0)));
     }
 }
 
