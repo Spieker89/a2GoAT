@@ -62,19 +62,21 @@ Int_t   GHistBGSub2::Fill(const Double_t x, const Double_t y, const Double_t tag
 {
     if(taggerTime>=cutPromptMin && taggerTime<=cutPromptMax)
         return ((GHistScaCor2*)prompt)->Fill(x, y);
-    for(int i=0; i<GetNRandCuts(); i++)
+    for(Int_t i=0; i<GetNRandCuts(); i++)
     {
         if(i>=rand.GetEntriesFast())
             ExpandRandBins(i+1);
         if(taggerTime>=cutRandMin[i] && taggerTime<=cutRandMax[i])
             return ((GHistScaCor2*)rand.At(i))->Fill(x, y);
     }
+    return 0;
 }
 
 Int_t   GHistBGSub2::Fill(const Double_t x, const Double_t y, const GTreeTagger& tagger)
 {
-    for(int i=0; i<tagger.GetNTagged(); i++)
-        Fill(x, y, tagger.GetTagged_t(i));
+    for(Int_t i=0; i<tagger.GetNTagged(); i++)
+        Fill(x, y, tagger.GetTaggedTime(i));
+    return tagger.GetNTagged();
 }
 
 
@@ -87,7 +89,7 @@ GHistBGSub*    GHistBGSub2::ProjectionX(const char* name, Int_t firstybin, Int_t
     TObjArray      arr;
     arr.SetOwner();
     GHistScaCor**  helpArr   = new GHistScaCor*[rand.GetEntriesFast()];
-    for(int i=0; i<rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<rand.GetEntriesFast(); i++)
     {
         helpArr[i]   = ((GHistScaCor2*)rand.At(i))->ProjectionX(TString("_prand").Append(TString().Itoa(i, 10)), firstybin, lastybin, option);
         arr.AddAtFree(helpArr[i]);
@@ -109,7 +111,7 @@ GHistBGSub*   GHistBGSub2::ProjectionY(const char* name, Int_t firstxbin, Int_t 
     TObjArray      arr;
     arr.SetOwner();
     GHistScaCor**  helpArr   = new GHistScaCor*[rand.GetEntriesFast()];
-    for(int i=0; i<rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<rand.GetEntriesFast(); i++)
     {
         helpArr[i]   = ((GHistScaCor2*)rand.At(i))->ProjectionY(TString("_prand").Append(TString().Itoa(i, 10)), firstxbin, lastxbin, option);
         arr.AddAtFree(helpArr[i]);

@@ -3,6 +3,8 @@
 
 
 #include "GTreeManager.h"
+#include "GH1.h"
+#include "TCutG.h"
 
 #define DEFAULT_PI0_IM_WIDTH 20.0
 #define DEFAULT_ETA_IM_WIDTH 44.0
@@ -25,10 +27,17 @@ private:
     TLorentzVector  reconstructedEta;
     TLorentzVector  reconstructedEtap;
     Int_t           daughter_index[6];
-    TLorentzVector* daughter[6];
+    TLorentzVector  daughter[6];
     UInt_t          foundTaggerHitForProton;
 
     static  Int_t   perm6g[15][6];
+
+    GHistBGSub2     TOF;
+    GHistBGSub2     TOFProton;
+    GH1             ProtonCount;
+    TCutG*          TOFCut;
+    GH1             ProtonMM;
+
 
     void    Reconstruct6g();
     void    Reconstruct6g(TLorentzVector** vec);
@@ -36,7 +45,7 @@ private:
     Bool_t  CheckProton();
 
     TLorentzVector  SetMass(const TLorentzVector& vec, const Double_t mass);
-
+    TCutG*          OpenCutFile(Char_t* filename, Char_t* cutname);
 protected:
 
             Bool_t  ProcessEventWithoutFilling();

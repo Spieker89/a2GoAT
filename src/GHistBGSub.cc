@@ -25,7 +25,7 @@ void    GHistBGSub::AddRandCut(const Double_t RandMin, const Double_t RandMax)
     cutRandMin.push_back(RandMin);
     cutRandMax.push_back(RandMax);
     backgroundSubstractionFactor = cutRandMax[0] - cutRandMin[0];
-    for(int i=1; i<cutRandMin.size(); i++)
+    for(UInt_t i=1; i<cutRandMin.size(); i++)
         backgroundSubstractionFactor += cutRandMax[i] - cutRandMin[i];
     backgroundSubstractionFactor    = (cutPromptMax - cutPromptMin)/backgroundSubstractionFactor;
 }
@@ -39,7 +39,7 @@ Bool_t    GHistBGSub::IsPrompt(const Double_t value)
 
 Bool_t    GHistBGSub::IsRandom(const Double_t value)
 {
-    for(int i=0; i<cutRandMin.size(); i++)
+    for(UInt_t i=0; i<cutRandMin.size(); i++)
     {
         if ((value >= cutRandMin[i]) && (value <= cutRandMax[i]))
             return kTRUE;
@@ -49,33 +49,33 @@ Bool_t    GHistBGSub::IsRandom(const Double_t value)
 
 GHistBGSub::GHistBGSub() :
     GHistLinked(),
+    writeWindows(kTRUE),
     result(new GHistScaCor()),
     prompt(new GHistScaCor()),
-    rand(),
     randSum(new GHistScaCor()),
-    writeWindows(kTRUE)
+    rand()
 {
     rand.SetOwner();
 }
 
 GHistBGSub::GHistBGSub(Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
+    writeWindows(kTRUE),
     result(0),
     prompt(0),
-    rand(),
     randSum(0),
-    writeWindows(kTRUE)
+    rand()
 {
     rand.SetOwner();
 }
 
 GHistBGSub::GHistBGSub(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
+    writeWindows(kTRUE),
     result(new GHistScaCor(name, title, nbinsx, xlow, xup, linkHistogram)),
     prompt(new GHistScaCor(TString(name).Append(GHBS_promptNameSuffix), TString(title).Append(GHBS_promptTitleSuffix), nbinsx, xlow, xup, kFALSE)),
-    rand(),
     randSum(new GHistScaCor(TString(name).Append(GHBS_randSumNameSuffix), TString(title).Append(GHBS_randSumTitleSuffix), nbinsx, xlow, xup, kFALSE)),
-    writeWindows(kTRUE)
+    rand()
 {
     rand.SetOwner();
 }
@@ -89,12 +89,13 @@ Bool_t	GHistBGSub::Add(const GHistBGSub* h, Double_t c)
     result->Add(h->result, c);
     prompt->Add(h->prompt, c);
     randSum->Add(h->randSum, c);
-    for(int i=0; i<h->rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<h->rand.GetEntriesFast(); i++)
     {
         if(i>=rand.GetEntriesFast())
             CreateRandBin();
         ((GHistScaCor*)rand.At(i))->Add((GHistScaCor*)h->rand.At(i), c);
-    }
+    }    
+    return true;
 }
 
 Bool_t	GHistBGSub::Add(const GHistScaCor* _result, const GHistScaCor* _prompt, const GHistScaCor* _randSum, const TObjArray& _rand, const Double_t c)
@@ -102,12 +103,13 @@ Bool_t	GHistBGSub::Add(const GHistScaCor* _result, const GHistScaCor* _prompt, c
     result->Add(_result, c);
     prompt->Add(_prompt, c);
     randSum->Add(_randSum, c);
-    for(int i=0; i<_rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<_rand.GetEntriesFast(); i++)
     {
         if(i>=rand.GetEntriesFast())
             CreateRandBin();
         ((GHistScaCor*)rand.At(i))->Add((GHistScaCor*)_rand.At(i), c);
     }
+    return true;
 }
 
 void    GHistBGSub::CalcResult()
@@ -122,7 +124,7 @@ void    GHistBGSub::CalcResult()
         //randSum->Reset();
         TIter   iter(&rand);
         GHistScaCor*    hist;
-        while(hist=(GHistScaCor*)iter.Next())
+        while((hist=(GHistScaCor*)iter.Next()))
             randSum->Add(hist);
         result->Add(randSum, -backgroundSubstractionFactor);
     }
@@ -155,7 +157,7 @@ Bool_t  GHistBGSub::IsEmpty()
         return kFALSE;
     if(randSum->IsEmpty()==kFALSE)
         return kFALSE;
-    for(int i=0; i<rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<rand.GetEntriesFast(); i++)
     {
         if(((GHistScaCor*)rand.At(i))->IsEmpty()==kFALSE)
             return kFALSE;
@@ -167,19 +169,21 @@ Int_t   GHistBGSub::Fill(const Double_t value, const Double_t taggerTime)
 {
     if(taggerTime>=cutPromptMin && taggerTime<=cutPromptMax)
         return prompt->Fill(value);
-    for(int i=0; i<GetNRandCuts(); i++)
+    for(Int_t i=0; i<GetNRandCuts(); i++)
     {
         if(i>=rand.GetEntriesFast())
             ExpandRandBins(i+1);
         if(taggerTime>=cutRandMin[i] && taggerTime<=cutRandMax[i])
             return ((GHistScaCor*)rand.At(i))->Fill(value);
     }
+    return 0;
 }
 
 Int_t   GHistBGSub::Fill(const Double_t value, const GTreeTagger& tagger)
 {
-    for(int i=0; i<tagger.GetNTagged(); i++)
-        Fill(value, tagger.GetTagged_t(i));
+    for(Int_t i=0; i<tagger.GetNTagged(); i++)
+        Fill(value, tagger.GetTaggedTime(i));
+    return 0;
 }
 
 void    GHistBGSub::Reset(Option_t* option)
@@ -193,7 +197,7 @@ void    GHistBGSub::Reset(Option_t* option)
 void    GHistBGSub::Scale(Double_t c1, Option_t* option)
 {
     result->Scale(c1, option);
-    for(int i=0; i<rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<rand.GetEntriesFast(); i++)
         ((GHistScaCor*)rand.At(i))->Scale(c1, option);
     randSum->Scale(c1, option);
     prompt->Scale(c1, option);
@@ -202,7 +206,7 @@ void    GHistBGSub::Scale(Double_t c1, Option_t* option)
 void    GHistBGSub::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
 {
     result->ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-    for(int i=0; i<rand.GetEntriesFast(); i++)
+    for(Int_t i=0; i<rand.GetEntriesFast(); i++)
         ((GHistScaCor*)rand.At(i))->ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     randSum->ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     prompt->ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
@@ -247,7 +251,7 @@ void    GHistBGSub::PrepareWriteList(GHistWriteList* arr, const char *name)
         else
             randSum->PrepareWriteList(BackgroundSubstraction);
 
-        for(int i=0; i<rand.GetEntriesFast(); i++)
+        for(Int_t i=0; i<rand.GetEntriesFast(); i++)
         {
             if(name)
             {
@@ -319,7 +323,7 @@ Int_t    GHistBGSub::WriteWithoutCalcResult(const char* name, Int_t option, Int_
             res += randSum->Write(0, option, bufsize);
 
         dir = GetCreateDirectory(GHBS_randFolderName);
-        for(int i=0; i<rand.GetEntriesFast(); i++)
+        for(Int_t i=0; i<rand.GetEntriesFast(); i++)
         {
             dir->cd();
             if(name)
