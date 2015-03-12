@@ -7,7 +7,8 @@
 
 GCheckProtonHist::GCheckProtonHist(const char* name, const char* title, Bool_t linkHistogram) :
     protonAngeDiff(TString(name).Append("_ProtonAngleDiff"), TString(title).Append(" Proton Angle Diff."), 1000, 0, 100, 48, linkHistogram),
-    protonCoplanarity(TString(name).Append("_Coplanarity"), TString(title).Append(" Coplanarity"), 3600, 0, 360, 48, linkHistogram)
+    protonCoplanarity(TString(name).Append("_Coplanarity"), TString(title).Append(" Coplanarity"), 3600, 0, 360, 48, linkHistogram),
+    TOF(TString(name).Append("_TOF"), TString(title).Append(" TOF"), 300, -15, 15, 800, 0, 800, linkHistogram)
 {
 
 }
@@ -26,6 +27,7 @@ void    GCheckProtonHist::PrepareWriteList(GHistWriteList* arr, const char* name
     {
         protonAngeDiff.PrepareWriteList(arr, TString(name).Append("_prAng").Data());
         protonCoplanarity.PrepareWriteList(arr, TString(name).Append("_copl").Data());
+        TOF.PrepareWriteList(arr, TString(name).Append("_TOF").Data());
     }
 }
 
@@ -68,19 +70,19 @@ Bool_t  GCheckProton::Check(const GTreeParticle& meson, const GTreeParticle& pro
     Double_t    helpAngleDiff   = TMath::RadToDeg()*(beamAndTarget-meson.Particle(0)).Angle(proton.Particle(0).Vect());
     Double_t    helpCoplanarity = TMath::RadToDeg()*TMath::Abs(meson.Particle(0).Phi()-proton.Particle(0).Phi());
 
-    raw.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
+    raw.Fill(helpAngleDiff, helpCoplanarity, taggerTime-proton.GetTime(0), proton.GetClusterEnergy(0), taggerTime);
     if(helpCoplanarity>CutProtonCoplanarity[0] && helpCoplanarity<CutProtonCoplanarity[1])
     {
-        cutCoplanarity.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
+        cutCoplanarity.Fill(helpAngleDiff, helpCoplanarity, taggerTime-proton.GetTime(0), proton.GetClusterEnergy(0), taggerTime);
         if(helpAngleDiff<CutProtonAngleDiff)
         {
             passed = kTRUE;
-            cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
-            cutBoth.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
+            cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity, taggerTime-proton.GetTime(0), proton.GetClusterEnergy(0), taggerTime);
+            cutBoth.Fill(helpAngleDiff, helpCoplanarity, taggerTime-proton.GetTime(0), proton.GetClusterEnergy(0), taggerTime);
         }
     }
     else if(helpAngleDiff<CutProtonAngleDiff)
-        cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity, taggerTime);
+        cutProtonAngle.Fill(helpAngleDiff, helpCoplanarity, taggerTime-proton.GetTime(0), proton.GetClusterEnergy(0), taggerTime);
 
     return passed;
 }
