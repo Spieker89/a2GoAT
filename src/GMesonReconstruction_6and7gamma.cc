@@ -8,10 +8,12 @@ GMesonReconstruction_6and7gamma::GMesonReconstruction_6and7gamma()    :
     width_pi0(22),
     width_eta(40),
     width_etap(60),
-    TOF("TOF", "TOF", 300, -15, 15, 800, 0, 800),
-    TOFProton("TOFProton", "TOFProton", 300, -15, 15, 800, 0, 800),
-    ProtonCount("ProtonCount", "ProtonCount", 5, 0, 5, 48),
-    ProtonMM("ProtonMM", "ProtonMM", 1500, 0, 1500, 48)
+    TOFAddPhoton6Hits("TOFAddPhoton6Hits", "TOFAddPhoton6Hits", 300, -15, 15, 800, 0, 800),
+    TOFSubPhoton6Hits("TOFSubPhoton6Hits", "TOFSubPhoton6Hits", 300, -15, 15, 800, 0, 800),
+    TOFAddPhoton7Hits("TOFAddPhoton7Hits", "TOFAddPhoton7Hits", 300, -15, 15, 800, 0, 800),
+    TOFSubPhoton7Hits("TOFSubPhoton7Hits", "TOFSubPhoton7Hits", 300, -15, 15, 800, 0, 800),
+    TOFAddProton("TOFAdd", "TOFAdd", 300, -15, 15, 800, 0, 800),
+    TOFSubProton("TOFSub", "TOFSub", 300, -15, 15, 800, 0, 800)
 {
     GHistBGSub::InitCuts(-20, 20, -530, -30);
     GHistBGSub::AddRandCut(30, 530);
@@ -81,7 +83,7 @@ Bool_t	GMesonReconstruction_6and7gamma::Init()
     }
     cout << endl;
 
-    TOFCut = new TCutG("TOFCut", 8);
+    /*TOFCut = new TCutG("TOFCut", 8);
     TOFCut->SetPoint(0, -10, 40);
     TOFCut->SetPoint(1, -4, 40);
     TOFCut->SetPoint(2, -1.5, 250);
@@ -89,7 +91,7 @@ Bool_t	GMesonReconstruction_6and7gamma::Init()
     TOFCut->SetPoint(4, 0, 400);
     TOFCut->SetPoint(5, -1.5, 500);
     TOFCut->SetPoint(6, -5, 200);
-    TOFCut->SetPoint(7, -10, 100);
+    TOFCut->SetPoint(7, -10, 100);*/
 
     return kTRUE;
 }
@@ -100,7 +102,7 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     GetEtas()->Clear();
     GetEtaPrimes()->Clear();
 
-    std::vector<int>    photonList;
+    /*std::vector<int>    photonList;
     std::vector<int>    protonList;
 
     int count = 0;
@@ -128,12 +130,12 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
                 }
             }
 
-            /*bool    found = false;
+            bool    found = false;
             if(GetTagger()->GetTaggedTime(t)>-20 && GetTagger()->GetTaggedTime(t)<20)
             {
                 if(found)
             }*/
-        }
+        /*}
         if(found)
             protonList.push_back(i);
         else
@@ -174,15 +176,39 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
                                   *it);
 
     if(GetPhotons()->GetNParticles()!=6)
-        return kFALSE;
+        return kFALSE;*/
 
-    if(GetProtons()->GetNParticles()==0)
-        Reconstruct6g();
-    else if(GetProtons()->GetNParticles()==1)
+    if(GetNReconstructed()==6)
     {
-        for(int t=0; t<GetTagger()->GetNTagged(); t++)
-            ProtonMM.Fill((GetTagger()->GetVectorProtonTarget(t)-GetProtons()->Particle(0)).M(), GetTagger()->GetTaggedTime(t));
         Reconstruct6g();
+        for(int t=0; t<GetTagger()->GetNTagged(); t++)
+        {
+            for(int i=0; i<GetTracks()->GetNTracks(); i++)
+            {
+                if(i==GetProtons()->GetTrackIndex(0)) continue;
+                if(GetTracks()->GetTheta(i)>21) continue;
+                TOFAddPhoton6Hits.Fill(GetTagger()->GetTaggedTime(t)+GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
+                TOFSubPhoton6Hits.Fill(GetTagger()->GetTaggedTime(t)-GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
+            }
+        }
+        return kTRUE;
+    }
+    else if(GetNReconstructed()==7)
+    {
+        Reconstruct7g();
+        for(int t=0; t<GetTagger()->GetNTagged(); t++)
+        {
+            for(int i=0; i<GetTracks()->GetNTracks(); i++)
+            {
+                if(i==GetProtons()->GetTrackIndex(0)) continue;
+                if(GetTracks()->GetTheta(i)>21) continue;
+                TOFAddPhoton7Hits.Fill(GetTagger()->GetTaggedTime(t)+GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
+                TOFSubPhoton7Hits.Fill(GetTagger()->GetTaggedTime(t)-GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
+            }
+            TOFAddProton.Fill(GetTagger()->GetTaggedTime(t)+GetProtons()->GetTime(0), GetProtons()->GetClusterEnergy(0), GetTagger()->GetTaggedTime(t));
+            TOFSubProton.Fill(GetTagger()->GetTaggedTime(t)-GetProtons()->GetTime(0), GetProtons()->GetClusterEnergy(0), GetTagger()->GetTaggedTime(t));
+        }
+        return kTRUE;
     }
     else
         return kFALSE;
@@ -337,7 +363,7 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
 
 void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
 {
-    /*TLorentzVector  meson[15][3];
+    TLorentzVector  meson[15][3];
     Double_t        help[2][3];
     Double_t        ChiSq[15][4];
 
@@ -378,8 +404,6 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
-        daughter_pdg[0] = 22;
-        daughter_pdg[1] = 22;
         daughter_index[0] = perm6g[minIndex][0];
         daughter_index[1] = perm6g[minIndex][1];
         //GetNeutralPions()->AddParticle(meson[minIndex][0], 2, daughter_pdg, daughter_index);
@@ -390,19 +414,19 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
         daughter_index[1] = perm6g[minIndex][5];
         //GetNeutralPions()->AddParticle(meson[minIndex][2], 2, daughter_pdg, daughter_index);*/
 
-        /*reconstructedEta    = meson[minIndex][0] + meson[minIndex][1] + meson[minIndex][2];
+        reconstructedEta    = meson[minIndex][0] + meson[minIndex][1] + meson[minIndex][2];
         daughter_index[0] = perm6g[minIndex][0];
         daughter_index[1] = perm6g[minIndex][1];
         daughter_index[2] = perm6g[minIndex][2];
         daughter_index[3] = perm6g[minIndex][3];
         daughter_index[4] = perm6g[minIndex][4];
         daughter_index[5] = perm6g[minIndex][5];
-        daughter[0] = vec[perm6g[minIndex][0]];
-        daughter[1] = vec[perm6g[minIndex][1]];
-        daughter[2] = vec[perm6g[minIndex][2]];
-        daughter[3] = vec[perm6g[minIndex][3]];
-        daughter[4] = vec[perm6g[minIndex][4]];
-        daughter[5] = vec[perm6g[minIndex][5]];
+        daughter[0] = *vec[perm6g[minIndex][0]];
+        daughter[1] = *vec[perm6g[minIndex][1]];
+        daughter[2] = *vec[perm6g[minIndex][2]];
+        daughter[3] = *vec[perm6g[minIndex][3]];
+        daughter[4] = *vec[perm6g[minIndex][4]];
+        daughter[5] = *vec[perm6g[minIndex][5]];
         return;
     }
 
@@ -415,12 +439,12 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
         daughter_index[3] = perm6g[minIndex][3];
         daughter_index[4] = perm6g[minIndex][4];
         daughter_index[5] = perm6g[minIndex][5];
-        daughter[0] = vec[perm6g[minIndex][0]];
-        daughter[1] = vec[perm6g[minIndex][1]];
-        daughter[2] = vec[perm6g[minIndex][2]];
-        daughter[3] = vec[perm6g[minIndex][3]];
-        daughter[4] = vec[perm6g[minIndex][4]];
-        daughter[5] = vec[perm6g[minIndex][5]];
+        daughter[0] = *vec[perm6g[minIndex][0]];
+        daughter[1] = *vec[perm6g[minIndex][1]];
+        daughter[2] = *vec[perm6g[minIndex][2]];
+        daughter[3] = *vec[perm6g[minIndex][3]];
+        daughter[4] = *vec[perm6g[minIndex][4]];
+        daughter[5] = *vec[perm6g[minIndex][5]];
     }
     else if(minDecayIndex == 1)  //Eta is meson[i][1]
     {
@@ -430,12 +454,12 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
         daughter_index[3] = perm6g[minIndex][1];
         daughter_index[4] = perm6g[minIndex][4];
         daughter_index[5] = perm6g[minIndex][5];
-        daughter[0] = vec[perm6g[minIndex][2]];
-        daughter[1] = vec[perm6g[minIndex][3]];
-        daughter[2] = vec[perm6g[minIndex][0]];
-        daughter[3] = vec[perm6g[minIndex][1]];
-        daughter[4] = vec[perm6g[minIndex][4]];
-        daughter[5] = vec[perm6g[minIndex][5]];
+        daughter[0] = *vec[perm6g[minIndex][2]];
+        daughter[1] = *vec[perm6g[minIndex][3]];
+        daughter[2] = *vec[perm6g[minIndex][0]];
+        daughter[3] = *vec[perm6g[minIndex][1]];
+        daughter[4] = *vec[perm6g[minIndex][4]];
+        daughter[5] = *vec[perm6g[minIndex][5]];
     }
     else if(minDecayIndex == 2)  //Eta is meson[i][2]
     {
@@ -445,24 +469,26 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
         daughter_index[3] = perm6g[minIndex][1];
         daughter_index[4] = perm6g[minIndex][2];
         daughter_index[5] = perm6g[minIndex][3];
-        daughter[0] = vec[perm6g[minIndex][4]];
-        daughter[1] = vec[perm6g[minIndex][5]];
-        daughter[2] = vec[perm6g[minIndex][0]];
-        daughter[3] = vec[perm6g[minIndex][1]];
-        daughter[4] = vec[perm6g[minIndex][2]];
-        daughter[5] = vec[perm6g[minIndex][3]];
+        daughter[0] = *vec[perm6g[minIndex][4]];
+        daughter[1] = *vec[perm6g[minIndex][5]];
+        daughter[2] = *vec[perm6g[minIndex][0]];
+        daughter[3] = *vec[perm6g[minIndex][1]];
+        daughter[4] = *vec[perm6g[minIndex][2]];
+        daughter[5] = *vec[perm6g[minIndex][3]];
     }
 
-    reconstructedEtap   = meson[minIndex][0] + meson[minIndex][1] + meson[minIndex][2];*/
+    reconstructedEtap   = meson[minIndex][0] + meson[minIndex][1] + meson[minIndex][2];
 }
 
 void    GMesonReconstruction_6and7gamma::Reconstruct7g()
 {
-    /*Double_t    bestChiSq;
+    Double_t    bestChiSq;
     Double_t    bestIndex;
     TLorentzVector* vec[6];
+    for(int l=0; l<6; l++)
+        vec[l] = new TLorentzVector();
     for(int l=1; l<7; l++)
-        vec[l-1] = &GetPhotons()->Particle(l);
+        *vec[l-1] = GetPhotons()->Particle(l);
     Reconstruct6g(vec);
     bestChiSq   = minChiSq;
     bestIndex   = 0;
@@ -473,7 +499,7 @@ void    GMesonReconstruction_6and7gamma::Reconstruct7g()
         {
             if(l!=i)
             {
-                vec[k] = &GetPhotons()->Particle(l);
+                *vec[k] = GetPhotons()->Particle(l);
                 k++;
             }
         }
@@ -484,18 +510,27 @@ void    GMesonReconstruction_6and7gamma::Reconstruct7g()
             bestIndex   = i;
         }
     }
-
-    GetProtons()->AddParticle(SetMass(GetPhotons()->Particle(bestIndex), pdgDB->GetParticle("proton")->Mass()), GetPhotons()->GetApparatus(bestIndex), GetPhotons()->Get_dE(bestIndex), GetPhotons()->GetWC0_E(bestIndex), GetPhotons()->GetWC1_E(bestIndex), GetPhotons()->GetTime(bestIndex), GetPhotons()->GetClusterSize(bestIndex));
+    GetProtons()->AddParticle(GetTracks()->GetClusterEnergy(bestIndex),
+                              GetTracks()->GetTheta(bestIndex),
+                              GetTracks()->GetPhi(bestIndex),
+                              MASS_PROTON,
+                              GetTracks()->GetTime(bestIndex),
+                              GetTracks()->GetClusterSize(bestIndex),
+                              GetTracks()->GetCentralCrystal(bestIndex),
+                              GetTracks()->GetCentralVeto(bestIndex),
+                              GetTracks()->GetDetectors(bestIndex),
+                              GetTracks()->GetVetoEnergy(bestIndex),
+                              GetTracks()->GetMWPC0Energy(bestIndex),
+                              GetTracks()->GetMWPC1Energy(bestIndex),
+                              bestIndex);
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
-        GetEtas()->AddParticle(0, 0, 0, 6, daughter_index, daughter, 0, 0, 0);
-        GetPhotons()->RemoveAllParticles();
+        GetEtas()->AddParticle(0, 6, 0, daughter_index, daughter);
         return;
     }
 
-    GetEtaPrimes()->AddParticle(0, 0, 0, 6, daughter_index, daughter, 0, 0, 0);
-    GetPhotons()->RemoveAllParticles();*/
+    GetEtaPrimes()->AddParticle(0, 6, 0, daughter_index, daughter);
     return;
 }
 void  GMesonReconstruction_6and7gamma::ProcessEvent()

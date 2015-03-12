@@ -32,11 +32,15 @@ private:
 
     static  Int_t   perm6g[15][6];
 
-    GHistBGSub2     TOF;
-    GHistBGSub2     TOFProton;
-    GH1             ProtonCount;
-    TCutG*          TOFCut;
-    GH1             ProtonMM;
+    GHistBGSub2     TOFAddPhoton6Hits;
+    GHistBGSub2     TOFSubPhoton6Hits;
+    GHistBGSub2     TOFAddPhoton7Hits;
+    GHistBGSub2     TOFSubPhoton7Hits;
+    GHistBGSub2     TOFAddProton;
+    GHistBGSub2     TOFSubProton;
+    //GH1             ProtonCount;
+    //TCutG*          TOFCut;
+    //GH1             ProtonMM;
 
 
     void    Reconstruct6g();
