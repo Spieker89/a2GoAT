@@ -38,14 +38,17 @@ private:
     GHistBGSub2     TOFSubPhoton7Hits;
     GHistBGSub2     TOFAddProton;
     GHistBGSub2     TOFSubProton;
-    //GH1             ProtonCount;
-    //TCutG*          TOFCut;
-    //GH1             ProtonMM;
+
+    GHistBGSub2     ChiSqDist;
+    GHistBGSub2     ChiSqDist6Hits;
+    GHistBGSub2     ChiSqDist7Hits;
+    Double_t        ChiSqEtap;
+    Double_t        ChiSq3Pi0;
 
 
     void    Reconstruct6g();
     void    Reconstruct6g(TLorentzVector** vec);
-    void    Reconstruct7g();
+    bool Reconstruct7g();
     Bool_t  CheckProton();
 
     TLorentzVector  SetMass(const TLorentzVector& vec, const Double_t mass);

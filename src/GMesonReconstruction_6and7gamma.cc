@@ -13,7 +13,10 @@ GMesonReconstruction_6and7gamma::GMesonReconstruction_6and7gamma()    :
     TOFAddPhoton7Hits("TOFAddPhoton7Hits", "TOFAddPhoton7Hits", 300, -15, 15, 800, 0, 800),
     TOFSubPhoton7Hits("TOFSubPhoton7Hits", "TOFSubPhoton7Hits", 300, -15, 15, 800, 0, 800),
     TOFAddProton("TOFAdd", "TOFAdd", 300, -15, 15, 800, 0, 800),
-    TOFSubProton("TOFSub", "TOFSub", 300, -15, 15, 800, 0, 800)
+    TOFSubProton("TOFSub", "TOFSub", 300, -15, 15, 800, 0, 800),
+    ChiSqDist("ChiSqDist", "ChiSqDist", 500, 0, 1, 500, 0, 1),
+    ChiSqDist6Hits("ChiSqDist6Hits", "ChiSqDist6Hits", 500, 0, 1, 500, 0, 1),
+    ChiSqDist7Hits("ChiSqDist7Hits", "ChiSqDist7Hits", 500, 0, 1, 500, 0, 1)
 {
     GHistBGSub::InitCuts(-20, 20, -530, -30);
     GHistBGSub::AddRandCut(30, 530);
@@ -102,81 +105,8 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     GetEtas()->Clear();
     GetEtaPrimes()->Clear();
 
-    /*std::vector<int>    photonList;
-    std::vector<int>    protonList;
-
-    int count = 0;
-    for(int i=0; i<GetTracks()->GetNTracks(); i++)
-    {
-        //std::cout << GetTracks()->GetDetectors(i) << std::endl;
-        if(GetTracks()->GetTheta(i)*TMath::RadToDeg()<21)
-        {
-            photonList.push_back(i);
-            continue;
-        }
-
-        bool found = false;
-        for(int t=0; t<GetTagger()->GetNTagged(); t++)
-        {
-            TOF.Fill(GetTagger()->GetTaggedTime(t)-GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
-            if(GetTagger()->GetTaggedTime(t)>-20 && GetTagger()->GetTaggedTime(t)<20)
-            {
-                if(TOFCut->IsInside(GetTagger()->GetTaggedTime(t)-GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i)))
-                {
-                    found = true;
-                    count++;
-                    TOFProton.Fill(GetTagger()->GetTaggedTime(t)-GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
-                    GetProtons()->AddParticle();
-                }
-            }
-
-            bool    found = false;
-            if(GetTagger()->GetTaggedTime(t)>-20 && GetTagger()->GetTaggedTime(t)<20)
-            {
-                if(found)
-            }*/
-        /*}
-        if(found)
-            protonList.push_back(i);
-        else
-            photonList.push_back(i);
-    }
-    ProtonCount.Fill(Double_t(count));
-
-    GetPhotons()->RemoveAllParticles();
-    GetProtons()->RemoveAllParticles();
-
-    for(std::vector<int>::iterator it = photonList.begin(); it!=photonList.end(); ++it)
-        GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(*it),
-                                  GetTracks()->GetTheta(*it),
-                                  GetTracks()->GetPhi(*it),
-                                  0,
-                                  GetTracks()->GetTime(*it),
-                                  GetTracks()->GetClusterSize(*it),
-                                  GetTracks()->GetCentralCrystal(*it),
-                                  GetTracks()->GetCentralVeto(*it),
-                                  GetTracks()->GetDetectors(*it),
-                                  GetTracks()->GetVetoEnergy(*it),
-                                  GetTracks()->GetMWPC0Energy(*it),
-                                  GetTracks()->GetMWPC1Energy(*it),
-                                  *it);
-    for(std::vector<int>::iterator it = protonList.begin(); it!=protonList.end(); ++it)
-        GetProtons()->AddParticle(GetTracks()->GetClusterEnergy(*it),
-                                  GetTracks()->GetTheta(*it),
-                                  GetTracks()->GetPhi(*it),
-                                  MASS_PROTON,
-                                  GetTracks()->GetTime(*it),
-                                  GetTracks()->GetClusterSize(*it),
-                                  GetTracks()->GetCentralCrystal(*it),
-                                  GetTracks()->GetCentralVeto(*it),
-                                  GetTracks()->GetDetectors(*it),
-                                  GetTracks()->GetVetoEnergy(*it),
-                                  GetTracks()->GetMWPC0Energy(*it),
-                                  GetTracks()->GetMWPC1Energy(*it),
-                                  *it);
-
-    if(GetPhotons()->GetNParticles()!=6)
-        return kFALSE;*/
+    ChiSq3Pi0 = 1e10;
+    ChiSqEtap = 1e10;
 
     if(GetNReconstructed()==6)
     {
@@ -191,11 +121,12 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
                 TOFSubPhoton6Hits.Fill(GetTagger()->GetTaggedTime(t)-GetTracks()->GetTime(i), GetTracks()->GetClusterEnergy(i), GetTagger()->GetTaggedTime(t));
             }
         }
-        return kTRUE;
+        //if(minDecayIndex!=3)
+            ChiSqDist6Hits.Fill(TMath::Prob(ChiSqEtap, 3), TMath::Prob(ChiSq3Pi0, 3));
     }
     else if(GetNReconstructed()==7)
     {
-        Reconstruct7g();
+        if(!Reconstruct7g()) return kFALSE;
         for(int t=0; t<GetTagger()->GetNTagged(); t++)
         {
             for(int i=0; i<GetTracks()->GetNTracks(); i++)
@@ -208,10 +139,15 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
             TOFAddProton.Fill(GetTagger()->GetTaggedTime(t)+GetProtons()->GetTime(0), GetProtons()->GetClusterEnergy(0), GetTagger()->GetTaggedTime(t));
             TOFSubProton.Fill(GetTagger()->GetTaggedTime(t)-GetProtons()->GetTime(0), GetProtons()->GetClusterEnergy(0), GetTagger()->GetTaggedTime(t));
         }
-        return kTRUE;
+        //if(minDecayIndex!=3)
+            ChiSqDist7Hits.Fill(TMath::Prob(ChiSqEtap, 3), TMath::Prob(ChiSq3Pi0, 3));
     }
     else
         return kFALSE;
+
+    //std::cout << TMath::Prob(ChiSqEtap, 3) << "   " << TMath::Prob(ChiSq3Pi0, 3) << std::endl;
+    //std::cout << ChiSqEtap << "   " << ChiSq3Pi0 << std::endl;
+    ChiSqDist.Fill(TMath::Prob(ChiSqEtap, 3), TMath::Prob(ChiSq3Pi0, 3));
 
     return kTRUE;
 }
@@ -247,6 +183,16 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
     {
         for(int d=0; d<4; d++)
         {
+            if(d==3)
+            {
+                if(ChiSq[i][d]<=ChiSq3Pi0)
+                    ChiSq3Pi0   = ChiSq[i][d];
+            }
+            else
+            {
+                if(ChiSq[i][d]<=ChiSqEtap)
+                    ChiSqEtap   = ChiSq[i][d];
+            }
             if(ChiSq[i][d]<=minChiSq)
             {
                 minChiSq        = ChiSq[i][d];
@@ -393,6 +339,16 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
     {
         for(int d=0; d<4; d++)
         {
+            if(d==3)
+            {
+                if(ChiSq[i][d]<=ChiSq3Pi0)
+                    ChiSq3Pi0   = ChiSq[i][d];
+            }
+            else
+            {
+                if(ChiSq[i][d]<=ChiSqEtap)
+                    ChiSqEtap   = ChiSq[i][d];
+            }
             if(ChiSq[i][d]<=minChiSq)
             {
                 minChiSq        = ChiSq[i][d];
@@ -480,20 +436,20 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
     reconstructedEtap   = meson[minIndex][0] + meson[minIndex][1] + meson[minIndex][2];
 }
 
-void    GMesonReconstruction_6and7gamma::Reconstruct7g()
+bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
 {
     Double_t    bestChiSq;
     Double_t    bestIndex;
     TLorentzVector* vec[6];
     for(int l=0; l<6; l++)
         vec[l] = new TLorentzVector();
-    for(int l=1; l<7; l++)
-        *vec[l-1] = GetPhotons()->Particle(l);
-    Reconstruct6g(vec);
-    bestChiSq   = minChiSq;
+    bestChiSq   = 1e10;
     bestIndex   = 0;
-    for(int i=1; i<7; i++)
+    bool    found = false;
+    for(int i=0; i<7; i++)
     {
+        if(GetPhotons()->Particle(i).Theta()*TMath::RadToDeg() > 21) continue;
+        found = true;
         int k   = 0;
         for(int l=0; l<7; l++)
         {
@@ -510,6 +466,20 @@ void    GMesonReconstruction_6and7gamma::Reconstruct7g()
             bestIndex   = i;
         }
     }
+    if(!found)  return false;
+
+    int k           = 0;
+    int trackIndex[6];
+    for(int i=0; i<7; i++)
+    {
+        if(i!=bestIndex)
+        {
+            *vec[k] = GetPhotons()->Particle(i);
+            trackIndex[k] = GetPhotons()->GetTrackIndex(i);
+            k++;
+        }
+    }
+    Reconstruct6g(vec);
     GetProtons()->AddParticle(GetTracks()->GetClusterEnergy(bestIndex),
                               GetTracks()->GetTheta(bestIndex),
                               GetTracks()->GetPhi(bestIndex),
@@ -523,15 +493,32 @@ void    GMesonReconstruction_6and7gamma::Reconstruct7g()
                               GetTracks()->GetMWPC0Energy(bestIndex),
                               GetTracks()->GetMWPC1Energy(bestIndex),
                               bestIndex);
+    GetPhotons()->RemoveAllParticles();
+    for(int i=0; i<6; i++)
+    {
+        GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(trackIndex[i]),
+                                  GetTracks()->GetTheta(trackIndex[i]),
+                                  GetTracks()->GetPhi(trackIndex[i]),
+                                  MASS_PROTON,
+                                  GetTracks()->GetTime(trackIndex[i]),
+                                  GetTracks()->GetClusterSize(trackIndex[i]),
+                                  GetTracks()->GetCentralCrystal(trackIndex[i]),
+                                  GetTracks()->GetCentralVeto(trackIndex[i]),
+                                  GetTracks()->GetDetectors(trackIndex[i]),
+                                  GetTracks()->GetVetoEnergy(trackIndex[i]),
+                                  GetTracks()->GetMWPC0Energy(trackIndex[i]),
+                                  GetTracks()->GetMWPC1Energy(trackIndex[i]),
+                                  trackIndex[i]);
+    }
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
         GetEtas()->AddParticle(0, 6, 0, daughter_index, daughter);
-        return;
+        return true;
     }
 
     GetEtaPrimes()->AddParticle(0, 6, 0, daughter_index, daughter);
-    return;
+    return true;
 }
 void  GMesonReconstruction_6and7gamma::ProcessEvent()
 {
