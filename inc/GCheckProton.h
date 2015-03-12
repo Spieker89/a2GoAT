@@ -47,12 +47,12 @@ public:
 
     virtual void    CalcResult();
             Bool_t  Check(const GTreeParticle& meson, const GTreeParticle& proton, const TLorentzVector& beamAndTarget, const Double_t taggerTime);
-    virtual Int_t   Fill(Double_t x)    {}
+    virtual Int_t   Fill(Double_t x)                                                                                                                    {return 0;}
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");
             void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
             void    SetCuts(const Double_t maxProtonAngleDiff, const Double_t minCoplanarity,const Double_t maxCoplanarity);
-    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)                                                   {return 0;}
 };
 
 

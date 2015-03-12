@@ -21,7 +21,7 @@ public:
     virtual ~GHistEvent();
 
     virtual void    CalcResult()                                                                                                                                {im.CalcResult(); mm.CalcResult();}
-    virtual Int_t   Fill(Double_t x)                                                                                                                            {}
+    virtual Int_t   Fill(Double_t x)                                                                                                                            {return 0;}
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime)                                                                       {im.Fill(IM, taggerTime); mm.Fill(MM, taggerTime);}
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Int_t taggerChannel)                                            {im.Fill(IM, taggerTime, taggerChannel); mm.Fill(MM, taggerTime);}
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t taggerTime)                             {im.Fill(IM, taggerTime); mm.Fill(MM, taggerTime); theta.Fill(IM, taggerTime); phi.Fill(MM, taggerTime);}
@@ -29,7 +29,7 @@ public:
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "")                                                                                                                {im.Reset(option); mm.Reset(option);}
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                           {im.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); mm.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
-    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)                                                           {return 0;}
 };
 
 
@@ -82,7 +82,7 @@ public:
     virtual ~GHistEventProton();
 
     virtual void    CalcResult()                                                                                                                                {E.CalcResult(); Ecalc.CalcResult(); protonTheta.CalcResult(); protonPhi.CalcResult();}
-    virtual Int_t   Fill(Double_t x)                                                                                                                            {}
+    virtual Int_t   Fill(Double_t x)                                                                                                                            {return 0;}
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime)                                                                       {GHistEvent::Fill(IM, MM, taggerTime);}
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t taggerTime, const Int_t taggerChannel)                                            {GHistEvent::Fill(IM, MM, taggerTime, taggerChannel);}
     virtual void    Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t taggerTime)                             {GHistEvent::Fill(IM, MM, Theta, Phi, taggerTime);}
@@ -94,7 +94,7 @@ public:
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "")                                                                                                                {E.Reset(option); Ecalc.Reset(option); protonTheta.Reset(option); protonPhi.Reset(option);}
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE)                           {E.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); Ecalc.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonTheta.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads); protonPhi.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);}
-    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)                                                           {return 0;}
 };
 
 

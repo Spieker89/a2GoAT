@@ -37,8 +37,8 @@ void    GCheckProtonHist::PrepareWriteList(GHistWriteList* arr, const char* name
 GCheckProton::GCheckProton(const char* name, const char* title, Bool_t linkHistogram) :
     GHistLinked(linkHistogram),
     raw(TString(name).Append("_Raw"), TString(title).Append(" Raw"), kFALSE),
-    cutProtonAngle(TString(name).Append("_cutProtonAngle"), TString(title).Append(" Cut Proton Angle"), kFALSE),
     cutCoplanarity(TString(name).Append("_cutCoplanarity"), TString(title).Append(" Cut Coplanarity"), kFALSE),
+    cutProtonAngle(TString(name).Append("_cutProtonAngle"), TString(title).Append(" Cut Proton Angle"), kFALSE),
     cutBoth(TString(name).Append("_cutBoth"), TString(title).Append(" Cut Both"), kFALSE),
     CutProtonAngleDiff(10)
 {
