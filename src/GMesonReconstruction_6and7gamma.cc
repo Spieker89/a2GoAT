@@ -209,23 +209,13 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
-        daughter_index[0] = perm6g[minIndex][0];
-        daughter_index[1] = perm6g[minIndex][1];
-        //GetNeutralPions()->AddParticle(mesonHelp[minIndex][0], 2, daughter_pdg, daughter_index);
-        daughter_index[0] = perm6g[minIndex][2];
-        daughter_index[1] = perm6g[minIndex][3];
-        //GetNeutralPions()->AddParticle(mesonHelp[minIndex][1], 2, daughter_pdg, daughter_index);
-        daughter_index[0] = perm6g[minIndex][4];
-        daughter_index[1] = perm6g[minIndex][5];
-        //GetNeutralPions()->AddParticle(mesonHelp[minIndex][2], 2, daughter_pdg, daughter_index);*/
-
         reconstructedEta    = mesonHelp[minIndex][0] + mesonHelp[minIndex][1] + mesonHelp[minIndex][2];
-        daughter_index[0] = perm6g[minIndex][0];
-        daughter_index[1] = perm6g[minIndex][1];
-        daughter_index[2] = perm6g[minIndex][2];
-        daughter_index[3] = perm6g[minIndex][3];
-        daughter_index[4] = perm6g[minIndex][4];
-        daughter_index[5] = perm6g[minIndex][5];
+        daughter_index[0] = GetPhotons()->GetTrackIndex(perm6g[minIndex][0]);
+        daughter_index[1] = GetPhotons()->GetTrackIndex(perm6g[minIndex][1]);
+        daughter_index[2] = GetPhotons()->GetTrackIndex(perm6g[minIndex][2]);
+        daughter_index[3] = GetPhotons()->GetTrackIndex(perm6g[minIndex][3]);
+        daughter_index[4] = GetPhotons()->GetTrackIndex(perm6g[minIndex][4]);
+        daughter_index[5] = GetPhotons()->GetTrackIndex(perm6g[minIndex][5]);
         daughter[0] = GetPhotons()->Particle(perm6g[minIndex][0]);
         daughter[1] = GetPhotons()->Particle(perm6g[minIndex][1]);
         daughter[2] = GetPhotons()->Particle(perm6g[minIndex][2]);
@@ -237,7 +227,7 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
             GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
                                       GetTracks()->GetTheta(daughter_index[i]),
                                       GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
+                                      0,
                                       GetTracks()->GetTime(daughter_index[i]),
                                       GetTracks()->GetClusterSize(daughter_index[i]),
                                       GetTracks()->GetCentralCrystal(daughter_index[i]),
@@ -258,12 +248,12 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
 
     if(minDecayIndex == 0)  //Eta is mesonHelp[i][0]
     {
-        daughter_index[0] = perm6g[minIndex][0];
-        daughter_index[1] = perm6g[minIndex][1];
-        daughter_index[2] = perm6g[minIndex][2];
-        daughter_index[3] = perm6g[minIndex][3];
-        daughter_index[4] = perm6g[minIndex][4];
-        daughter_index[5] = perm6g[minIndex][5];
+        daughter_index[0] = GetPhotons()->GetTrackIndex(perm6g[minIndex][0]);
+        daughter_index[1] = GetPhotons()->GetTrackIndex(perm6g[minIndex][1]);
+        daughter_index[2] = GetPhotons()->GetTrackIndex(perm6g[minIndex][2]);
+        daughter_index[3] = GetPhotons()->GetTrackIndex(perm6g[minIndex][3]);
+        daughter_index[4] = GetPhotons()->GetTrackIndex(perm6g[minIndex][4]);
+        daughter_index[5] = GetPhotons()->GetTrackIndex(perm6g[minIndex][5]);
         daughter[0] = GetPhotons()->Particle(perm6g[minIndex][0]);
         daughter[1] = GetPhotons()->Particle(perm6g[minIndex][1]);
         daughter[2] = GetPhotons()->Particle(perm6g[minIndex][2]);
@@ -273,31 +263,15 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
         IMSub0Etap.Fill(mesonHelp[minIndex][0].M());
         IMSub1Etap.Fill(mesonHelp[minIndex][1].M());
         IMSub2Etap.Fill(mesonHelp[minIndex][2].M());
-
-        GetPhotons()->RemoveAllParticles();
-        for(int i=0; i<6; i++)
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      daughter_index[i]);
     }
     else if(minDecayIndex == 1)  //Eta is mesonHelp[i][1]
     {
-        daughter_index[0] = perm6g[minIndex][2];
-        daughter_index[1] = perm6g[minIndex][3];
-        daughter_index[2] = perm6g[minIndex][0];
-        daughter_index[3] = perm6g[minIndex][1];
-        daughter_index[4] = perm6g[minIndex][4];
-        daughter_index[5] = perm6g[minIndex][5];
+        daughter_index[0] = GetPhotons()->GetTrackIndex(perm6g[minIndex][2]);
+        daughter_index[1] = GetPhotons()->GetTrackIndex(perm6g[minIndex][3]);
+        daughter_index[2] = GetPhotons()->GetTrackIndex(perm6g[minIndex][0]);
+        daughter_index[3] = GetPhotons()->GetTrackIndex(perm6g[minIndex][1]);
+        daughter_index[4] = GetPhotons()->GetTrackIndex(perm6g[minIndex][4]);
+        daughter_index[5] = GetPhotons()->GetTrackIndex(perm6g[minIndex][5]);
         daughter[0] = GetPhotons()->Particle(perm6g[minIndex][2]);
         daughter[1] = GetPhotons()->Particle(perm6g[minIndex][3]);
         daughter[2] = GetPhotons()->Particle(perm6g[minIndex][0]);
@@ -307,58 +281,15 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
         IMSub0Etap.Fill(mesonHelp[minIndex][1].M());
         IMSub1Etap.Fill(mesonHelp[minIndex][0].M());
         IMSub2Etap.Fill(mesonHelp[minIndex][2].M());
-        GetPhotons()->RemoveAllParticles();
-        for(int i=2; i<4; i++)
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      daughter_index[i]);
-        for(int i=0; i<2; i++)
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      daughter_index[i]);
-        for(int i=4; i<6; i++)
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      daughter_index[i]);
     }
     else if(minDecayIndex == 2)  //Eta is mesonHelp[i][2]
     {
-        daughter_index[0] = perm6g[minIndex][4];
-        daughter_index[1] = perm6g[minIndex][5];
-        daughter_index[2] = perm6g[minIndex][0];
-        daughter_index[3] = perm6g[minIndex][1];
-        daughter_index[4] = perm6g[minIndex][2];
-        daughter_index[5] = perm6g[minIndex][3];
+        daughter_index[0] = GetPhotons()->GetTrackIndex(perm6g[minIndex][4]);
+        daughter_index[1] = GetPhotons()->GetTrackIndex(perm6g[minIndex][5]);
+        daughter_index[2] = GetPhotons()->GetTrackIndex(perm6g[minIndex][0]);
+        daughter_index[3] = GetPhotons()->GetTrackIndex(perm6g[minIndex][1]);
+        daughter_index[4] = GetPhotons()->GetTrackIndex(perm6g[minIndex][2]);
+        daughter_index[5] = GetPhotons()->GetTrackIndex(perm6g[minIndex][3]);
         daughter[0] = GetPhotons()->Particle(perm6g[minIndex][4]);
         daughter[1] = GetPhotons()->Particle(perm6g[minIndex][5]);
         daughter[2] = GetPhotons()->Particle(perm6g[minIndex][0]);
@@ -368,36 +299,23 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
         IMSub0Etap.Fill(mesonHelp[minIndex][2].M());
         IMSub1Etap.Fill(mesonHelp[minIndex][0].M());
         IMSub2Etap.Fill(mesonHelp[minIndex][1].M());
-        for(int i=4; i<6; i++)
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      daughter_index[i]);
-        for(int i=0; i<4; i++)
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      daughter_index[i]);
     }
     reconstructedEtap   = mesonHelp[minIndex][0] + mesonHelp[minIndex][1] + mesonHelp[minIndex][2];
+    GetPhotons()->RemoveAllParticles();
+    for(int i=0; i<6; i++)
+        GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
+                                  GetTracks()->GetTheta(daughter_index[i]),
+                                  GetTracks()->GetPhi(daughter_index[i]),
+                                  0,
+                                  GetTracks()->GetTime(daughter_index[i]),
+                                  GetTracks()->GetClusterSize(daughter_index[i]),
+                                  GetTracks()->GetCentralCrystal(daughter_index[i]),
+                                  GetTracks()->GetCentralVeto(daughter_index[i]),
+                                  GetTracks()->GetDetectors(daughter_index[i]),
+                                  GetTracks()->GetVetoEnergy(daughter_index[i]),
+                                  GetTracks()->GetMWPC0Energy(daughter_index[i]),
+                                  GetTracks()->GetMWPC1Energy(daughter_index[i]),
+                                  daughter_index[i]);
     GetEtaPrimes()->AddParticle(0, 6, 0, daughter_index, daughter);
 }
 
@@ -453,16 +371,6 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g(TLorentzVector** vec)
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
-        daughter_index[0] = perm6g[minIndex][0];
-        daughter_index[1] = perm6g[minIndex][1];
-        //GetNeutralPions()->AddParticle(mesonHelp[minIndex][0], 2, daughter_pdg, daughter_index);
-        daughter_index[0] = perm6g[minIndex][2];
-        daughter_index[1] = perm6g[minIndex][3];
-        //GetNeutralPions()->AddParticle(mesonHelp[minIndex][1], 2, daughter_pdg, daughter_index);
-        daughter_index[0] = perm6g[minIndex][4];
-        daughter_index[1] = perm6g[minIndex][5];
-        //GetNeutralPions()->AddParticle(mesonHelp[minIndex][2], 2, daughter_pdg, daughter_index);*/
-
         reconstructedEta    = mesonHelp[minIndex][0] + mesonHelp[minIndex][1] + mesonHelp[minIndex][2];
         daughter_index[0] = perm6g[minIndex][0];
         daughter_index[1] = perm6g[minIndex][1];
@@ -567,8 +475,9 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
     {
         if(i!=bestIndex)
         {
+            if(i>bestIndex)     daughter_index[i-1]++;
             *vec[k] = GetPhotons()->Particle(i);
-            trackIndex[k] = GetPhotons()->GetTrackIndex(i);
+            trackIndex[k] = i;
             k++;
         }
     }
@@ -599,7 +508,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
             GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
                                       GetTracks()->GetTheta(daughter_index[i]),
                                       GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
+                                      0,
                                       GetTracks()->GetTime(daughter_index[i]),
                                       GetTracks()->GetClusterSize(daughter_index[i]),
                                       GetTracks()->GetCentralCrystal(daughter_index[i]),
@@ -613,121 +522,43 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
         return true;
     }
 
-    GetEtaPrimes()->AddParticle(0, 6, 0, daughter_index, daughter);
     if(minDecayIndex==0)
     {
         IMSub0Etap.Fill(mesonHelp[minIndex][0].M());
         IMSub1Etap.Fill(mesonHelp[minIndex][1].M());
         IMSub2Etap.Fill(mesonHelp[minIndex][2].M());
-        for(int i=0; i<6; i++)
-        {
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      trackIndex[i]);
-        }
     }
     else if(minDecayIndex==1)
     {
         IMSub0Etap.Fill(mesonHelp[minIndex][1].M());
         IMSub1Etap.Fill(mesonHelp[minIndex][0].M());
         IMSub2Etap.Fill(mesonHelp[minIndex][2].M());
-        for(int i=2; i<4; i++)
-        {
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      trackIndex[i]);
-        }
-        for(int i=0; i<2; i++)
-        {
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      trackIndex[i]);
-        }
-        for(int i=4; i<6; i++)
-        {
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      trackIndex[i]);
-        }
     }
     else if(minDecayIndex==2)
     {
         IMSub0Etap.Fill(mesonHelp[minIndex][2].M());
         IMSub1Etap.Fill(mesonHelp[minIndex][0].M());
         IMSub2Etap.Fill(mesonHelp[minIndex][1].M());
-        for(int i=4; i<6; i++)
-        {
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      trackIndex[i]);
-        }
-        for(int i=0; i<4; i++)
-        {
-            GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
-                                      GetTracks()->GetTheta(daughter_index[i]),
-                                      GetTracks()->GetPhi(daughter_index[i]),
-                                      MASS_PROTON,
-                                      GetTracks()->GetTime(daughter_index[i]),
-                                      GetTracks()->GetClusterSize(daughter_index[i]),
-                                      GetTracks()->GetCentralCrystal(daughter_index[i]),
-                                      GetTracks()->GetCentralVeto(daughter_index[i]),
-                                      GetTracks()->GetDetectors(daughter_index[i]),
-                                      GetTracks()->GetVetoEnergy(daughter_index[i]),
-                                      GetTracks()->GetMWPC0Energy(daughter_index[i]),
-                                      GetTracks()->GetMWPC1Energy(daughter_index[i]),
-                                      trackIndex[i]);
-        }
     }
+
+    for(int i=0; i<6; i++)
+    {
+        GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(daughter_index[i]),
+                                  GetTracks()->GetTheta(daughter_index[i]),
+                                  GetTracks()->GetPhi(daughter_index[i]),
+                                  0,
+                                  GetTracks()->GetTime(daughter_index[i]),
+                                  GetTracks()->GetClusterSize(daughter_index[i]),
+                                  GetTracks()->GetCentralCrystal(daughter_index[i]),
+                                  GetTracks()->GetCentralVeto(daughter_index[i]),
+                                  GetTracks()->GetDetectors(daughter_index[i]),
+                                  GetTracks()->GetVetoEnergy(daughter_index[i]),
+                                  GetTracks()->GetMWPC0Energy(daughter_index[i]),
+                                  GetTracks()->GetMWPC1Energy(daughter_index[i]),
+                                  trackIndex[i]);
+    }
+    GetEtaPrimes()->AddParticle(0, 6, 0, daughter_index, daughter);
+
     return true;
 }
 void  GMesonReconstruction_6and7gamma::ProcessEvent()

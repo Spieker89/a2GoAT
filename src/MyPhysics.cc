@@ -46,15 +46,15 @@ void	MyPhysics::ProcessEvent()
 {
     if(GetEtas()->GetNParticles()>0)
     {
-        hist_eta.Fill(*GetEtas(), *GetTagger(), kTRUE);
+        hist_eta.Fill(*GetEtas(), *GetPhotons(), *GetTagger(), kTRUE);
         if(GetProtons()->GetNParticles()>0)
-            hist_eta_proton.Fill(*GetEtas(), *GetProtons(), *GetTagger(), kTRUE);
+            hist_eta_proton.Fill(*GetEtas(), *GetPhotons(), *GetProtons(), *GetTagger(), kTRUE);
     }
     if(GetEtaPrimes()->GetNParticles()>0)
     {
-        hist_etap.Fill(*GetEtaPrimes(), *GetTagger(), kTRUE);
+        hist_etap.Fill(*GetEtaPrimes(), *GetPhotons(), *GetTagger(), kTRUE);
         if(GetProtons()->GetNParticles()>0)
-            hist_etap_proton.Fill(*GetEtaPrimes(), *GetProtons(), *GetTagger(), kTRUE);
+            hist_etap_proton.Fill(*GetEtaPrimes(), *GetPhotons(), *GetProtons(), *GetTagger(), kTRUE);
     }
 }
 

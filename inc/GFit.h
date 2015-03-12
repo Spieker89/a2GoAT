@@ -214,13 +214,13 @@ public:
     ~GHistFit();
 
     virtual void        CalcResult();
-    virtual Int_t       Fill(Double_t x)                {}
+    virtual Int_t       Fill(Double_t x)                {return 0;}
     virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime);
     virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel);
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void        Reset(Option_t* option = "");
     virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
 };
 
 
@@ -249,14 +249,14 @@ public:
     ~GHistIterativeFit();
 
     virtual void        CalcResult();
-    virtual Int_t       Fill(Double_t x)                {}
+    virtual Int_t       Fill(Double_t x)                {return 0;}
     virtual Int_t       Fill(GFit& fitter);
-    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime)                              {final.Fill(fitter, taggerTime);}
-    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)   {final.Fill(fitter, taggerTime, taggerChannel);}
+    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime)                              {return final.Fill(fitter, taggerTime);}
+    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)   {return final.Fill(fitter, taggerTime, taggerChannel);}
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void        Reset(Option_t* option = "");
     virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
 };
 
 

@@ -3,8 +3,8 @@
 
 
 GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
-    isEtap(_IsEtap),
-    GFit(6, 3)
+    GFit(6, 3),
+    isEtap(_IsEtap)
 {
 
 }
@@ -61,8 +61,8 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
 
 
 GFit4Constraints::GFit4Constraints(const Bool_t _IsEtap)    :
-    isEtap(_IsEtap),
-    GFit(6, 4)
+    GFit(6, 4),
+    isEtap(_IsEtap)
 {
 
 }
@@ -128,8 +128,8 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
 
 
 GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t _IsEtap)    :
-    isEtap(_IsEtap),
-    GFit(7, 4)
+    GFit(7, 4),
+    isEtap(_IsEtap)
 {
 
 }
@@ -200,8 +200,8 @@ void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
 
 
 GFit7ConstraintsProton::GFit7ConstraintsProton(const Bool_t _IsEtap)    :
-    isEtap(_IsEtap),
-    GFit(7, 7)
+    GFit(7, 7),
+    isEtap(_IsEtap)
 {
 
 }
@@ -289,8 +289,8 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
 
 
 GFit7ConstraintsBeamProton::GFit7ConstraintsBeamProton(const Bool_t _IsEtap)    :
-    isEtap(_IsEtap),
-    GFit(8, 7)
+    GFit(8, 7),
+    isEtap(_IsEtap)
 {
 
 }
@@ -420,46 +420,47 @@ void        GHistFit::CalcResult()
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime)
 {
     TLorentzVector  etap(fitter.GetMeson());
-    im.Fill(etap.M(), taggerTime);
-    sub0im.Fill(fitter.GetSub(0).M(), taggerTime);
-    sub1im.Fill(fitter.GetSub(1).M(), taggerTime);
-    sub2im.Fill(fitter.GetSub(2).M(), taggerTime);
-    theta.Fill(etap.Theta()*TMath::RadToDeg(), taggerTime);
-    phi.Fill(etap.Phi()*TMath::RadToDeg(), taggerTime);
-    Pim.Fill(fitter.GetRecoil().M(), taggerTime);
-    Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime);
-    Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime);
-    chiSq.Fill(fitter.GetChi2(), taggerTime);
-    VchiSq.Fill(fitter.GetVariablesChi2(), taggerTime);
-    CchiSq.Fill(fitter.GetConstraintsChi2(), taggerTime);
-    confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
-    VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), taggerTime);
-    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), taggerTime);
+    Int_t   ret = im.Fill(etap.M(), taggerTime);
+    ret += sub0im.Fill(fitter.GetSub(0).M(), taggerTime);
+    ret += sub1im.Fill(fitter.GetSub(1).M(), taggerTime);
+    ret += sub2im.Fill(fitter.GetSub(2).M(), taggerTime);
+    ret += theta.Fill(etap.Theta()*TMath::RadToDeg(), taggerTime);
+    ret += phi.Fill(etap.Phi()*TMath::RadToDeg(), taggerTime);
+    ret += Pim.Fill(fitter.GetRecoil().M(), taggerTime);
+    ret += Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime);
+    ret += Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime);
+    ret += chiSq.Fill(fitter.GetChi2(), taggerTime);
+    ret += VchiSq.Fill(fitter.GetVariablesChi2(), taggerTime);
+    ret += CchiSq.Fill(fitter.GetConstraintsChi2(), taggerTime);
+    ret += confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime);
+    ret += VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), taggerTime);
+    ret += CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), taggerTime);
     for(int i=0; i<nPulls; i++)
-        pulls.Fill(fitter.GetPull(i), i);
+        ret += pulls.Fill(fitter.GetPull(i), i);
+    return ret;
 }
 
 Int_t       GHistFit::Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)
 {
-
     TLorentzVector  etap(fitter.GetMeson());
-    im.Fill(etap.M(), taggerTime, taggerChannel);
-    sub0im.Fill(fitter.GetSub(0).M(), taggerTime, taggerChannel);
-    sub1im.Fill(fitter.GetSub(1).M(), taggerTime, taggerChannel);
-    sub2im.Fill(fitter.GetSub(2).M(), taggerTime, taggerChannel);
-    theta.Fill(etap.Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
-    phi.Fill(etap.Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
-    Pim.Fill(fitter.GetRecoil().M(), taggerTime, taggerChannel);
-    Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
-    Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
-    chiSq.Fill(fitter.GetChi2(), taggerTime, taggerChannel);
-    VchiSq.Fill(fitter.GetVariablesChi2(), taggerTime, taggerChannel);
-    CchiSq.Fill(fitter.GetConstraintsChi2(), taggerTime, taggerChannel);
-    confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime, taggerChannel);
-    VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), taggerTime, taggerChannel);
-    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), taggerTime, taggerChannel);
+    Int_t   ret = im.Fill(etap.M(), taggerTime, taggerChannel);
+    ret += sub0im.Fill(fitter.GetSub(0).M(), taggerTime, taggerChannel);
+    ret += sub1im.Fill(fitter.GetSub(1).M(), taggerTime, taggerChannel);
+    ret += sub2im.Fill(fitter.GetSub(2).M(), taggerTime, taggerChannel);
+    ret += theta.Fill(etap.Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    ret += phi.Fill(etap.Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    ret += Pim.Fill(fitter.GetRecoil().M(), taggerTime, taggerChannel);
+    ret += Ptheta.Fill(fitter.GetRecoil().Theta()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    ret += Pphi.Fill(fitter.GetRecoil().Phi()*TMath::RadToDeg(), taggerTime, taggerChannel);
+    ret += chiSq.Fill(fitter.GetChi2(), taggerTime, taggerChannel);
+    ret += VchiSq.Fill(fitter.GetVariablesChi2(), taggerTime, taggerChannel);
+    ret += CchiSq.Fill(fitter.GetConstraintsChi2(), taggerTime, taggerChannel);
+    ret += confidenceLevel.Fill(fitter.ConfidenceLevel(), taggerTime, taggerChannel);
+    ret += VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), taggerTime, taggerChannel);
+    ret += CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), taggerTime, taggerChannel);
     for(int i=0; i<nPulls; i++)
-        pulls.Fill(fitter.GetPull(i), i);
+        ret += pulls.Fill(fitter.GetPull(i), i);
+    return ret;
 }
 
 void    GHistFit::PrepareWriteList(GHistWriteList* arr, const char* name)
@@ -609,21 +610,22 @@ Int_t       GHistIterativeFit::Fill(GFit& fitter)
 {
     TLorentzVector  etap(fitter.GetMeson());
     TLorentzVector  tot(fitter.GetTotal());
-    im.Fill(etap.M(), fitter.GetIterations());
-    sub0im.Fill(fitter.GetSub(0).M(), fitter.GetIterations());
-    sub1im.Fill(fitter.GetSub(1).M(), fitter.GetIterations());
-    sub2im.Fill(fitter.GetSub(2).M(), fitter.GetIterations());
-    mm.Fill(tot.M(), fitter.GetIterations());
-    totE.Fill(tot.E(), fitter.GetIterations());
-    totPx.Fill(tot.Px(), fitter.GetIterations());
-    totPy.Fill(tot.Py(), fitter.GetIterations());
-    totPz.Fill(tot.Pz(), fitter.GetIterations());
-    VchiSq.Fill(fitter.GetVariablesChi2(), fitter.GetIterations());
-    VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), fitter.GetIterations());
-    CchiSq.Fill(fitter.GetConstraintsChi2(), fitter.GetIterations());
-    CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), fitter.GetIterations());
-    chiSq.Fill(fitter.GetChi2(), fitter.GetIterations());
-    confidenceLevel.Fill(fitter.ConfidenceLevel(), fitter.GetIterations());
+    Int_t   ret = im.Fill(etap.M(), fitter.GetIterations());
+    ret += sub0im.Fill(fitter.GetSub(0).M(), fitter.GetIterations());
+    ret += sub1im.Fill(fitter.GetSub(1).M(), fitter.GetIterations());
+    ret += sub2im.Fill(fitter.GetSub(2).M(), fitter.GetIterations());
+    ret += mm.Fill(tot.M(), fitter.GetIterations());
+    ret += totE.Fill(tot.E(), fitter.GetIterations());
+    ret += totPx.Fill(tot.Px(), fitter.GetIterations());
+    ret += totPy.Fill(tot.Py(), fitter.GetIterations());
+    ret += totPz.Fill(tot.Pz(), fitter.GetIterations());
+    ret += VchiSq.Fill(fitter.GetVariablesChi2(), fitter.GetIterations());
+    ret += VconfidenceLevel.Fill(fitter.VariablesConfidenceLevel(), fitter.GetIterations());
+    ret += CchiSq.Fill(fitter.GetConstraintsChi2(), fitter.GetIterations());
+    ret += CconfidenceLevel.Fill(fitter.ConstraintsConfidenceLevel(), fitter.GetIterations());
+    ret += chiSq.Fill(fitter.GetChi2(), fitter.GetIterations());
+    ret += confidenceLevel.Fill(fitter.ConfidenceLevel(), fitter.GetIterations());
+    return ret;
 }
 
 void    GHistIterativeFit::PrepareWriteList(GHistWriteList* arr, const char* name)

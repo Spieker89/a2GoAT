@@ -44,12 +44,12 @@ public:
 
     virtual void    CalcResult();
             Bool_t  IsEtap()    const   {return isEtap;}
-    virtual Int_t   Fill(Double_t x)    {}
-    virtual void    Fill(const GTreeMeson& meson, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    virtual Int_t   Fill(Double_t x)    {return 0;}
+    virtual void    Fill(const GTreeMeson& meson, const GTreeParticle& photons, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");
     virtual void    ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
 
     void    SetCutSubIM(const Int_t subNumber, const Double_t min, const Double_t max);
     void    SetCutMM(const Double_t min, const Double_t max);
@@ -93,12 +93,12 @@ public:
     ~GAnalysis3MesonsProton();
 
     virtual void        CalcResult();
-    virtual Int_t       Fill(Double_t x)    {}
-    virtual void        Fill(const GTreeMeson& meson, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
+    virtual Int_t       Fill(Double_t x)    {return 0;}
+    virtual void        Fill(const GTreeMeson& meson, const GTreeParticle& photons, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning = kFALSE);
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void        Reset(Option_t* option = "");
     virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {}
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
 
     void	SetHistMeson(const Double_t sub0_min, const Double_t sub0_max,
                          const Double_t sub1_min, const Double_t sub1_max,
