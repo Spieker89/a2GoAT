@@ -183,12 +183,16 @@ void    GTreeMeson::AddParticle(const Int_t subParticle_index0, const TLorentzVe
 
 TLorentzVector GTreeMeson::SubPhotons(const Int_t meson, const Int_t photonIndex)
 {
-
+    if(meson>=GetNParticles() || meson<0)                   return TLorentzVector();
+    if(photonIndex>=GetNSubPhotons(meson) || photonIndex<0) return TLorentzVector();
+        return manager->GetTracks()->GetVector(photonIndex);
 }
 
 const   TLorentzVector GTreeMeson::SubPhotons(const Int_t meson, const Int_t photonIndex) const
 {
-
+    if(meson>=GetNParticles() || meson<0)                   return TLorentzVector();
+    if(photonIndex>=GetNSubPhotons(meson) || photonIndex<0) return TLorentzVector();
+        return manager->GetTracks()->GetVector(photonIndex);
 }
 
 void    GTreeMeson::Print() const
