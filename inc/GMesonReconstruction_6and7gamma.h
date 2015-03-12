@@ -29,9 +29,16 @@ private:
     Int_t           daughter_index[6];
     TLorentzVector  daughter[6];
     UInt_t          foundTaggerHitForProton;
+    TLorentzVector  mesonHelp[15][3];
 
     static  Int_t   perm6g[15][6];
 
+    GHistBGSub      IMSub0Etap;
+    GHistBGSub      IMSub03Pi0;
+    GHistBGSub      IMSub1Etap;
+    GHistBGSub      IMSub13Pi0;
+    GHistBGSub      IMSub2Etap;
+    GHistBGSub      IMSub23Pi0;
     GHistBGSub2     TOFAddPhoton6Hits;
     GHistBGSub2     TOFSubPhoton6Hits;
     GHistBGSub2     TOFAddPhoton7Hits;
