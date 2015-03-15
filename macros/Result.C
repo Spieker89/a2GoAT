@@ -225,7 +225,6 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	can->Write();
 	
 	
-	
 	can	= new TCanvas("CanRaw", "Raw", 1500, 800);
 	can->Divide(3,2);
 	
@@ -283,18 +282,106 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	
 	
 	
-	can	= new TCanvas("CanFit", "Fit", 1500, 800);
-	can->Divide(2,2);
-	
+	can	= new TCanvas("CanBestFit", "BestFit", 1500, 800);
+	can->Divide(3,2);
+	Double_t*	BestFitWidth[5];
 	can->cd(1);
-	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/fit4/_fit4_IM");
-	can->cd(2)->SetLogz();
-	TH2D*	data		= (TH2D*)dataFile->Get("WithProton/MM_Cut/fit4/TaggerBinning/_fit4_IM_Bins");
+	{
+		BestFitWidth[0]	= new Double_t[4];
+		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit3/Final/Final_IM");
+		BestFitWidth[0][0]	= help->GetRMS();
+		BestFitWidth[0][1]	= help->GetRMSError();
+		help->SetLineColor(kMagenta);
+		help->Draw();
+		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit3/Final/Final_IM");
+		BestFitWidth[0][2]	= help->GetRMS();
+		BestFitWidth[0][3]	= help->GetRMSError();
+		help->SetLineColor(kGreen);
+		help->Draw("SAME");
+	}
+	can->cd(2);
+	{
+		BestFitWidth[1]	= new Double_t[4];
+		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/Final/Final_IM");
+		BestFitWidth[1][0]	= help->GetRMS();
+		BestFitWidth[1][1]	= help->GetRMSError();
+		help->SetLineColor(kMagenta);
+		help->Draw();
+		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4/Final/Final_IM");
+		BestFitWidth[1][2]	= help->GetRMS();
+		BestFitWidth[1][3]	= help->GetRMSError();
+		help->SetLineColor(kGreen);
+		help->Draw("SAME");
+	}
+	can->cd(3);
+	{
+		BestFitWidth[2]	= new Double_t[4];
+		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4Beam/Final/Final_IM");
+		BestFitWidth[2][0]	= help->GetRMS();
+		BestFitWidth[2][1]	= help->GetRMSError();
+		help->SetLineColor(kMagenta);
+		help->Draw();
+		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4Beam/Final/Final_IM");
+		BestFitWidth[2][2]	= help->GetRMS();
+		BestFitWidth[2][3]	= help->GetRMSError();
+		help->SetLineColor(kGreen);
+		help->Draw("SAME");
+	}
+	can->cd(4);
+	{
+		BestFitWidth[3]	= new Double_t[4];
+		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4Proton/Final/Final_IM");
+		BestFitWidth[3][0]	= help->GetRMS();
+		BestFitWidth[3][1]	= help->GetRMSError();
+		help->SetLineColor(kMagenta);
+		help->Draw();
+		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4Proton/Final/Final_IM");
+		BestFitWidth[3][2]	= help->GetRMS();
+		BestFitWidth[3][3]	= help->GetRMSError();
+		help->SetLineColor(kGreen);
+		help->Draw("SAME");
+	}
+	can->cd(5);
+	{
+		BestFitWidth[4]	= new Double_t[4];
+		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4BeamProton/Final/Final_IM");
+		BestFitWidth[4][0]	= help->GetRMS();
+		BestFitWidth[4][1]	= help->GetRMSError();
+		help->SetLineColor(kMagenta);
+		help->Draw();
+		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4BeamProton/Final/Final_IM");
+		BestFitWidth[4][2]	= help->GetRMS();
+		BestFitWidth[4][3]	= help->GetRMSError();
+		help->SetLineColor(kGreen);
+		help->Draw("SAME");
+	}
+	can->cd(6);
+	{
+		Double_t	x[5];
+		Double_t	dx[5];
+		Double_t	y[5];
+		Double_t	dy[5];
+		for(int i=0; i<5; i++)
+		{
+			x[i]	= i+1;
+			dx[i]	= 0;
+			y[i]	= BestFitWidth[i][2] / BestFitWidth[i][0];
+			dy[i]	= TMath::Sqrt(((BestFitWidth[i][3] / BestFitWidth[i][0])*(BestFitWidth[i][3] / BestFitWidth[i][0])) + ((BestFitWidth[i][2]*BestFitWidth[i][1] / BestFitWidth[i][0])*(BestFitWidth[i][2]*BestFitWidth[i][1] / BestFitWidth[i][0])));
+		}
+		TGraphErrors*	bestFit = new TGraphErrors(5, x, y, dx, dy);
+		bestFit->Draw();
+	}
+	
+	can	= new TCanvas("CanFit", "Fit", 1500, 800);
+	can->Divide(8,5);
+	
+	/*can->cd(2)->SetLogz();
+	TH2D*	data		= (TH2D*)dataFile->Get("WithProton/MM_Cut/fit4/TaggerBinning/Final_IM_Bins");
 	data->Draw("COL");
 	can->cd(3);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/fit4/_fit4_ChiSq");
 	can->cd(4);
-	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/fit4/_fit4_ConfLev");
+	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/fit4/_fit4_ConfLev");*/
 	
 	out->cd();
 	can->Write();
