@@ -449,7 +449,18 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
     bool    found = false;
     for(int i=0; i<7; i++)
     {
+        //Check for TAPS
         if(GetPhotons()->Particle(i).Theta()*TMath::RadToDeg() > 21) continue;
+        //Check for Coplanarity
+        vec[0]->SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+        for(int l=0; l<7; l++)
+        {
+            if(l!=i)
+                *vec[0] += GetPhotons()->Particle(l);
+        }
+        Double_t Coplanarity = TMath::Abs((GetPhotons()->Particle(i).Phi()-vec[0]->Phi())*TMath::RadToDeg());
+        if(Coplanarity<160 || Coplanarity>200)  continue;
+
         found = true;
         int k   = 0;
         for(int l=0; l<7; l++)
