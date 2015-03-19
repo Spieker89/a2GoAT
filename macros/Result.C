@@ -236,6 +236,9 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/Raw/_Raw_IM");
 	can->cd(2);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/Raw/_Raw_MM");
+	can->cd(3)->SetLogz();
+	TH2D*	TOF	= (TH2D*)dataFile->Get("WithProton/Raw/_Raw_TOF");
+	TOF->Draw("colz");
 	can->cd(4);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/Raw/_Raw_sub0IM");
 	can->cd(5);
@@ -247,7 +250,6 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	can->Write();
 	
 	
-	
 	can	= new TCanvas("CanSubIM", "SubIM", 1500, 800);
 	can->Divide(3,2);
 	
@@ -255,6 +257,9 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/SubIM_Cut/_subIMCut_IM");
 	can->cd(2);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/SubIM_Cut/_subIMCut_MM");
+	can->cd(3)->SetLogz();
+	TOF	= (TH2D*)dataFile->Get("WithProton/SubIM_Cut/_subIMCut_TOF");
+	TOF->Draw("colz");
 	can->cd(4);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/SubIM_Cut/_subIMCut_sub0IM");
 	can->cd(5);
@@ -274,6 +279,9 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/_MMCut_IM");
 	can->cd(2);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/_MMCut_MM");
+	can->cd(3)->SetLogz();
+	TOF	= (TH2D*)dataFile->Get("WithProton/MM_Cut/_TOF");
+	TOF->Draw("colz");
 	can->cd(4);
 	OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/_MMCut_sub0IM");
 	can->cd(5);
@@ -361,10 +369,10 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	}
 	Double_t	x[48];
 	Double_t	dx[48];
+	Double_t	y[48];
+	Double_t	dy[48];
 	can->cd(6);
 	{
-		Double_t	y[5];
-		Double_t	dy[5];
 		for(int i=0; i<5; i++)
 		{
 			x[i]	= i+1;
@@ -386,6 +394,8 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 		can->cd(2)->SetLogz();
 		data		= (TH2D*)dataFile->Get("WithProton/MM_Cut/fit4/_MM");
 		data->Draw("COL");
+		can->cd(3);
+		OpenHistogram(dataFile, mcSignalFile, mcBGFile, "WithProton/MM_Cut/fit4/Final/Final_IM");
 		can->cd(4)->SetLogz();
 		data		= (TH2D*)dataFile->Get("WithProton/MM_Cut/fit4/_Sub0IM");
 		data->Draw("COL");
@@ -442,7 +452,6 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	}
 	out->cd();
 	can->Write();
-	return;
 	
 	
 	can	= new TCanvas("CanResult", "Result", 1500, 800);
@@ -453,7 +462,7 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	graph = new TGraphErrors(48, x, nEtapCut, dx, dNEtapCut);
 	can->cd(2);
 	graph->Draw();
-	data		= (TH2D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/TaggerBinning/_fit4_IM_Bins");
+	data		= (TH2D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/Final/TaggerBinning/Final_IM_Bins");
 	TH1D*	RecEff	= new TH1D("RecEff", "RecEff", 48, 0, 48);
 	can->cd(3);
 	ReconstructionEff(data, RecEff);
@@ -483,8 +492,6 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	can	= new TCanvas("CanEndResult", "EndResult", 1500, 800);
 	can->Divide(2,2);
 	
-	Double_t	y[48];
-	Double_t	dy[48];
 	for(int i=0; i<48; i++)
 	{
 		y[i]			= nEtapFit[i] / RecEff->GetBinContent(i+1);
