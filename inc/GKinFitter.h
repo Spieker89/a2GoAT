@@ -92,6 +92,7 @@ private:
     Int_t           indices[20][20];
     TVector3        momentum[20];
     TLorentzVector  beam[20];
+    Double_t        oldChiSq;
 
 public:
     GIterativeKinFitter(const Int_t npart, const Int_t ncon);

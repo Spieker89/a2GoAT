@@ -20,15 +20,14 @@ private:
 
     GHistEvent3Mesons   hist_raw;
     GHistEvent3Mesons   hist_SubImCut;
-    GHistIterativeFit   hist_SubImCut_fit3;
-    GHistIterativeFit   hist_SubImCut_fit4;
-    GHistIterativeFit   hist_SubImCut_fit4Beam;
 
     GHistEvent3Mesons   hist_MMCut;
+    GHistIterativeFit   hist_fit1;
     GHistIterativeFit   hist_fit3;
     GHistIterativeFit   hist_fit4;
     GHistIterativeFit   hist_fit4Beam;
 
+    GFit1Constraints        fit1;
     GFit3Constraints        fit3;
     GFit4Constraints        fit4;
     GFit4ConstraintsBeam    fit4Beam;
@@ -68,20 +67,17 @@ private:
 
     GHistEvent3Mesons   hist_SubImCut;
     GHistBGSub2         hist_SubImCut_TOF;
-    GHistIterativeFit   hist_SubImCut_fit3;
-    GHistIterativeFit   hist_SubImCut_fit4;
-    GHistIterativeFit   hist_SubImCut_fit4Beam;
-    GHistIterativeFit   hist_SubImCut_fit4Proton;
-    GHistIterativeFit   hist_SubImCut_fit4BeamProton;
 
     GHistEvent3Mesons   hist_MMCut;
     GHistBGSub2         hist_TOF;
+    GHistIterativeFit   hist_fit1;
     GHistIterativeFit   hist_fit3;
     GHistIterativeFit   hist_fit4;
     GHistIterativeFit   hist_fit4Beam;
     GHistIterativeFit   hist_fit4Proton;
     GHistIterativeFit   hist_fit4BeamProton;
 
+    GFit1Constraints            fit1;
     GFit3Constraints            fit3;
     GFit4Constraints            fit4;
     GFit4ConstraintsBeam        fit4Beam;

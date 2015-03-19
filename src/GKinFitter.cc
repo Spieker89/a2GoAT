@@ -507,13 +507,14 @@ Int_t GIterativeKinFitter::Solve()
         nIter++;
         return 1;
     }
-    if(nIter==5)
+    if(nIter==10)
         return -1;
 
     fmAlpha1    = fmAlpha2;
     TMatrixD    V(fmV_Alpha);
     Double_t    CChiSq  = GetConstraintsChi2();
     Double_t    VChiSq  = GetVariablesChi2();
+    oldChiSq = GetChi2();
 
     ResetConstraints();
     fmD.Zero();
@@ -543,7 +544,7 @@ Int_t GIterativeKinFitter::Solve()
         }
     }
 
-    if(GKinFitter::Solve()<0)
+    if(GKinFitter::Solve()<0 || oldChiSq<GetChi2())
     {
         fmAlpha2    = fmAlpha1;
         fmV_Alpha   = V;

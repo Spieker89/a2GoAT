@@ -2,6 +2,63 @@
 #include "GTreeMeson.h"
 
 
+
+
+
+
+GFit1Constraints::GFit1Constraints(const Bool_t _IsEtap)    :
+    GFit(6, 1),
+    isEtap(_IsEtap)
+{
+
+}
+
+GFit1Constraints::~GFit1Constraints()
+{
+
+}
+
+void    GFit1Constraints::Set(const TLorentzVector& p0,
+                              const TLorentzVector& p1,
+                              const TLorentzVector& p2,
+                              const TLorentzVector& p3,
+                              const TLorentzVector& p4,
+                              const TLorentzVector& p5,
+                              const TLorentzVector& _BeamAndTarget)
+{
+    solved = kFALSE;
+    fitter.Reset();
+
+    GKinFitterParticle  photons[6];
+
+    photons[0].Set4Vector(p0);
+    photons[1].Set4Vector(p1);
+    photons[2].Set4Vector(p2);
+    photons[3].Set4Vector(p3);
+    photons[4].Set4Vector(p4);
+    photons[5].Set4Vector(p5);
+    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
+    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
+    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
+    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
+    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
+    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
+    for(int i=0; i<6; i++)
+        fitter.AddPosKFParticle(photons[i]);
+
+    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
+    fitter.AddSubMissMassConstraint(_BeamAndTarget, 6, &index[0], MASS_PROTON);
+}
+
+
+
+
+
+
+
+
+
+
 GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
     GFit(6, 3),
     isEtap(_IsEtap)
@@ -49,9 +106,6 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
     fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
 }
-
-
-
 
 
 
