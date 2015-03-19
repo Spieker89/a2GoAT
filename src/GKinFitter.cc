@@ -23,6 +23,7 @@ GKinFitter::GKinFitter(const Int_t npart, const Int_t ncon){
   fmAlpha1.ResizeTo(fNpar,1);
   fmAlpha2.ResizeTo(fNpar,1);
   fmV_Alpha0.ResizeTo(fNpar,fNpar);
+  fmV_Alpha0InvPol.ResizeTo(fNpar-fNpart,fNpar-fNpart);
   fmV_Alpha.ResizeTo(fNpar,fNpar);
   fmD.ResizeTo(fNcon,fNpar);
   fmd.ResizeTo(fNcon,1);
@@ -37,11 +38,33 @@ void GKinFitter::ResetMatrices(){
   fmAlpha1.Zero();
   fmAlpha2.Zero();
   fmV_Alpha0.Zero();
+  fmV_Alpha0InvPol.Zero();
   fmV_Alpha.Zero();
   fmD.Zero();
   fmd.Zero();
   fmlamda.Zero();
   fmV_D.Zero();
+}
+
+
+Double_t    HHHDet2(const TMatrixD& m)
+{
+    return m.Determinant();
+}
+Double_t    HHHDet(const TMatrixD& m)
+{
+    TMatrixD sub[6];
+    Double_t det[6];
+    for(int i=0; i<6; i++)
+    {
+        m.GetSub(4*i, (4*i)+3, 4*i, (4*i)+3, sub[i]);
+        sub[i]*= 1e10;
+        det[i] = sub[i].Determinant();
+        std::cout << det[i] << std::endl;
+        //sub[i].Print();
+    }
+
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -83,11 +106,64 @@ Int_t GKinFitter::Solve(){
   TMatrixD mchi2(mlamdaT*fmd);
   Cchi2=mchi2[0][0];
 
-  TMatrixD diff(fmAlpha0);
-  diff  -= fmAlpha2;
+  TMatrixD pol0;
+  pol0.ResizeTo(fNpar-fNpart,1);
+  for(int p=0; p<fNpart; p++)
+  {
+      if(fmAlpha0[(4*p)+2][0]==0)
+         pol0[(3*p)+0][0] = TMath::Pi()/2;
+      else
+          pol0[(3*p)+0][0] = TMath::ATan(TMath::Sqrt((fmAlpha0[(4*p)][0]*fmAlpha0[(4*p)][0])+(fmAlpha0[(4*p)+1][0]*fmAlpha0[(4*p)+1][0]))/fmAlpha0[(4*p)+2][0]);
+      if(fmAlpha0[(4*p)+0][0]==0)
+      {
+          pol0[(3*p)+1][0] = TMath::Pi()/2;
+          if(fmAlpha0[(4*p)+1][0]<0)
+            pol0[(3*p)+1][0] += TMath::Pi();
+      }
+      else
+          pol0[(3*p)+1][0] = TMath::ATan(fmAlpha0[(4*p)+1][0]/fmAlpha0[(4*p)][0]);
+      pol0[(3*p)+2][0] = fmAlpha0[(4*p)+3][0];
+  }
+
+  TMatrixD pol2;
+  pol2.ResizeTo(fNpar-fNpart,1);
+  for(int p=0; p<fNpart; p++)
+  {
+      if(fmAlpha2[(4*p)+2][0]==0)
+         pol2[(3*p)+0][0] = TMath::Pi()/2;
+      else
+          pol2[(3*p)+0][0] = TMath::ATan(TMath::Sqrt((fmAlpha2[(4*p)][0]*fmAlpha2[(4*p)][0])+(fmAlpha2[(4*p)+1][0]*fmAlpha2[(4*p)+1][0]))/fmAlpha2[(4*p)+2][0]);
+      if(fmAlpha2[(4*p)+0][0]==0)
+      {
+          pol2[(3*p)+1][0] = TMath::Pi()/2;
+          if(fmAlpha2[(4*p)+1][0]<0)
+            pol2[(3*p)+1][0] += TMath::Pi();
+      }
+      else
+          pol2[(3*p)+1][0] = TMath::ATan(fmAlpha2[(4*p)+1][0]/fmAlpha2[(4*p)][0]);
+      pol2[(3*p)+2][0] = fmAlpha2[(4*p)+3][0];
+  }
+  TMatrixD diff(pol0);
+  diff-=pol2;
   TMatrixD diffT(diff);
   diffT.T();
-  TMatrixD mvchi2(diffT*fmV_Alpha0*diff);
+  //fmV_Alpha0.Print();
+  //TMatrixD  fmV_Alpha0Inv(fmV_Alpha0);
+  /*std::cout<<fmV_Alpha0Inv.Determinant()<<std::endl;
+  TDecompLU lu2(fmV_Alpha0Inv);
+  if(!lu2.Decompose()){
+    std::cout<<"GKinFitter::Solve() Cannot invert. KinFit not completed"<<std::endl;
+    return -1;
+  }*/
+  //HHHDet(fmV_Alpha0Inv);
+  //fmV_Alpha0Inv*=1e10;
+  //std::cout<<fmV_Alpha0Inv.Determinant()<<std::endl;
+  //fmV_Alpha0Inv.Invert();
+  //fmV_Alpha0Inv*=1e-10;
+  //fmV_Alpha0InvPol.Print();
+  //diffT.Print();
+  //diff.Print();
+  TMatrixD mvchi2(diffT*fmV_Alpha0InvPol*diff);
   Vchi2=mvchi2[0][0];
 
   return 1;
@@ -251,6 +327,7 @@ void GKinFitter::AddPosKFParticle(GKinFitterParticle kfp)
   fmAlpha1.SetSub(fNpari,0,kfp.GetAlpha());
   //Add error matrix to V_Alpha0
   fmV_Alpha0.SetSub(fNpari,fNpari,kfp.GetVAlpha());
+  fmV_Alpha0InvPol.SetSub(3*fNparti,3*fNparti,kfp.GetVAlphaInvPol());
 
   //increment counters
   fNpari+=fNvar;

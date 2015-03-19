@@ -9,6 +9,7 @@ GKinFitterParticle::GKinFitterParticle()
     fNvar=4;
     fAlpha.ResizeTo(fNvar,1);
     fV_Alpha.ResizeTo(fNvar,fNvar);
+    fV_AlphaInvPol.ResizeTo(fNvar-1,fNvar-1);
     fT.ResizeTo(fNvar,fNvar-1);
 }
 GKinFitterParticle::GKinFitterParticle(const TLorentzVector lv,const Double_t sig_th,const Double_t sig_ph,const Double_t sig_E){
@@ -77,19 +78,25 @@ void GKinFitterParticle::Polar2Cartesian(Double_t sig_th,Double_t sig_ph,Double_
   TMatrixD Vprime(fNvar-1,fNvar-1);
   Double_t sigma_th=sig_th/180*TMath::Pi();
   Double_t sigma_ph;
-  if(sth==0) sigma_ph=0;
+  if(sth==0) sigma_ph=0.000001;
   //else sigma_ph=sig_ph/180*TMath::Pi()/sth;
   else sigma_ph=sig_ph/180*TMath::Pi();
+  //std::cout << sigma_ph << "   " << sig_ph << std::endl;
   Double_t sigma_E=sig_E;//Kinetic energy//TMath::Power(E-M,0.75);
   //std::cout<<"sigE "<<sigma_E<<" sigth "<<sigma_th<<" sigph "<<sigma_ph<<std::endl;
   //Construct polar error matrix
-  Vprime[0][0]=sigma_th*sigma_th;  Vprime[0][1]=0;                  Vprime[0][2]=0; 
+  Vprime[0][0]=sigma_th*sigma_th;  Vprime[0][1]=0;                  Vprime[0][2]=0;
   Vprime[1][0]=0;                  Vprime[1][1]=sigma_ph*sigma_ph;  Vprime[1][2]=0;
   Vprime[2][0]=0;                  Vprime[2][1]=0;                  Vprime[2][2]=sigma_E*sigma_E;  
   //printf("Vprime\n");
   //Vprime.Print();
   //Construct cartesian matrix
+  fV_AlphaInvPol=Vprime;
+  fV_AlphaInvPol.Invert();
   fV_Alpha=fT*Vprime*TT;
+  //fV_Alpha*=1e10;
+  //fV_Alpha.Print();
+  //std::cout << fV_Alpha.Determinant() << std::endl;
   //printf("fV_Alpha\n");
   //fV_Alpha.Print();
 }
@@ -100,7 +107,7 @@ TMatrixD GKinFitterParticle::GetT(){
   Double_t cph=cos(flv.Phi());
   Double_t E=flv.T();
   Double_t P=flv.P();
-
+  //printf("%lf   %lf\n", sth, cth);
   //Construct Transformation matrix
   fT[0][0]=P*cth*cph;      fT[0][1]=-P*sth*sph;   fT[0][2]=E/P*sth*cph;
   fT[1][0]=P*cth*sph;      fT[1][1]=P*sth*cph;    fT[1][2]=E/P*sth*sph;

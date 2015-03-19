@@ -22,6 +22,7 @@ protected:
     TMatrixD fmAlpha1; 	//initial parameters
     TMatrixD fmAlpha2;	//fitted parameters
 	TMatrixD fmV_Alpha0;//Covariance matrix for original parameters
+    TMatrixD fmV_Alpha0InvPol;
 	TMatrixD fmV_Alpha; //Covariance matrix for fitted parameters
 	TMatrixD fmD;      	//Matrix of constraint derivitives
 	TMatrixD fmd;      	//Vector of evaluated constraints

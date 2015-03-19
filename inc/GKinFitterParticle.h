@@ -20,6 +20,7 @@ class GKinFitterParticle {
   void SetVAlpha(const TMatrixD V)                                                          {fV_Alpha=V;}
   void SetResolutions(const Double_t sig_th, const Double_t sig_ph, const Double_t sig_E)   {Polar2Cartesian(sig_th,sig_ph,sig_E);}
   TMatrixD GetVAlpha()          const                                                       {return fV_Alpha;}
+  TMatrixD GetVAlphaInvPol()    const                                                       {return fV_AlphaInvPol;}
   TMatrixD GetAlpha()           const                                                       {return fAlpha;}
   TMatrixD GetT();
   TLorentzVector Get4Vector()   const                                                       {return TLorentzVector(fAlpha[0][0], fAlpha[1][0], fAlpha[2][0], fAlpha[3][0]);}
@@ -34,6 +35,7 @@ class GKinFitterParticle {
  private:
   TMatrixD fAlpha;
   TMatrixD fV_Alpha;
+  TMatrixD fV_AlphaInvPol;
   TMatrixD fT;  //Transformation matrix S. polar ->Cartesian
   TLorentzVector flv;
   Int_t fNvar; //Number of variables =4 for 4 vector
