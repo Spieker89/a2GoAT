@@ -295,75 +295,89 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	
 	
 	can	= new TCanvas("CanBestFit", "BestFit", 1500, 800);
-	can->Divide(3,2);
+    can->Divide(4,2);
 	Double_t*	BestFitWidth[5];
-	can->cd(1);
+    can->cd(1);
+    {
+        BestFitWidth[0]	= new Double_t[4];
+        TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit1/Final/Final_IM");
+        BestFitWidth[0][0]	= help->GetRMS();
+        BestFitWidth[0][1]	= help->GetRMSError();
+        help->SetLineColor(kMagenta);
+        help->Draw();
+        help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit1/Final/Final_IM");
+        BestFitWidth[0][2]	= help->GetRMS();
+        BestFitWidth[0][3]	= help->GetRMSError();
+        help->SetLineColor(kGreen);
+        help->Draw("SAME");
+    }
+    can->cd(2);
 	{
-		BestFitWidth[0]	= new Double_t[4];
+        BestFitWidth[1]	= new Double_t[4];
 		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit3/Final/Final_IM");
-		BestFitWidth[0][0]	= help->GetRMS();
-		BestFitWidth[0][1]	= help->GetRMSError();
+        BestFitWidth[1][0]	= help->GetRMS();
+        BestFitWidth[1][1]	= help->GetRMSError();
 		help->SetLineColor(kMagenta);
 		help->Draw();
 		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit3/Final/Final_IM");
-		BestFitWidth[0][2]	= help->GetRMS();
-		BestFitWidth[0][3]	= help->GetRMSError();
+        BestFitWidth[1][2]	= help->GetRMS();
+        BestFitWidth[1][3]	= help->GetRMSError();
 		help->SetLineColor(kGreen);
 		help->Draw("SAME");
 	}
-	can->cd(2);
+    can->cd(3);
 	{
-		BestFitWidth[1]	= new Double_t[4];
+        BestFitWidth[2]	= new Double_t[4];
 		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/Final/Final_IM");
-		BestFitWidth[1][0]	= help->GetRMS();
-		BestFitWidth[1][1]	= help->GetRMSError();
+        BestFitWidth[2][0]	= help->GetRMS();
+        BestFitWidth[2][1]	= help->GetRMSError();
 		help->SetLineColor(kMagenta);
 		help->Draw();
 		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4/Final/Final_IM");
-		BestFitWidth[1][2]	= help->GetRMS();
-		BestFitWidth[1][3]	= help->GetRMSError();
+        BestFitWidth[2][2]	= help->GetRMS();
+        BestFitWidth[2][3]	= help->GetRMSError();
 		help->SetLineColor(kGreen);
 		help->Draw("SAME");
 	}
-	can->cd(3);
+    can->cd(4);
 	{
-		BestFitWidth[2]	= new Double_t[4];
+        BestFitWidth[3]	= new Double_t[4];
 		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4Beam/Final/Final_IM");
-		BestFitWidth[2][0]	= help->GetRMS();
-		BestFitWidth[2][1]	= help->GetRMSError();
+        BestFitWidth[3][0]	= help->GetRMS();
+        BestFitWidth[3][1]	= help->GetRMSError();
 		help->SetLineColor(kMagenta);
 		help->Draw();
 		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4Beam/Final/Final_IM");
-		BestFitWidth[2][2]	= help->GetRMS();
-		BestFitWidth[2][3]	= help->GetRMSError();
+        BestFitWidth[3][2]	= help->GetRMS();
+        BestFitWidth[3][3]	= help->GetRMSError();
 		help->SetLineColor(kGreen);
 		help->Draw("SAME");
 	}
-	can->cd(4);
+    can->cd(5);
 	{
-		BestFitWidth[3]	= new Double_t[4];
+        BestFitWidth[4]	= new Double_t[4];
 		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4Proton/Final/Final_IM");
-		BestFitWidth[3][0]	= help->GetRMS();
-		BestFitWidth[3][1]	= help->GetRMSError();
+        BestFitWidth[4][0]	= help->GetRMS();
+        BestFitWidth[4][1]	= help->GetRMSError();
 		help->SetLineColor(kMagenta);
 		help->Draw();
 		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4Proton/Final/Final_IM");
-		BestFitWidth[3][2]	= help->GetRMS();
-		BestFitWidth[3][3]	= help->GetRMSError();
+        BestFitWidth[4][2]	= help->GetRMS();
+        BestFitWidth[4][3]	= help->GetRMSError();
 		help->SetLineColor(kGreen);
 		help->Draw("SAME");
 	}
-	can->cd(5);
+    can->cd(6);
 	{
-		BestFitWidth[4]	= new Double_t[4];
+        BestFitWidth[5]	= new Double_t[4];
 		TH1D*	help		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4BeamProton/Final/Final_IM");
-		BestFitWidth[4][0]	= help->GetRMS();
-		BestFitWidth[4][1]	= help->GetRMSError();
+        BestFitWidth[5][0]	= help->GetRMS();
+        BestFitWidth[5][1]	= help->GetRMSError();
 		help->SetLineColor(kMagenta);
 		help->Draw();
 		help		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4BeamProton/Final/Final_IM");
-		BestFitWidth[4][2]	= help->GetRMS();
-		BestFitWidth[4][3]	= help->GetRMSError();
+        BestFitWidth[5][2]	= help->GetRMS();
+        BestFitWidth[5][3]	= help->GetRMSError();
 		help->SetLineColor(kGreen);
 		help->Draw("SAME");
 	}
@@ -371,16 +385,16 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	Double_t	dx[48];
 	Double_t	y[48];
 	Double_t	dy[48];
-	can->cd(6);
+    can->cd(8);
 	{
-		for(int i=0; i<5; i++)
+        for(int i=0; i<6; i++)
 		{
 			x[i]	= i+1;
 			dx[i]	= 0;
 			y[i]	= BestFitWidth[i][2] / BestFitWidth[i][0];
 			dy[i]	= TMath::Sqrt(((BestFitWidth[i][3] / BestFitWidth[i][0])*(BestFitWidth[i][3] / BestFitWidth[i][0])) + ((BestFitWidth[i][2]*BestFitWidth[i][1] / BestFitWidth[i][0])*(BestFitWidth[i][2]*BestFitWidth[i][1] / BestFitWidth[i][0])));
 		}
-		TGraphErrors*	bestFit = new TGraphErrors(5, x, y, dx, dy);
+        TGraphErrors*	bestFit = new TGraphErrors(6, x, y, dx, dy);
 		bestFit->Draw();
 	}
 	
