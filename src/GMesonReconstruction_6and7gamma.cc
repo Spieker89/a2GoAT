@@ -113,12 +113,42 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     GetEtas()->Clear();
     GetEtaPrimes()->Clear();
 
+
+    std::vector<Int_t> photonsInTime;
+
+    for(int i=0; i<GetPhotons()->GetNParticles(); i++)
+    {
+        if(GetPhotons()->GetTime(i)<-15 && GetPhotons()->GetTime(i)>45) continue;
+        photonsInTime.push_back(GetPhotons()->GetTrackIndex(i));
+    }
+    GetPhotons()->RemoveAllParticles();
+
+    for(unsigned int i=0; i<photonsInTime.size(); i++)
+    {
+        GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(photonsInTime[i]),
+                                  GetTracks()->GetTheta(photonsInTime[i]),
+                                  GetTracks()->GetPhi(photonsInTime[i]),
+                                  0,
+                                  GetTracks()->GetTime(photonsInTime[i]),
+                                  GetTracks()->GetClusterSize(photonsInTime[i]),
+                                  GetTracks()->GetCentralCrystal(photonsInTime[i]),
+                                  GetTracks()->GetCentralVeto(photonsInTime[i]),
+                                  GetTracks()->GetDetectors(photonsInTime[i]),
+                                  GetTracks()->GetVetoEnergy(photonsInTime[i]),
+                                  GetTracks()->GetMWPC0Energy(photonsInTime[i]),
+                                  GetTracks()->GetMWPC1Energy(photonsInTime[i]),
+                                  photonsInTime[i]);
+    }
+
+
+
+
     ChiSq3Pi0 = 1e10;
     ChiSqEtap = 1e10;
 
     countHist.Fill(0, 0, GetTagger()->GetTaggedChannel(0));
 
-    if(GetNReconstructed()==6)
+    if(photonsInTime.size()==6)
     {
         countHist.Fill(1, 0, GetTagger()->GetTaggedChannel(0));
         Reconstruct6g();
@@ -135,7 +165,7 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
         //if(minDecayIndex!=3)
             ChiSqDist6Hits.Fill(TMath::Prob(ChiSqEtap, 3), TMath::Prob(ChiSq3Pi0, 3));
     }
-    else if(GetNReconstructed()==7)
+    else if(photonsInTime.size()==7)
     {
         countHist.Fill(2, 0, GetTagger()->GetTaggedChannel(0));
         if(!Reconstruct7g()) return kFALSE;
