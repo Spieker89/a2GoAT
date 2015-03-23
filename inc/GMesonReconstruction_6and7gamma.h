@@ -33,6 +33,9 @@ private:
 
     static  Int_t   perm6g[15][6];
 
+    GH1      countHist;
+    GH1      count7HitsHist;
+
     GHistBGSub      IMSub0Etap;
     GHistBGSub      IMSub03Pi0;
     GHistBGSub      IMSub1Etap;

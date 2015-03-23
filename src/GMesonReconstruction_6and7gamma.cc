@@ -8,6 +8,8 @@ GMesonReconstruction_6and7gamma::GMesonReconstruction_6and7gamma()    :
     width_pi0(22),
     width_eta(40),
     width_etap(60),
+    countHist("countHist", "countHist", 10, 0, 10, 48),
+    count7HitsHist("count7HitsHist", "count7HitsHist", 7, 0, 7, 48),
     IMSub0Etap("IMSub0Etap", "IMSub0Etap", 1000, 0, 1000),
     IMSub03Pi0("IMSub03Pi0", "IMSub03Pi0", 1000, 0, 1000),
     IMSub1Etap("IMSub1Etap", "IMSub1Etap", 300, 0, 300),
@@ -114,8 +116,11 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     ChiSq3Pi0 = 1e10;
     ChiSqEtap = 1e10;
 
+    countHist.Fill(0, 0, GetTagger()->GetTaggedChannel(0));
+
     if(GetNReconstructed()==6)
     {
+        countHist.Fill(1, 0, GetTagger()->GetTaggedChannel(0));
         Reconstruct6g();
         for(int t=0; t<GetTagger()->GetNTagged(); t++)
         {
@@ -132,6 +137,7 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     }
     else if(GetNReconstructed()==7)
     {
+        countHist.Fill(2, 0, GetTagger()->GetTaggedChannel(0));
         if(!Reconstruct7g()) return kFALSE;
         for(int t=0; t<GetTagger()->GetNTagged(); t++)
         {
@@ -209,6 +215,7 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
+        countHist.Fill(5, 0, GetTagger()->GetTaggedChannel(0));
         reconstructedEta    = mesonHelp[minIndex][0] + mesonHelp[minIndex][1] + mesonHelp[minIndex][2];
         daughter_index[0] = GetPhotons()->GetTrackIndex(perm6g[minIndex][0]);
         daughter_index[1] = GetPhotons()->GetTrackIndex(perm6g[minIndex][1]);
@@ -245,6 +252,7 @@ void    GMesonReconstruction_6and7gamma::Reconstruct6g()
     }
 
     //found Eta2Pi0
+    countHist.Fill(4, 0, GetTagger()->GetTaggedChannel(0));
 
     if(minDecayIndex == 0)  //Eta is mesonHelp[i][0]
     {
@@ -447,6 +455,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
     bestChiSq   = 1e10;
     bestIndex   = 0;
     bool    found = false;
+    int     protonTests = 0;
     for(int i=0; i<7; i++)
     {
         //Check for TAPS
@@ -461,6 +470,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
         Double_t Coplanarity = TMath::Abs((GetPhotons()->Particle(i).Phi()-vec[0]->Phi())*TMath::RadToDeg());
         if(Coplanarity<160 || Coplanarity>200)  continue;
 
+        protonTests++;
         found = true;
         int k   = 0;
         for(int l=0; l<7; l++)
@@ -478,6 +488,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
             bestIndex   = i;
         }
     }
+    count7HitsHist.Fill(protonTests, 0, GetTagger()->GetTaggedChannel(0));
     if(!found)  return false;
 
     int k           = 0;
@@ -510,6 +521,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
 
     if(minDecayIndex == 3)      //found 3Pi0
     {
+        countHist.Fill(7, 0, GetTagger()->GetTaggedChannel(0));
         GetEtas()->AddParticle(0, 6, 0, daughter_index, daughter);
         IMSub03Pi0.Fill(mesonHelp[minIndex][0].M());
         IMSub13Pi0.Fill(mesonHelp[minIndex][1].M());
@@ -533,6 +545,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
         return true;
     }
 
+    countHist.Fill(8, 0, GetTagger()->GetTaggedChannel(0));
     if(minDecayIndex==0)
     {
         IMSub0Etap.Fill(mesonHelp[minIndex][0].M());
