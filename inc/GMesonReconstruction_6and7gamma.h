@@ -35,7 +35,8 @@ private:
 
     GH1      countHist;
     GH1      count7HitsHist;
-
+    
+    GHistBGSub      IMSub;
     GHistBGSub      IMSub0Etap;
     GHistBGSub      IMSub03Pi0;
     GHistBGSub      IMSub1Etap;

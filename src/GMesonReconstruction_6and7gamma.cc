@@ -10,6 +10,7 @@ GMesonReconstruction_6and7gamma::GMesonReconstruction_6and7gamma()    :
     width_etap(60),
     countHist("countHist", "countHist", 10, 0, 10, 48),
     count7HitsHist("count7HitsHist", "count7HitsHist", 7, 0, 7, 48),
+    IMSub("IMSub", "IMSub", 1000, 0, 1000),
     IMSub0Etap("IMSub0Etap", "IMSub0Etap", 1000, 0, 1000),
     IMSub03Pi0("IMSub03Pi0", "IMSub03Pi0", 1000, 0, 1000),
     IMSub1Etap("IMSub1Etap", "IMSub1Etap", 300, 0, 300),
@@ -113,7 +114,7 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     GetEtas()->Clear();
     GetEtaPrimes()->Clear();
 
-
+    // particle time cut
     std::vector<Int_t> photonsInTime;
 
     for(int i=0; i<GetPhotons()->GetNParticles(); i++)
@@ -141,8 +142,19 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
     }
 
 
+    //IMMass plot (over all)
+    for(int i=0; i<GetPhotons()->GetNParticles(); i++)
+    {
+        for(int j=i+1; j<GetPhotons()->GetNParticles(); j++)
+        {
+            if(i==j)    continue;
+            for(int t=0; t<GetTagger()->GetNTagged(); t++)
+                IMSub.Fill((GetPhotons()->Particle(i) + GetPhotons()->Particle(j)).M(), GetTagger()->GetTaggedTime(t));
+        }
+    }
 
 
+    //Reconstruction
     ChiSq3Pi0 = 1e10;
     ChiSqEtap = 1e10;
 
