@@ -99,7 +99,7 @@ public:
     ~GFit4Constraints();
 
     virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
-    virtual TLorentzVector  GetTotal()                      {return beamAndTarget - GetMeson();}
+    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
@@ -119,37 +119,6 @@ public:
 
 
 
-class	GFit4ConstraintsBeam    : public GFit
-{
-private:
-    Bool_t              isEtap;
-
-public:
-    GFit4ConstraintsBeam(const Bool_t _IsEtap);
-    ~GFit4ConstraintsBeam();
-
-    virtual TLorentzVector  GetMeson();
-    virtual TLorentzVector  GetTotal()                      {return -fitter.GetParticle(6) - GetMeson();}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5,
-                const TLorentzVector& beamAndTarget);
-};
-
-
-
-
-
-
-
-
-
 
 
 
@@ -157,14 +126,13 @@ class	GFit7ConstraintsProton    : public GFit
 {
 private:
     Bool_t              isEtap;
-    TLorentzVector      beamAndTarget;
 
 public:
     GFit7ConstraintsProton(const Bool_t _IsEtap);
     ~GFit7ConstraintsProton();
 
     virtual TLorentzVector  GetMeson();
-    virtual TLorentzVector  GetTotal()                      {return beamAndTarget - GetMeson() - fitter.GetParticle(6);}
+    virtual TLorentzVector  GetTotal()                      {return GetMeson() + fitter.GetParticle(6);}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
     virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
@@ -179,32 +147,6 @@ public:
 };
 
 
-
-
-
-class	GFit7ConstraintsBeamProton    : public GFit
-{
-private:
-    Bool_t              isEtap;
-
-public:
-    GFit7ConstraintsBeamProton(const Bool_t _IsEtap);
-    ~GFit7ConstraintsBeamProton();
-
-    virtual TLorentzVector  GetMeson();
-    virtual TLorentzVector  GetTotal()                      {return -fitter.GetParticle(6) - GetMeson() - fitter.GetParticle(7);}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5,
-                const TLorentzVector& beamAndTarget,
-                const TLorentzVector& proton);
-};
 
 
 

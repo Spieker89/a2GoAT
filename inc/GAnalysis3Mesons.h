@@ -25,12 +25,10 @@ private:
     GHistIterativeFit   hist_fit1;
     GHistIterativeFit   hist_fit3;
     GHistIterativeFit   hist_fit4;
-    GHistIterativeFit   hist_fit4Beam;
 
     GFit1Constraints        fit1;
     GFit3Constraints        fit3;
     GFit4Constraints        fit4;
-    GFit4ConstraintsBeam    fit4Beam;
 
 protected:
 
@@ -73,18 +71,12 @@ private:
     GHistIterativeFit   hist_fit1;
     GHistIterativeFit   hist_fit3;
     GHistIterativeFit   hist_fit4;
-    GHistIterativeFit   hist_fit4Beam;
-    GHistIterativeFit   hist_fit4Proton;
-    GHistIterativeFit   hist_fit4BeamProton;
+    GHistIterativeFit   hist_fit7Proton;
 
     GFit1Constraints            fit1;
     GFit3Constraints            fit3;
     GFit4Constraints            fit4;
-    GFit4ConstraintsBeam        fit4Beam;
-    GFit7ConstraintsProton      fit4Proton;
-    GFit7ConstraintsBeamProton  fit4BeamProton;
-
-    TLorentzVector  GetCorrectedProton(const GTreeParticle& proton);
+    GFit7ConstraintsProton      fit7Proton;
 
 protected:
 

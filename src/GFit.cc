@@ -187,74 +187,6 @@ void    GFit4Constraints::Set(const TLorentzVector& p0,
 
 
 
-GFit4ConstraintsBeam::GFit4ConstraintsBeam(const Bool_t _IsEtap)    :
-    GFit(7, 4),
-    isEtap(_IsEtap)
-{
-
-}
-
-GFit4ConstraintsBeam::~GFit4ConstraintsBeam()
-{
-
-}
-
-TLorentzVector  GFit4ConstraintsBeam::GetMeson()
-{
-    TLorentzVector ret(0, 0, 0, 0);
-    for(int i=0; i<6; i++)
-        ret += fitter.GetParticle(i);
-    return ret;
-}
-
-void    GFit4ConstraintsBeam::Set(const TLorentzVector& p0,
-                              const TLorentzVector& p1,
-                              const TLorentzVector& p2,
-                              const TLorentzVector& p3,
-                              const TLorentzVector& p4,
-                              const TLorentzVector& p5,
-                              const TLorentzVector& beamAndTarget)
-{
-    solved = kFALSE;
-    fitter.Reset();
-
-    GKinFitterParticle  photons[6];
-    GKinFitterParticle  beam;
-
-    photons[0].Set4Vector(p0);
-    photons[1].Set4Vector(p1);
-    photons[2].Set4Vector(p2);
-    photons[3].Set4Vector(p3);
-    photons[4].Set4Vector(p4);
-    photons[5].Set4Vector(p5);
-    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
-    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
-    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
-    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
-    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
-    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
-    for(int i=0; i<6; i++)
-        fitter.AddPosKFParticle(photons[i]);
-    beam.Set4Vector(beamAndTarget);
-    beam.SetResolutions(1, 1, 0.1);
-    fitter.AddNegKFParticle(beam);
-
-    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
-    if(isEtap==kTRUE)
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
-    else
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    fitter.AddInvMassConstraint(MASS_PROTON);
-}
-
-
-
-
-
-
-
 
 
 
@@ -291,8 +223,6 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
                                     const TLorentzVector& _BeamAndTarget,
                                     const TLorentzVector& proton)
 {
-    beamAndTarget = _BeamAndTarget;
-
     solved = kFALSE;
     fitter.Reset();
 
@@ -314,10 +244,10 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
     for(int i=0; i<6; i++)
         fitter.AddPosKFParticle(photons[i]);
     TLorentzVector  help(proton);
-    help.SetE(beamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
+    help.SetE(_BeamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
     help.SetVect(proton.Vect().Unit()*(TMath::Sqrt(help.E()*help.E() - MASS_PROTON*MASS_PROTON)));
     pro.Set4Vector(help);
-    pro.SetResolutions(3, 3, 25);
+    pro.SetResolutions(3, 2/sin(p0.Theta()), 10*0.02*TMath::Power(p0.E(), 0.36));
     fitter.AddPosKFParticle(pro);
 
     Int_t   index[7]    = {0, 1, 2, 3, 4, 5, 6};
@@ -327,104 +257,17 @@ void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
         fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
     fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    fitter.AddTotEnergyConstraint(beamAndTarget.E());
-    fitter.AddTotMomentumConstraint(beamAndTarget.Vect());
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-GFit7ConstraintsBeamProton::GFit7ConstraintsBeamProton(const Bool_t _IsEtap)    :
-    GFit(8, 7),
-    isEtap(_IsEtap)
-{
-
-}
-
-GFit7ConstraintsBeamProton::~GFit7ConstraintsBeamProton()
-{
-
-}
-
-TLorentzVector  GFit7ConstraintsBeamProton::GetMeson()
-{
-    TLorentzVector ret(0, 0, 0, 0);
-    for(int i=0; i<6; i++)
-        ret += fitter.GetParticle(i);
-    return ret;
-}
-
-void    GFit7ConstraintsBeamProton::Set(const TLorentzVector& p0,
-                                        const TLorentzVector& p1,
-                                        const TLorentzVector& p2,
-                                        const TLorentzVector& p3,
-                                        const TLorentzVector& p4,
-                                        const TLorentzVector& p5,
-                                        const TLorentzVector& beamAndTarget,
-                                        const TLorentzVector& proton)
-{
-    solved = kFALSE;
-    fitter.Reset();
-
-    GKinFitterParticle  photons[6];
-    GKinFitterParticle  pro;
-    GKinFitterParticle  beam;
-
-    photons[0].Set4Vector(p0);
-    photons[1].Set4Vector(p1);
-    photons[2].Set4Vector(p2);
-    photons[3].Set4Vector(p3);
-    photons[4].Set4Vector(p4);
-    photons[5].Set4Vector(p5);
-    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
-    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
-    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
-    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
-    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
-    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
-    for(int i=0; i<6; i++)
-        fitter.AddPosKFParticle(photons[i]);
-    beam.Set4Vector(beamAndTarget);
-    beam.SetResolutions(1, 1, 0.1);
-    fitter.AddNegKFParticle(beam);
-    TLorentzVector  help(proton);
-    help.SetE(beamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
-    help.SetVect(proton.Vect().Unit()*(TMath::Sqrt(help.E()*help.E() - MASS_PROTON*MASS_PROTON)));
-    //help.Print();
-    //std::cout << help.M() << std::endl;
-    pro.Set4Vector(help);
-    pro.SetResolutions(3, 3, 25);
-    fitter.AddPosKFParticle(pro);
-
-    Int_t   index[8]    = {0, 1, 2, 3, 4, 5, 6, 7};
-    if(isEtap==kTRUE)
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
-    else
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    fitter.AddTotEnergyConstraint(0);
-    fitter.AddTotMomentumConstraint(TVector3(0.0, 0.0, 0.0));
+    /*_BeamAndTarget.Print();
+    proton.Print();
+    std::cout << proton.Theta()*TMath::RadToDeg() << std::endl;
+    std::cout << proton.Theta() << std::endl;
+    (p0+p1+p2+p3+p4+p5).Print();
+    help.Print();
+    (p0+p1+p2+p3+p4+p5+help).Print();
+    std::cout << (p0+p1+p2+p3+p4+p5+help).M() << std::endl;
+    std::cout << std::endl;*/
+    fitter.AddTotEnergyConstraint(_BeamAndTarget.E());
+    fitter.AddTotMomentumConstraint(_BeamAndTarget.Vect());
 }
 
 
@@ -632,10 +475,10 @@ GHistIterativeFit::GHistIterativeFit(const char* name, const char* title, const 
     sub1im(TString(name).Append("sub1im"), TString(title).Append(" sub1 inv. Mass"), 1000, 85, 185, _NSteps, 0, _NSteps, kFALSE),
     sub2im(TString(name).Append("sub2im"), TString(title).Append(" sub2 inv. Mass"), 1000, 85, 185, _NSteps, 0, _NSteps, kFALSE),
     mm(TString(name).Append("mm"), TString(title).Append(" mm"), 10500, -50, 1000, _NSteps, 0, _NSteps, kFALSE),
-    totE(TString(name).Append("totE"), TString(title).Append(" totE"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
-    totPx(TString(name).Append("totPx"), TString(title).Append(" totPx"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
-    totPy(TString(name).Append("totPy"), TString(title).Append(" totPy"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
-    totPz(TString(name).Append("totPz"), TString(title).Append(" totPz"), 1000, -100, 100, _NSteps, 0, _NSteps, kFALSE),
+    totE(TString(name).Append("totE"), TString(title).Append(" totE"), 1000, -100, 1900, _NSteps, 0, _NSteps, kFALSE),
+    totPx(TString(name).Append("totPx"), TString(title).Append(" totPx"), 1000, -500, 500, _NSteps, 0, _NSteps, kFALSE),
+    totPy(TString(name).Append("totPy"), TString(title).Append(" totPy"), 1000, -500, 500, _NSteps, 0, _NSteps, kFALSE),
+    totPz(TString(name).Append("totPz"), TString(title).Append(" totPz"), 1000, -100, 1900, _NSteps, 0, _NSteps, kFALSE),
     VchiSq(TString(name).Append("VChiSq"), TString(title).Append(" VChiSq"), 1000, 0, 100, _NSteps, 0, _NSteps, kFALSE),
     VconfidenceLevel(TString(name).Append("VConfLev"), TString(title).Append(" VConfLev"), 1000, 0, 1, _NSteps, 0, _NSteps, kFALSE),
     CchiSq(TString(name).Append("CChiSq"), TString(title).Append(" CChiSq"), 1000, 0, 100, _NSteps, 0, _NSteps, kFALSE),
