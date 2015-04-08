@@ -35,6 +35,10 @@ private:
 
     GH1      countHist;
     GH1      count7HitsHist;
+
+    GHistBGSub      timePhotonsHist;
+    GHistBGSub      coplanarityHist;
+    GHistBGSub      coplanarityAllHist;
     
     GHistBGSub      IMSub;
     GHistBGSub      IMSub0Etap;

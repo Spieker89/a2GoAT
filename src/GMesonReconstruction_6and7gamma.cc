@@ -10,6 +10,9 @@ GMesonReconstruction_6and7gamma::GMesonReconstruction_6and7gamma()    :
     width_etap(60),
     countHist("countHist", "countHist", 10, 0, 10, 48),
     count7HitsHist("count7HitsHist", "count7HitsHist", 7, 0, 7, 48),
+    timePhotonsHist("timePhotonsHist", "timePhotonsHist", 1000, -50, 50),
+    coplanarityHist("coplanarityHist", "coplanarityHist", 1000, 0, 360),
+    coplanarityAllHist("coplanarityAllHist", "coplanarityAllHist", 1000, 0, 360),
     IMSub("IMSub", "IMSub", 1000, 0, 1000),
     IMSub0Etap("IMSub0Etap", "IMSub0Etap", 1000, 0, 1000),
     IMSub03Pi0("IMSub03Pi0", "IMSub03Pi0", 1000, 0, 1000),
@@ -119,6 +122,7 @@ Bool_t  GMesonReconstruction_6and7gamma::ProcessEventWithoutFilling()
 
     for(int i=0; i<GetPhotons()->GetNParticles(); i++)
     {
+        timePhotonsHist.Fill(GetPhotons()->GetTime(i));
         if(GetPhotons()->GetTime(i)<-15 && GetPhotons()->GetTime(i)>45) continue;
         photonsInTime.push_back(GetPhotons()->GetTrackIndex(i));
     }
@@ -498,6 +502,7 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
     bestIndex   = 0;
     bool    found = false;
     int     protonTests = 0;
+    Double_t Coplanarity;
     for(int i=0; i<7; i++)
     {
         //Check for TAPS
@@ -509,8 +514,10 @@ bool    GMesonReconstruction_6and7gamma::Reconstruct7g()
             if(l!=i)
                 *vec[0] += GetPhotons()->Particle(l);
         }
-        Double_t Coplanarity = TMath::Abs((GetPhotons()->Particle(i).Phi()-vec[0]->Phi())*TMath::RadToDeg());
+        Coplanarity = TMath::Abs((GetPhotons()->Particle(i).Phi()-vec[0]->Phi())*TMath::RadToDeg());
+        coplanarityAllHist.Fill(Coplanarity);
         if(Coplanarity<160 || Coplanarity>200)  continue;
+        coplanarityHist.Fill(Coplanarity);
 
         protonTests++;
         found = true;
