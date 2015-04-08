@@ -62,6 +62,18 @@ void	BestFitFit(const TH1D* hist1, const TH1D* hist2, Double_t* width)
 
 void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
 {	
+        TH1D*	help1		= (TH1D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/Final/Final_IM");
+        TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/MM_Cut/fit4/Final/Final_IM");
+        help1->SetLineColor(kMagenta); 
+		help1->SetAxisRange(850, 1050);       
+		help1->SetStats(0);
+		help1->GetXaxis()->SetTitle("inv. Mass (#eta#pi^{0}#pi^{0}) [MeV/c]");
+		help1->SetTitle("");
+        help1->Draw();    
+		help2->SetStats(0);
+        help2->SetLineColor(kGreen);
+        help2->Draw("SAME");
+        
 	BestFitCL(mcSignalFile, mcBGFile, out);
 	can	= new TCanvas("BestFit", "BestFit", 1500, 800);
     can->Divide(4,3);
@@ -105,7 +117,8 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[2][1]	= help2->GetEntries();
         BestFitFit(help1, help2, BestFitWidth[2]);
         help1->SetLineColor(kMagenta);
-        help1->Draw("SAME");
+        help1->Draw();
+        //help1->Draw("SAME");
         help2->SetLineColor(kGreen);
         help2->Draw("SAME");
 	}
