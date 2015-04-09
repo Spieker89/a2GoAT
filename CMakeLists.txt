@@ -22,13 +22,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(ROOT "5.30" REQUIRED)
 
 # since all subprojects need ROOT, set that up here
-include_directories(${ROOT_INCLUDES} ${CMAKE_SOURCE_DIR}/inc)
-link_directories(${ROOT_LIBRARY_DIR})
+include_directories(${ROOT_INCLUDES} ${CMAKE_SOURCE_DIR}/inc /home/ott/APLCON/src)
+link_directories(${ROOT_LIBRARY_DIR} /home/ott/APLCON/build)
 
 include_directories(inc)
 set(ROOT_LIBRARIES "${ROOT_LIBRARIES} -lEG")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 
 set(GOAT_BASE
    inc/GTree.h
@@ -175,7 +175,7 @@ add_executable(MyPhysics
    src/MyPhysics.cc
    src/MyPhysics_main.cc
    )
-target_link_libraries(MyPhysics ${ROOT_LIBRARIES})
+target_link_libraries(MyPhysics ${ROOT_LIBRARIES} aplcon++)
 
 # install some scripts to the bin directory
 # by creating symlinks
