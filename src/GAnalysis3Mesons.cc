@@ -13,12 +13,9 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
 //    hist_fit1(TString(name).Append("_SubImCut_fit1"), TString(title).Append(" SubImCut fit1"), 24, 10, kFALSE),
 //    hist_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" SubImCut fit3"), 24, 10, kFALSE),
 //    hist_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" SubImCut fit4"), 24, 10, kFALSE),
-//    fit1(kTRUE),
-//    fit3(kTRUE),
-//    fit4(kTRUE),
-    fitter("fitter"),
-    fitResultIM("fitResultIM", "fitResultIM", 1500, 0, 1500, 48),
-    fitZVertex("fitZVertex", "fitZVertex", 1000, -10, 10, 48)
+    fit1(),
+    fit3(),
+    fit4()
 {
     if(_IsEtap==kTRUE)
         SetCutSubIM(0, 497, 697);
@@ -28,81 +25,6 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
     SetCutSubIM(2, 110, 160);
 
     SetCutMM(838, 1038);
-
-    aplconPhotons.resize(6);
-
-    for(size_t i=0;i<aplconPhotons.size();i++) {
-        std::stringstream s;
-        s << "Photon" << i;
-        fitter.LinkVariable(s.str(), aplconPhotons[i].Link(), aplconPhotons[i].LinkSigma());
-    }
-
-    fitter.AddUnmeasuredVariable("zVertex");
-
-    fitter.AddConstraint("im0", {"Photon0", "Photon1", "zVertex"},
-                        [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
-        constexpr double R = 25.4;
-        // last element in photons is vz (scalar has dimension 1)
-        // see AddConstraint below
-        const double v_z = zv[0];
-        const double theta0 = p0[1]; // second element is theta
-        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
-        const double theta1 = p1[1]; // second element is theta
-        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
-        p0[1] = theta0_p;
-        p1[1] = theta1_p;
-
-        TLorentzVector v0 = FitParticle::Make(p0, 0);
-        TLorentzVector v1 = FitParticle::Make(p1, 0);
-
-        return (v0+v1).M() - MASS_ETA;
-    }
-    );
-
-    fitter.AddConstraint("im1", {"Photon2", "Photon3", "zVertex"},
-                        [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
-        constexpr double R = 25.4;
-        // last element in photons is vz (scalar has dimension 1)
-        // see AddConstraint below
-        const double v_z = zv[0];
-        const double theta0 = p0[1]; // second element is theta
-        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
-        const double theta1 = p1[1]; // second element is theta
-        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
-        p0[1] = theta0_p;
-        p1[1] = theta1_p;
-
-        TLorentzVector v0 = FitParticle::Make(p0, 0);
-        TLorentzVector v1 = FitParticle::Make(p1, 0);
-
-        return (v0+v1).M() - MASS_PI0;
-    }
-    );
-
-    fitter.AddConstraint("im2", {"Photon4", "Photon5", "zVertex"},
-                        [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
-        constexpr double R = 25.4;
-        // last element in photons is vz (scalar has dimension 1)
-        // see AddConstraint below
-        const double v_z = zv[0];
-        const double theta0 = p0[1]; // second element is theta
-        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
-        const double theta1 = p1[1]; // second element is theta
-        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
-        p0[1] = theta0_p;
-        p1[1] = theta1_p;
-
-        TLorentzVector v0 = FitParticle::Make(p0, 0);
-        TLorentzVector v1 = FitParticle::Make(p1, 0);
-
-        return (v0+v1).M() - MASS_PI0;
-    }
-    );
-
-    APLCON::Fit_Settings_t settings = fitter.GetSettings();
-    settings.MaxIterations = 100;
-    fitter.SetSettings(settings);
-
 }
 
 GAnalysis3Mesons::~GAnalysis3Mesons()
@@ -115,9 +37,9 @@ void   GAnalysis3Mesons::CalcResult()
     hist_raw.CalcResult();
     hist_SubImCut.CalcResult();
     hist_MMCut.CalcResult();
-//    hist_fit1.CalcResult();
-//    hist_fit3.CalcResult();
-//    hist_fit4.CalcResult();
+    fit1.CalcResult();
+    fit3.CalcResult();
+    fit4.CalcResult();
 }
 
 void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& photons, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
@@ -151,61 +73,18 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
 
             if(mm>850 && mm<1025)
             {
-//                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
-//                fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
-
-                for(size_t t=0;t<aplconPhotons.size();t++) {
-                    aplconPhotons[t].SetFromVector(photons.Particle(t));
-                }
-
-                const APLCON::Result_t& result = fitter.DoFit();
-                if(result.Status == APLCON::Result_Status_t::Success) {
-                    TLorentzVector sum(0,0,0,0);
-                    for(size_t t=0;t<aplconPhotons.size();t++) {
-                        sum += FitParticle::Make(aplconPhotons[t], 0);
-                    }
-                    fitResultIM.Fill(sum.M(), tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-                    const APLCON::Result_Variable_t& var = result.Variables.at("zVertex");
-                    fitZVertex.Fill(var.Value.After, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-                    //cout << result << endl;
-                }
-
-
                 if(CreateHistogramsForTaggerBinning==kTRUE)
                     hist_MMCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 else
                     hist_MMCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i));
 
-//                while(fit1.Solve()>0)
-//                    hist_fit1.Fill(fit1);
-//                if(fit1.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit1.FillFinal(fit1, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit1.FillFinal(fit1, tagger.GetTaggedTime(i));
-//                }
+                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
+                fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
 
-//                while(fit3.Solve()>0)
-//                    hist_fit3.Fill(fit3);
-//                if(fit3.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit3.FillFinal(fit3, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit3.FillFinal(fit3, tagger.GetTaggedTime(i));
-//                }
-
-//                while(fit4.Solve()>0)
-//                    hist_fit4.Fill(fit4);
-//                if(fit4.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit4.FillFinal(fit4, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit4.FillFinal(fit4, tagger.GetTaggedTime(i));
-//                }
+                //fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                //fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
             }
         }
     }
@@ -226,12 +105,9 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
 
     folder  = h->GetDirectory("MM_Cut");
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
-        GHistWriteList* subfolder  = folder->GetDirectory("fit1");
-//        hist_fit1.PrepareWriteList(subfolder, TString(name).Append("_fit1").Data());
-//        subfolder  = folder->GetDirectory("fit3");
-//        hist_fit3.PrepareWriteList(subfolder, TString(name).Append("_fit3").Data());
-//        subfolder  = folder->GetDirectory("fit4");
-//        hist_fit4.PrepareWriteList(subfolder, TString(name).Append("_fit4").Data());
+    fit1.PrepareWriteList(h);
+    fit3.PrepareWriteList(h);
+    fit4.PrepareWriteList(h);
 }
 
 void    GAnalysis3Mesons::Reset(Option_t* option)
@@ -239,9 +115,9 @@ void    GAnalysis3Mesons::Reset(Option_t* option)
     hist_raw.Reset(option);
     hist_SubImCut.Reset(option);
     hist_MMCut.Reset(option);
-//    hist_fit1.Reset(option);
-//    hist_fit3.Reset(option);
-//    hist_fit4.Reset(option);
+    fit1.Reset(option);
+    fit3.Reset(option);
+    fit4.Reset(option);
 }
 
 void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)
@@ -249,9 +125,6 @@ void    GAnalysis3Mesons::ScalerReadCorrection(const Double_t CorrectionFactor, 
     hist_raw.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_SubImCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
     hist_MMCut.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-//    hist_fit1.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-//    hist_fit3.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-//    hist_fit4.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 }
 
 void    GAnalysis3Mesons::SetCutSubIM(const Int_t subNumber, const Double_t min, const Double_t max)
@@ -285,15 +158,11 @@ GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* tit
     hist_SubImCut(TString(name).Append("SubImCut"), TString(title).Append("SubImCut"), kFALSE),
     hist_SubImCut_TOF(TString(name).Append("SubImCut_TOF"), TString(title).Append("SubImCut_TOF"), 300, -15, 15, 800, 0, 800, kFALSE),
     hist_MMCut(TString(name).Append("MMCut"), TString(title).Append("MMCut"), kFALSE),
-    hist_TOF(TString(name).Append("TOF"), TString(title).Append("TOF"), 300, -15, 15, 800, 0, 800, kFALSE)
-//    hist_fit1(TString(name).Append("fit1"), TString(title).Append("fit1"), 24, 10, kFALSE),
-//    hist_fit3(TString(name).Append("fit3"), TString(title).Append("fit3"), 24, 10, kFALSE),
-//    hist_fit4(TString(name).Append("fit4"), TString(title).Append("fit4"), 24, 10, kFALSE),
-//    hist_fit7Proton(TString(name).Append("fit7Proton"), TString(title).Append("fit7Proton"), 28, 10, kFALSE),
-//    fit1(kTRUE),
-//    fit3(kTRUE),
-//    fit4(kTRUE),
-//    fit7Proton(kTRUE)
+    hist_TOF(TString(name).Append("TOF"), TString(title).Append("TOF"), 300, -15, 15, 800, 0, 800, kFALSE),
+    fit1(),
+    fit3(),
+    fit4(),
+    fit7Proton()
 {
 
 }
@@ -312,10 +181,10 @@ void   GAnalysis3MesonsProton::CalcResult()
     hist_SubImCut_TOF.CalcResult();
     hist_MMCut.CalcResult();
     hist_TOF.CalcResult();
-//    hist_fit1.CalcResult();
-//    hist_fit3.CalcResult();
-//    hist_fit4.CalcResult();
-//    hist_fit7Proton.CalcResult();
+    fit1.CalcResult();
+    fit3.CalcResult();
+    fit4.CalcResult();
+    fit7Proton.CalcResult();
 }
 
 void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticle& photons, const GTreeParticle& proton, const GTreeTagger& tagger, const Bool_t CreateHistogramsForTaggerBinning)
@@ -362,51 +231,15 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                     hist_MMCut.Fill(im, mm, theta, phi, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i));
                 hist_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
 
-//                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
-//                fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
-//                fit7Proton.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i), proton.Particle(0));
+                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
+                fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
+                fit7Proton.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i), proton.Particle(0));
 
-//                while(fit1.Solve()>0)
-//                    hist_fit1.Fill(fit1);
-//                if(fit1.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit1.FillFinal(fit1, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit1.FillFinal(fit1, tagger.GetTaggedTime(i));
-//                }
-
-//                while(fit3.Solve()>0)
-//                    hist_fit3.Fill(fit3);
-//                if(fit3.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit3.FillFinal(fit3, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit3.FillFinal(fit3, tagger.GetTaggedTime(i));
-//                }
-
-//                while(fit4.Solve()>0)
-//                    hist_fit4.Fill(fit4);
-//                if(fit4.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit4.FillFinal(fit4, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit4.FillFinal(fit4, tagger.GetTaggedTime(i));
-//                }
-
-
-//                while(fit7Proton.Solve()>0)
-//                    hist_fit7Proton.Fill(fit7Proton);
-//                if(fit7Proton.ConfidenceLevel()>0.05)
-//                {
-//                    if(CreateHistogramsForTaggerBinning==kTRUE)
-//                        hist_fit7Proton.FillFinal(fit7Proton, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                    else
-//                        hist_fit7Proton.FillFinal(fit7Proton, tagger.GetTaggedTime(i));
-//                }
+                //fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                //fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit7Proton.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
             }
         }
     }
@@ -433,14 +266,11 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
     folder  = h->GetDirectory("MM_Cut");
     hist_TOF.PrepareWriteList(folder, TString(name).Append("_TOF").Data());
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
-        GHistWriteList* subfolder  = folder->GetDirectory("fit1");
-//        hist_fit1.PrepareWriteList(subfolder, TString(name).Append("_fit1").Data());
-//        subfolder  = folder->GetDirectory("fit3");
-//        hist_fit3.PrepareWriteList(subfolder, TString(name).Append("_fit3").Data());
-//        subfolder  = folder->GetDirectory("fit4");
-//        hist_fit4.PrepareWriteList(subfolder, TString(name).Append("_fit4").Data());
-//        subfolder  = folder->GetDirectory("fit7Proton");
-//        hist_fit7Proton.PrepareWriteList(subfolder, TString(name).Append("_fit7Proton").Data());
+
+    fit1.PrepareWriteList(h);
+    fit3.PrepareWriteList(h);
+    fit4.PrepareWriteList(h);
+    fit7Proton.PrepareWriteList(h);
 }
 
 void    GAnalysis3MesonsProton::Reset(Option_t* option)
@@ -452,10 +282,10 @@ void    GAnalysis3MesonsProton::Reset(Option_t* option)
     hist_SubImCut_TOF.Reset(option);
     hist_MMCut.Reset(option);
     hist_TOF.Reset(option);
-//    hist_fit1.Reset(option);
-//    hist_fit3.Reset(option);
-//    hist_fit4.Reset(option);
-//    hist_fit7Proton.Reset(option);
+    fit1.Reset(option);
+    fit3.Reset(option);
+    fit4.Reset(option);
+    fit7Proton.Reset(option);
 }
 
 void    GAnalysis3MesonsProton::ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads)

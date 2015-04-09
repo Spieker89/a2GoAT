@@ -2,114 +2,189 @@
 #define __GFit_h__
 
 
-#include <TH2.h>
+#include <TLorentzVector.h>
 
-#include "GHistManager.h"
 #include "GH1.h"
-#include "GKinFitter.h"
-#include "GKinFitterParticle.h"
+#include "APLCON.hpp"
 
 
 
-class	GFit
+class	GFit    : public GHistLinked
 {
 protected:
-    Bool_t                  solved;
-    GIterativeKinFitter     fitter;
+    // lightweight structure for linking to fitter
+    struct FitParticle {
+        void SetFromVector(const TLorentzVector& p_) {
+            Ek = p_.E()-p_.M();
+            Theta = p_.Theta();
+            Phi = p_.Phi();
+            Ek_Sigma = 0.02*Ek*pow(Ek,-0.36);
+            Theta_Sigma = 2.5*TMath::DegToRad();
+            if(Theta>20*TMath::DegToRad() && Theta<160*TMath::DegToRad()) {
+                Phi_Sigma = Theta_Sigma/sin(Theta);
+            }
+            else {
+                Phi_Sigma = 1*TMath::DegToRad();
+            }
+        }
+        static TLorentzVector Make(const std::vector<double>& EkThetaPhi,
+                                   const Double_t m){
+            const double E = EkThetaPhi[0] + m;
+            const Double_t p = sqrt( E*E - m*m );
+            TVector3 pv(1,0,0);
+            pv.SetMagThetaPhi(p, EkThetaPhi[1], EkThetaPhi[2]);
+            TLorentzVector l(pv, E);
+            return l;
+        }
+        static TLorentzVector Make(const FitParticle& p,
+                                   const Double_t m) {
+            return Make(std::vector<double>{p.Ek, p.Theta, p.Phi}, m);
+        }
+        std::vector<double*> Link() {
+            return {std::addressof(Ek),
+                        std::addressof(Theta),
+                        std::addressof(Phi)};
+        }
+        std::vector<double*> LinkSigma() {
+            return {std::addressof(Ek_Sigma),
+                        std::addressof(Theta_Sigma),
+                        std::addressof(Phi_Sigma)};
+        }
+
+
+        double Ek;
+        double Ek_Sigma;
+        double Theta;
+        double Theta_Sigma;
+        double Phi;
+        double Phi_Sigma;
+
+    };
+
+private:
+    std::vector<FitParticle>    aplconPhotons;
+
+    GH1         im;
+    GH1         zVertex;
+    GH1         theta;
+    GH1         phi;
+    GH1         chiSq;
+    GH1         confidenceLevel;
+
+protected:
+    std::string name;
+    APLCON      fitter;
+    APLCON::Result_t result;
+
+    virtual void    AddConstraints() = 0;
+    void    Set(const TLorentzVector& p0,
+                const TLorentzVector& p1,
+                const TLorentzVector& p2,
+                const TLorentzVector& p3,
+                const TLorentzVector& p4,
+                const TLorentzVector& p5)
+    {
+        aplconPhotons[0].SetFromVector(p0);
+        aplconPhotons[1].SetFromVector(p1);
+        aplconPhotons[2].SetFromVector(p2);
+        aplconPhotons[3].SetFromVector(p3);
+        aplconPhotons[4].SetFromVector(p4);
+        aplconPhotons[5].SetFromVector(p5);
+    }
+
+
+    GFit(const char* name);
 
 public:
-    GFit(const Int_t npart, const Int_t ncon)   : solved(kFALSE), fitter(npart, ncon)   {}
-    ~GFit()                                                             {}
+    ~GFit()                                 {}
 
-    virtual Double_t        ConfidenceLevel()               {return fitter.ConfidenceLevel();}
-    virtual Double_t        ConstraintsConfidenceLevel()    {return fitter.ConstraintsConfidenceLevel();}
-    virtual Double_t        VariablesConfidenceLevel()      {return fitter.VariablesConfidenceLevel();}
-    virtual Int_t           GetIterations()                 {return fitter.GetIterations()-1;}
-    virtual TLorentzVector  GetTotal()                  = 0;
-    virtual TLorentzVector  GetMeson()                  = 0;
-    virtual TLorentzVector  GetSub(const int i)         = 0;
-    virtual TLorentzVector  GetRecoil()                 = 0;
-    virtual Double_t        GetChi2()                       {return fitter.GetChi2();}
-    virtual Double_t        GetVariablesChi2()              {return fitter.GetVariablesChi2();}
-    virtual Double_t        GetConstraintsChi2()            {return fitter.GetConstraintsChi2();}
-    virtual Double_t        GetPull(const Int_t index)  = 0;
-            Bool_t          IsSolved()                      {return solved;}
-            Bool_t          Solve()                         {if(fitter.Solve()>0) solved = kTRUE; else solved = kFALSE; return solved;}
+    virtual void        CalcResult();
+    virtual Int_t       Fill(Double_t x)    {return 0;}
+    virtual void        PrepareWriteList(GHistWriteList* arr, const char* _Name = 0);
+    virtual void        Reset(Option_t* option = "");
+    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
+    virtual void Solve(const double time, const int channel);
 };
+
+
+
+
+
+
+
+
 
 
 class	GFit1Constraints    : public GFit
 {
 private:
-    Bool_t              isEtap;
+    TLorentzVector  beamAndTarget;
+
+    GHistBGSub2     pulls;
+
+protected:
+    GFit1Constraints(const char* name)  :
+        GFit(name),
+        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
+    {AddConstraints();}
 
 public:
-    GFit1Constraints(const Bool_t _IsEtap);
-    ~GFit1Constraints();
+    GFit1Constraints()                  :
+        GFit("fit1"),
+        pulls(TString("fit1").Append("_pulls"), TString("fit1").Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
+    {AddConstraints();}
+    ~GFit1Constraints() {}
 
-    virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
-    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual void        AddConstraints();
+    virtual void        CalcResult();
+    virtual void        PrepareWriteList(GHistWriteList* arr, const char* _Name = 0);
+    virtual void        Reset(Option_t* option = "");
+    virtual void        Solve(const double time, const int channel);
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
-                const TLorentzVector& _BeamAndTarget);
+                const TLorentzVector& _BeamAndTarget)
+    {
+        beamAndTarget   = _BeamAndTarget;
+        GFit::Set(p0, p1, p2, p3, p4, p5);
+    }
 };
+
+
+
+
+
+
 
 
 
 class	GFit3Constraints    : public GFit
 {
-private:
-    Bool_t              isEtap;
+protected:
+    GFit3Constraints(const char* name)  :   GFit(name)      {AddConstraints();}
 
 public:
-    GFit3Constraints(const Bool_t _IsEtap);
-    ~GFit3Constraints();
+    GFit3Constraints()                  :   GFit("fit3")    {AddConstraints();}
+    ~GFit3Constraints()                                     {}
 
-    virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
+    virtual void    AddConstraints();
+    /*virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
     virtual TLorentzVector  GetTotal()                      {return GetMeson();}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}*/
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
-                const TLorentzVector& p5);
-};
-
-
-
-
-class	GFit4Constraints    : public GFit
-{
-private:
-    Bool_t              isEtap;
-    TLorentzVector      beamAndTarget;
-
-public:
-    GFit4Constraints(const Bool_t _IsEtap);
-    ~GFit4Constraints();
-
-    virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
-    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5,
-                const TLorentzVector& _BeamAndTarget);
+                const TLorentzVector& p5)
+    {
+        GFit::Set(p0, p1, p2, p3, p4, p5);
+    }
 };
 
 
@@ -120,30 +195,59 @@ public:
 
 
 
+class	GFit4Constraints    : public GFit1Constraints
+{
+public:
+    GFit4Constraints()                  :   GFit1Constraints("fit4")    {AddConstraints();}
+    ~GFit4Constraints()                                                 {}
+
+    virtual void    AddConstraints();
+    /*virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
+    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
+    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
+    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}*/
+};
 
 
-class	GFit7ConstraintsProton    : public GFit
+
+
+
+
+
+
+
+
+
+class	GFitProton    : public GFit
 {
 private:
-    Bool_t              isEtap;
+    FitParticle     proton;
+    TLorentzVector  beamAndTarget;
 
 public:
-    GFit7ConstraintsProton(const Bool_t _IsEtap);
-    ~GFit7ConstraintsProton();
+    GFitProton();
+    ~GFitProton()                   {}
 
-    virtual TLorentzVector  GetMeson();
+    virtual void    AddConstraints()    {}
+    /*virtual TLorentzVector  GetMeson();
     virtual TLorentzVector  GetTotal()                      {return GetMeson() + fitter.GetParticle(6);}
     virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
     virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}
+    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}*/
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
                 const TLorentzVector& p3,
                 const TLorentzVector& p4,
                 const TLorentzVector& p5,
-                const TLorentzVector& _BeamAndTarget,
-                const TLorentzVector& proton);
+                const TLorentzVector& _Proton,
+                const TLorentzVector& _BeamAndTarget)
+    {
+        beamAndTarget   = _BeamAndTarget;
+        proton.SetFromVector(_Proton);
+        GFit::Set(p0, p1, p2, p3, p4, p5);
+    }
 };
 
 
@@ -155,7 +259,7 @@ public:
 
 
 
-
+/*
 class   GHistFit    : public    GHistLinked
 {
 private:
@@ -225,6 +329,6 @@ public:
     virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
     virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
 };
-
+*/
 
 #endif

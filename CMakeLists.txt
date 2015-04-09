@@ -160,7 +160,7 @@ add_executable(MyPhysics
    inc/GKinFitterParticle.h
    inc/GKinFitter.h
    inc/GFit.h
-   inc/GHistFit.h
+   #inc/GHistFit.h
    inc/GHistEvent.h
    inc/GCheckProton.h
    inc/GAnalysis3Mesons.h

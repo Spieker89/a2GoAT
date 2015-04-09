@@ -3,108 +3,161 @@
 
 
 
-
-
-
-GFit1Constraints::GFit1Constraints(const Bool_t _IsEtap)    :
-    GFit(6, 1),
-    isEtap(_IsEtap)
+GFit::GFit(const char* name)   :
+    GHistLinked(kFALSE),
+    im(TString(name).Append("_im"), TString(name).Append("_im"), 500, 700, 1200, 48, kFALSE),
+    zVertex(TString(name).Append("_zVertex"), TString(name).Append("_zVertex"), 200, -10, 10, 48, kFALSE),
+    theta(TString(name).Append("_theta"), TString(name).Append("_theta"), 180, 0, 180, 48, kFALSE),
+    phi(TString(name).Append("_phi"), TString(name).Append("_phi"), 360, -180, 180, 48, kFALSE),
+    chiSq(TString(name).Append("_chiSq"), TString(name).Append("_chiSq"), 1000, 0, 100, 48, kFALSE),
+    confidenceLevel(TString(name).Append("_confidenceLevel"), TString(name).Append("_confidenceLevel"), 1000, 0, 1, 48, kFALSE),
+    name(name),
+    fitter(name)
 {
+    aplconPhotons.resize(6);
 
+    for(size_t i=0;i<aplconPhotons.size();i++) {
+        std::stringstream s;
+        s << "Photon" << i;
+        fitter.LinkVariable(s.str(), aplconPhotons[i].Link(), aplconPhotons[i].LinkSigma());
+    }
+
+    fitter.AddUnmeasuredVariable("zVertex");
+
+    APLCON::Fit_Settings_t settings = fitter.GetSettings();
+    settings.MaxIterations = 100;
+    fitter.SetSettings(settings);
 }
 
-GFit1Constraints::~GFit1Constraints()
+void    GFit::CalcResult()
 {
-
+    im.CalcResult();
+    zVertex.CalcResult();
+    theta.CalcResult();
+    phi.CalcResult();
+    chiSq.CalcResult();
+    confidenceLevel.CalcResult();
 }
 
-void    GFit1Constraints::Set(const TLorentzVector& p0,
-                              const TLorentzVector& p1,
-                              const TLorentzVector& p2,
-                              const TLorentzVector& p3,
-                              const TLorentzVector& p4,
-                              const TLorentzVector& p5,
-                              const TLorentzVector& _BeamAndTarget)
+void    GFit::PrepareWriteList(GHistWriteList* arr, const char* _Name)
 {
-    solved = kFALSE;
-    fitter.Reset();
+    if(!arr)
+        return;
 
-    GKinFitterParticle  photons[6];
+    im.PrepareWriteList(arr, "IM");
+    zVertex.PrepareWriteList(arr, "zVertex");
+    theta.PrepareWriteList(arr, "theta");
+    phi.PrepareWriteList(arr, "phi");
+    chiSq.PrepareWriteList(arr, "chiSq");
+    confidenceLevel.PrepareWriteList(arr, "confidenceLevel");
+}
 
-    photons[0].Set4Vector(p0);
-    photons[1].Set4Vector(p1);
-    photons[2].Set4Vector(p2);
-    photons[3].Set4Vector(p3);
-    photons[4].Set4Vector(p4);
-    photons[5].Set4Vector(p5);
-    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
-    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
-    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
-    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
-    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
-    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
+void    GFit::Reset(Option_t* option)
+{
+    im.Reset(option);
+    zVertex.Reset(option);
+    theta.Reset(option);
+    phi.Reset(option);
+    chiSq.Reset(option);
+    confidenceLevel.Reset(option);
+}
+
+void GFit::Solve(const double time, const int channel)
+{
+    result = fitter.DoFit();
+    if(result.Status == APLCON::Result_Status_t::Success)
+    {
+        TLorentzVector etap(0,0,0,0);
+        for(size_t t=0;t<aplconPhotons.size();t++)
+            etap += FitParticle::Make(aplconPhotons[t], 0);
+        im.Fill(etap.M(), time, channel);
+        const APLCON::Result_Variable_t& var = result.Variables.at("zVertex");
+        zVertex.Fill(var.Value.After, time, channel);
+        theta.Fill(etap.Theta()*TMath::RadToDeg(), time, channel);
+        phi.Fill(etap.Phi()*TMath::RadToDeg(), time);
+        chiSq.Fill(result.ChiSquare, time);
+        confidenceLevel.Fill(TMath::Prob(result.ChiSquare, result.NDoF), time);
+        //cout << result << endl;
+        return;
+    }
+    //cout << "fit " << name << " not working" << endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+void    GFit1Constraints::AddConstraints()
+{
+    fitter.AddConstraint("mm", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "zVertex"},
+                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
+        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
+        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
+        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
+        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
+        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+        TLorentzVector v2 = FitParticle::Make(p2, 0);
+        TLorentzVector v3 = FitParticle::Make(p3, 0);
+        TLorentzVector v4 = FitParticle::Make(p4, 0);
+        TLorentzVector v5 = FitParticle::Make(p5, 0);
+
+        return (beamAndTarget-v0-v1-v2-v3-v4-v5).M() - MASS_PROTON;
+        }
+    );
+}
+
+void GFit1Constraints::Solve(const double time, const int channel)
+{
+    GFit::Solve(time, channel);
     for(int i=0; i<6; i++)
-        fitter.AddPosKFParticle(photons[i]);
-
-    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
-    fitter.AddSubMissMassConstraint(_BeamAndTarget, 6, &index[0], MASS_PROTON);
+    {
+        for(int p=0; p<3; p++)
+        {
+            std::stringstream s;
+            s << "Photon" << i;
+            s << "[" << p << "]";
+            //cout << result << endl;
+            //cout << s.str() << endl;
+            const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
+            pulls.Fill(var.Pull, (3*i)+p);
+        }
+    }
 }
 
-
-
-
-
-
-
-
-
-
-GFit3Constraints::GFit3Constraints(const Bool_t _IsEtap)    :
-    GFit(6, 3),
-    isEtap(_IsEtap)
+void    GFit1Constraints::CalcResult()
 {
-
+    GFit::CalcResult();
+    pulls.CalcResult();
 }
 
-GFit3Constraints::~GFit3Constraints()
+void    GFit1Constraints::PrepareWriteList(GHistWriteList* arr, const char* _Name)
 {
+    if(!arr)
+        return;
 
+    GHistWriteList* folder  = arr->GetDirectory(name);
+    GFit::PrepareWriteList(folder);
+    pulls.PrepareWriteList(folder, "pulls");
 }
 
-void    GFit3Constraints::Set(const TLorentzVector& p0,
-                              const TLorentzVector& p1,
-                              const TLorentzVector& p2,
-                              const TLorentzVector& p3,
-                              const TLorentzVector& p4,
-                              const TLorentzVector& p5)
+void    GFit1Constraints::Reset(Option_t* option)
 {
-    solved = kFALSE;
-    fitter.Reset();
-
-    GKinFitterParticle  photons[6];
-
-    photons[0].Set4Vector(p0);
-    photons[1].Set4Vector(p1);
-    photons[2].Set4Vector(p2);
-    photons[3].Set4Vector(p3);
-    photons[4].Set4Vector(p4);
-    photons[5].Set4Vector(p5);
-    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
-    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
-    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
-    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
-    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
-    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
-    for(int i=0; i<6; i++)
-        fitter.AddPosKFParticle(photons[i]);
-
-    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
-    if(isEtap==kTRUE)
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
-    else
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
+    GFit::Reset(option);
+    pulls.Reset(option);
 }
 
 
@@ -112,175 +165,311 @@ void    GFit3Constraints::Set(const TLorentzVector& p0,
 
 
 
-
-
-
-
-
-GFit4Constraints::GFit4Constraints(const Bool_t _IsEtap)    :
-    GFit(6, 4),
-    isEtap(_IsEtap)
+void    GFit3Constraints::AddConstraints()
 {
+    fitter.AddConstraint("im0", {"Photon0", "Photon1", "zVertex"},
+                        [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
 
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_ETA;
+    }
+    );
+
+    fitter.AddConstraint("im1", {"Photon2", "Photon3", "zVertex"},
+                        [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_PI0;
+    }
+    );
+
+    fitter.AddConstraint("im2", {"Photon4", "Photon5", "zVertex"},
+                        [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_PI0;
+    }
+    );
 }
 
-GFit4Constraints::~GFit4Constraints()
+
+
+
+
+
+
+
+
+void    GFit4Constraints::AddConstraints()
 {
+    fitter.AddConstraint("im0", {"Photon0", "Photon1", "zVertex"},
+    [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
 
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_ETA;
+    }
+    );
+
+    fitter.AddConstraint("im1", {"Photon2", "Photon3", "zVertex"},
+    [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_PI0;
+    }
+    );
+
+    fitter.AddConstraint("im2", {"Photon4", "Photon5", "zVertex"},
+    [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_PI0;
+    }
+    );
 }
 
-void    GFit4Constraints::Set(const TLorentzVector& p0,
-                              const TLorentzVector& p1,
-                              const TLorentzVector& p2,
-                              const TLorentzVector& p3,
-                              const TLorentzVector& p4,
-                              const TLorentzVector& p5,
-                              const TLorentzVector& _BeamAndTarget)
+
+
+
+GFitProton::GFitProton() :
+    GFit("fit7")
 {
-    beamAndTarget  = _BeamAndTarget;
+    fitter.LinkVariable(std::string("Proton"), proton.Link(), proton.LinkSigma());
 
-    solved = kFALSE;
-    fitter.Reset();
+    fitter.AddConstraint("im0", {"Photon0", "Photon1", "zVertex"},
+    [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
 
-    GKinFitterParticle  photons[6];
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
 
-    photons[0].Set4Vector(p0);
-    photons[1].Set4Vector(p1);
-    photons[2].Set4Vector(p2);
-    photons[3].Set4Vector(p3);
-    photons[4].Set4Vector(p4);
-    photons[5].Set4Vector(p5);
-    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
-    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
-    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
-    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
-    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
-    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
-    for(int i=0; i<6; i++)
-        fitter.AddPosKFParticle(photons[i]);
+        return (v0+v1).M() - MASS_ETA;
+    }
+    );
 
-    Int_t   index[6]    = {0, 1, 2, 3, 4, 5};
-    if(isEtap==kTRUE)
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
-    else
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    fitter.AddSubMissMassConstraint(beamAndTarget, 6, &index[0], MASS_PROTON);
+    fitter.AddConstraint("im1", {"Photon2", "Photon3", "zVertex"},
+    [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_PI0;
+    }
+    );
+
+    fitter.AddConstraint("im2", {"Photon4", "Photon5", "zVertex"},
+    [] (vector<double>& p0, vector<double>& p1, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        const double theta0 = p0[1]; // second element is theta
+        const double theta0_p = std::atan2( R*sin(theta0), R*cos(theta0) - v_z);
+        const double theta1 = p1[1]; // second element is theta
+        const double theta1_p = std::atan2( R*sin(theta1), R*cos(theta1) - v_z);
+        p0[1] = theta0_p;
+        p1[1] = theta1_p;
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+
+        return (v0+v1).M() - MASS_PI0;
+    }
+    );
+
+    fitter.AddConstraint("Px", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "Proton", "zVertex"},
+                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
+        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
+        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
+        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
+        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
+        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+        pr[1]    = std::atan2( R*sin(pr[1]), R*cos(pr[1]) - v_z);
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+        TLorentzVector v2 = FitParticle::Make(p2, 0);
+        TLorentzVector v3 = FitParticle::Make(p3, 0);
+        TLorentzVector v4 = FitParticle::Make(p4, 0);
+        TLorentzVector v5 = FitParticle::Make(p5, 0);
+        TLorentzVector pro= FitParticle::Make(pr, 0);
+
+        return beamAndTarget.Px()-v0.Px()-v1.Px()-v2.Px()-v3.Px()-v4.Px()-v5.Px()-pro.Px();
+        }
+    );
+
+    fitter.AddConstraint("Py", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "Proton", "zVertex"},
+                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
+        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
+        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
+        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
+        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
+        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+        TLorentzVector v2 = FitParticle::Make(p2, 0);
+        TLorentzVector v3 = FitParticle::Make(p3, 0);
+        TLorentzVector v4 = FitParticle::Make(p4, 0);
+        TLorentzVector v5 = FitParticle::Make(p5, 0);
+        TLorentzVector pro= FitParticle::Make(pr, 0);
+
+        return beamAndTarget.Py()-v0.Py()-v1.Py()-v2.Py()-v3.Py()-v4.Py()-v5.Py()-pro.Py();
+        }
+    );
+
+    fitter.AddConstraint("Pz", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "Proton", "zVertex"},
+                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
+        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
+        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
+        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
+        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
+        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+        TLorentzVector v2 = FitParticle::Make(p2, 0);
+        TLorentzVector v3 = FitParticle::Make(p3, 0);
+        TLorentzVector v4 = FitParticle::Make(p4, 0);
+        TLorentzVector v5 = FitParticle::Make(p5, 0);
+        TLorentzVector pro= FitParticle::Make(pr, 0);
+
+        return beamAndTarget.Pz()-v0.Pz()-v1.Pz()-v2.Pz()-v3.Pz()-v4.Pz()-v5.Pz()-pro.Pz();
+        }
+    );
+
+    fitter.AddConstraint("E", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "Proton", "zVertex"},
+                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, const vector<double>& zv) {
+        constexpr double R = 25.4;
+        // last element in photons is vz (scalar has dimension 1)
+        // see AddConstraint below
+        const double v_z = zv[0];
+        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
+        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
+        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
+        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
+        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
+        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+
+        TLorentzVector v0 = FitParticle::Make(p0, 0);
+        TLorentzVector v1 = FitParticle::Make(p1, 0);
+        TLorentzVector v2 = FitParticle::Make(p2, 0);
+        TLorentzVector v3 = FitParticle::Make(p3, 0);
+        TLorentzVector v4 = FitParticle::Make(p4, 0);
+        TLorentzVector v5 = FitParticle::Make(p5, 0);
+        TLorentzVector pro= FitParticle::Make(pr, 0);
+
+        return beamAndTarget.E()-v0.E()-v1.E()-v2.E()-v3.E()-v4.E()-v5.E()-pro.E();
+        }
+    );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-GFit7ConstraintsProton::GFit7ConstraintsProton(const Bool_t _IsEtap)    :
-    GFit(7, 7),
-    isEtap(_IsEtap)
-{
-
-}
-
-GFit7ConstraintsProton::~GFit7ConstraintsProton()
-{
-
-}
-
-TLorentzVector  GFit7ConstraintsProton::GetMeson()
-{
-    TLorentzVector ret(0, 0, 0, 0);
-    for(int i=0; i<6; i++)
-        ret += fitter.GetParticle(i);
-    return ret;
-}
-
-void    GFit7ConstraintsProton::Set(const TLorentzVector& p0,
-                                    const TLorentzVector& p1,
-                                    const TLorentzVector& p2,
-                                    const TLorentzVector& p3,
-                                    const TLorentzVector& p4,
-                                    const TLorentzVector& p5,
-                                    const TLorentzVector& _BeamAndTarget,
-                                    const TLorentzVector& proton)
-{
-    solved = kFALSE;
-    fitter.Reset();
-
-    GKinFitterParticle  photons[6];
-    GKinFitterParticle  pro;
-
-    photons[0].Set4Vector(p0);
-    photons[1].Set4Vector(p1);
-    photons[2].Set4Vector(p2);
-    photons[3].Set4Vector(p3);
-    photons[4].Set4Vector(p4);
-    photons[5].Set4Vector(p5);
-    photons[0].SetResolutions(3, 2/sin(p0.Theta()), 0.02*TMath::Power(p0.E(), 0.36));
-    photons[1].SetResolutions(3, 2/sin(p1.Theta()), 0.02*TMath::Power(p1.E(), 0.36));
-    photons[2].SetResolutions(3, 2/sin(p2.Theta()), 0.02*TMath::Power(p2.E(), 0.36));
-    photons[3].SetResolutions(3, 2/sin(p3.Theta()), 0.02*TMath::Power(p3.E(), 0.36));
-    photons[4].SetResolutions(3, 2/sin(p4.Theta()), 0.02*TMath::Power(p4.E(), 0.36));
-    photons[5].SetResolutions(3, 2/sin(p5.Theta()), 0.02*TMath::Power(p5.E(), 0.36));
-    for(int i=0; i<6; i++)
-        fitter.AddPosKFParticle(photons[i]);
-    TLorentzVector  help(proton);
-    help.SetE(_BeamAndTarget.E()-p0.E()-p1.E()-p2.E()-p3.E()-p4.E()-p5.E());
-    help.SetVect(proton.Vect().Unit()*(TMath::Sqrt(help.E()*help.E() - MASS_PROTON*MASS_PROTON)));
-    pro.Set4Vector(help);
-    pro.SetResolutions(3, 2/sin(p0.Theta()), 10*0.02*TMath::Power(p0.E(), 0.36));
-    fitter.AddPosKFParticle(pro);
-
-    Int_t   index[7]    = {0, 1, 2, 3, 4, 5, 6};
-    if(isEtap==kTRUE)
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_ETA);
-    else
-        fitter.AddSubInvMassConstraint(2, &index[0], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[2], MASS_PI0);
-    fitter.AddSubInvMassConstraint(2, &index[4], MASS_PI0);
-    /*_BeamAndTarget.Print();
-    proton.Print();
-    std::cout << proton.Theta()*TMath::RadToDeg() << std::endl;
-    std::cout << proton.Theta() << std::endl;
-    (p0+p1+p2+p3+p4+p5).Print();
-    help.Print();
-    (p0+p1+p2+p3+p4+p5+help).Print();
-    std::cout << (p0+p1+p2+p3+p4+p5+help).M() << std::endl;
-    std::cout << std::endl;*/
-    fitter.AddTotEnergyConstraint(_BeamAndTarget.E());
-    fitter.AddTotMomentumConstraint(_BeamAndTarget.Vect());
-}
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 GHistFit::GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram)   :
     GHistLinked(linkHistogram),
     nPulls(_NPulls),
@@ -605,4 +794,4 @@ void        GHistIterativeFit::ScalerReadCorrection(const Double_t CorrectionFac
     confidenceLevel.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
 
     final.ScalerReadCorrection(CorrectionFactor, CreateHistogramsForSingleScalerReads);
-}
+}*/

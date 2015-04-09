@@ -23,70 +23,10 @@ private:
     GHistEvent3Mesons   hist_SubImCut;
 
     GHistEvent3Mesons   hist_MMCut;
-//    GHistIterativeFit   hist_fit1;
-//    GHistIterativeFit   hist_fit3;
-//    GHistIterativeFit   hist_fit4;
 
-//    GFit1Constraints        fit1;
-//    GFit3Constraints        fit3;
-//    GFit4Constraints        fit4;
-
-    APLCON  fitter;
-
-    // lightweight structure for linking to fitter
-    struct FitParticle {
-        void SetFromVector(const TLorentzVector& p_) {
-            Ek = p_.E()-p_.M();
-            Theta = p_.Theta();
-            Phi = p_.Phi();
-            Ek_Sigma = 0.02*Ek*pow(Ek,-0.36);
-            Theta_Sigma = 2.5*TMath::DegToRad();
-            if(Theta>20*TMath::DegToRad() && Theta<160*TMath::DegToRad()) {
-                Phi_Sigma = Theta_Sigma/sin(Theta);
-            }
-            else {
-                Phi_Sigma = 1*TMath::DegToRad();
-            }
-        }
-        static TLorentzVector Make(const std::vector<double>& EkThetaPhi,
-                                   const Double_t m){
-            const double E = EkThetaPhi[0] + m;
-            const Double_t p = sqrt( E*E - m*m );
-            TVector3 pv(1,0,0);
-            pv.SetMagThetaPhi(p, EkThetaPhi[1], EkThetaPhi[2]);
-            TLorentzVector l(pv, E);
-            return l;
-        }
-        static TLorentzVector Make(const FitParticle& p,
-                                   const Double_t m) {
-            return Make(std::vector<double>{p.Ek, p.Theta, p.Phi}, m);
-        }
-        std::vector<double*> Link() {
-            return {std::addressof(Ek),
-                        std::addressof(Theta),
-                        std::addressof(Phi)};
-        }
-        std::vector<double*> LinkSigma() {
-            return {std::addressof(Ek_Sigma),
-                        std::addressof(Theta_Sigma),
-                        std::addressof(Phi_Sigma)};
-        }
-
-
-        double Ek;
-        double Ek_Sigma;
-        double Theta;
-        double Theta_Sigma;
-        double Phi;
-        double Phi_Sigma;
-
-    };
-
-    std::vector<FitParticle>    aplconPhotons;
-
-
-    GH1     fitResultIM;
-    GH1     fitZVertex;
+    GFit1Constraints        fit1;
+    GFit3Constraints        fit3;
+    GFit4Constraints        fit4;
 
 protected:
 
@@ -126,15 +66,11 @@ private:
 
     GHistEvent3Mesons   hist_MMCut;
     GHistBGSub2         hist_TOF;
-//    GHistIterativeFit   hist_fit1;
-//    GHistIterativeFit   hist_fit3;
-//    GHistIterativeFit   hist_fit4;
-//    GHistIterativeFit   hist_fit7Proton;
 
-//    GFit1Constraints            fit1;
-//    GFit3Constraints            fit3;
-//    GFit4Constraints            fit4;
-//    GFit7ConstraintsProton      fit7Proton;
+    GFit1Constraints            fit1;
+    GFit3Constraints            fit3;
+    GFit4Constraints            fit4;
+    GFitProton                  fit7Proton;
 
 protected:
 
