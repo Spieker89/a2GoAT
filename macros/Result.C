@@ -2,6 +2,7 @@
 
 #include "macros/ShowPhysics.C"
 #include "macros/BestFit.C"
+#include "macros/FitBins.C"
 
 
 
@@ -209,120 +210,11 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	out->cd();
 	can->Write();
 	
-	can	= new TCanvas("CanFitBinsSim", "FitBinsSim", 1500, 800);
-	can->Divide(8,6);
-	Double_t	nEtapFit[48];
-	Double_t	dNEtapFit[48];
-	Double_t	nEtapCut[48];
-	Double_t	dNEtapCut[48];
-	Double_t	etapWidth[48];
-	Double_t	BGWidth[48];
-	for(int i=0; i<48; i++)
+	TFile*	scalerFile		= TFile::Open("/home/ott/ScalerPhysics_CB.root");
+	if(!scalerFile)
 	{
-		can->cd(i+1);
-		data		= (TH2D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/Final/TaggerBinning/Final_IM_Bins");
-		//data->Add((TH2D*)mcBGFile->Get("WithProton/MM_Cut/fit4/Final/TaggerBinning/Final_IM_Bins"));
-		FitProfileSim(data, i, nEtapFit[i], dNEtapFit[i], nEtapCut[i], etapWidth[i]);
-		dNEtapCut[i]	= sqrt(nEtapCut[i]);
-		x[i]			= i;
-		dx[i]			= 0;
+		std::cout << "Can not open scalerFile /home/ott/ScalerPhysics_CB.root" << std::endl;
+		return;
 	}
-	/*can->cd(47);
-	TGraphErrors*	graph = new TGraphErrors(47, x, nEtapFit, dx, dNEtapFit);
-	graph->Draw();*/
-	
-	out->cd();
-	can->Write();
-	
-	can	= new TCanvas("CanFitBins", "FitBins", 1500, 800);
-	can->Divide(8,5);
-	for(int i=0; i<48; i++)
-	{
-		can->cd(i+1);
-		data		= (TH2D*)dataFile->Get("WithProton/MM_Cut/fit4/Final/TaggerBinning/Final_IM_Bins");
-		FitProfile(data, i, nEtapFit[i], dNEtapFit[i], nEtapCut[i], etapWidth[i], BGWidth[i]);
-		dNEtapCut[i]	= sqrt(nEtapCut[i]);
-		x[i]			= i;
-		dx[i]			= 0;
-		//std::cout << nEtapFit[i] << "   " << dNEtapFit[i] << "   " << nEtapCut[i] << "   " << dNEtapCut[i] << std::endl;
-	}
-	out->cd();
-	can->Write();
-	
-	
-	can	= new TCanvas("CanResult", "Result", 1500, 800);
-	can->Divide(2,2);
-	TGraphErrors*	graph = new TGraphErrors(48, x, nEtapFit, dx, dNEtapFit);
-	can->cd(1);
-	graph->Draw();
-	graph = new TGraphErrors(48, x, nEtapCut, dx, dNEtapCut);
-	can->cd(2);
-	graph->Draw();
-	data		= (TH2D*)mcSignalFile->Get("WithProton/MM_Cut/fit4/Final/TaggerBinning/Final_IM_Bins");
-	TH1D*	RecEff	= new TH1D("RecEff", "RecEff", 48, 0, 48);
-	can->cd(3);
-	ReconstructionEff(data, RecEff);
-	TH1D*	help	= (TH1D*)dataFile->Get("EPT_ScalerCorT");
-	can->cd(4);
-	help->Draw();
-	
-	can	= new TCanvas("CanTaggEff", "TaggEff", 1500, 800);
-	can->Divide(2,0);
-	Double_t	taggEff[48];
-	Double_t	dTaggEff[48];
-	TaggEff(taggEff, dTaggEff);
-	graph = new TGraphErrors(48, x, taggEff, dx, dTaggEff);
-	can->cd(1);
-	graph->Draw();
-	Double_t	sc[48];
-	Double_t	dsc[48];
-	for(int i=0; i<48; i++)
-	{
-		sc[i]			= help->GetBinContent(i+1) * taggEff[i];
-		dsc[i]			= help->GetBinContent(i+1) * dTaggEff[i];
-	}
-	graph = new TGraphErrors(48, x, sc, dx, dsc);
-	can->cd(2);
-	graph->Draw();
-	
-	can	= new TCanvas("CanEndResult", "EndResult", 1500, 800);
-	can->Divide(2,2);
-	
-	for(int i=0; i<48; i++)
-	{
-		y[i]			= nEtapFit[i] / RecEff->GetBinContent(i+1);
-		dy[i]			= dNEtapFit[i] / RecEff->GetBinContent(i+1);
-	}
-	graph = new TGraphErrors(48, x, y, dx, dy);
-	can->cd(1);
-	graph->Draw();
-	for(int i=0; i<48; i++)
-	{
-		y[i]			= nEtapCut[i] / RecEff->GetBinContent(i+1);
-		dy[i]			= dNEtapCut[i] / RecEff->GetBinContent(i+1);
-	}
-	graph = new TGraphErrors(48, x, y, dx, dy);
-	can->cd(2);
-	graph->Draw();
-	
-	
-	//5.5e-29
-	Double_t	y[47];
-	Double_t	dy[47];
-	for(int i=0; i<47; i++)
-	{
-		y[i]			= nEtapFit[i] / (RecEff->GetBinContent(i+1) * sc[i]);
-		dy[i]			= dNEtapFit[i] / (RecEff->GetBinContent(i+1) * sc[i]);
-	}
-	graph = new TGraphErrors(47, x, y, dx, dy);
-	can->cd(3);
-	graph->Draw();
-	for(int i=0; i<47; i++)
-	{
-		y[i]			= nEtapCut[i] * 3.8 / (RecEff->GetBinContent(i+1) * sc[i]);
-		dy[i]			= dNEtapCut[i] * 3.8 / (RecEff->GetBinContent(i+1) * sc[i]);
-	}
-	graph = new TGraphErrors(47, x, y, dx, dy);
-	can->cd(4);
-	graph->Draw();
+	FitBins(dataFile, scalerFile, out, 3);
 }

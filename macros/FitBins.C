@@ -214,7 +214,7 @@ void	FitBinsFit(const TH1D* hist, const Double_t TaggEMin, const Double_t TaggEM
 	fit3->Draw("SAMES");
 }
 
-void	FitBins(const TFile* dataFile, const TFile* mcSignalFile, const TFile* scalerFile, const TFile* out, const Int_t addedChannels, const bool prompt = false)
+void	FitBins(const TFile* dataFile, const TFile* scalerFile, const TFile* out, const Int_t addedChannels, const bool prompt = false)
 {
 	std::vector<int>	ch;
 	std::vector<int>	size;
@@ -494,7 +494,7 @@ void	FitBins(const TFile* dataFile, const TFile* mcSignalFile, const TFile* scal
 	can->Write();
 }
 
-void	FitBins(const char* dataFileName, const char* mcSignalFileName, const char* scalerFileName, const Int_t addedChannels)
+void	FitBins(const char* dataFileName, const char* scalerFileName, const Int_t addedChannels)
 {
 	TFile*	dataFile		= TFile::Open(dataFileName);
 	if(!dataFile)
