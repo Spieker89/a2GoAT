@@ -82,8 +82,8 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
                 fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
 
-                //fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-                //fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
             }
         }
@@ -234,10 +234,10 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
                 fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i));
-                fit7Proton.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), tagger.GetVectorProtonTarget(i), proton.Particle(0));
+                fit7Proton.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5), proton.Particle(0), tagger.GetVectorProtonTarget(i));
 
-                //fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-                //fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 fit7Proton.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
             }

@@ -11,6 +11,7 @@ GFit::GFit(const char* name)   :
     phi(TString(name).Append("_phi"), TString(name).Append("_phi"), 360, -180, 180, 48, kFALSE),
     chiSq(TString(name).Append("_chiSq"), TString(name).Append("_chiSq"), 1000, 0, 100, 48, kFALSE),
     confidenceLevel(TString(name).Append("_confidenceLevel"), TString(name).Append("_confidenceLevel"), 1000, 0, 1, 48, kFALSE),
+    pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 21, 0, 21, kFALSE),
     name(name),
     fitter(name)
 {
@@ -37,6 +38,7 @@ void    GFit::CalcResult()
     phi.CalcResult();
     chiSq.CalcResult();
     confidenceLevel.CalcResult();
+    pulls.CalcResult();
 }
 
 void    GFit::PrepareWriteList(GHistWriteList* arr, const char* _Name)
@@ -44,12 +46,15 @@ void    GFit::PrepareWriteList(GHistWriteList* arr, const char* _Name)
     if(!arr)
         return;
 
-    im.PrepareWriteList(arr, "IM");
-    zVertex.PrepareWriteList(arr, "zVertex");
-    theta.PrepareWriteList(arr, "theta");
-    phi.PrepareWriteList(arr, "phi");
-    chiSq.PrepareWriteList(arr, "chiSq");
-    confidenceLevel.PrepareWriteList(arr, "confidenceLevel");
+    GHistWriteList* folder  = arr->GetDirectory(name);
+
+    im.PrepareWriteList(folder, "IM");
+    zVertex.PrepareWriteList(folder, "zVertex");
+    theta.PrepareWriteList(folder, "theta");
+    phi.PrepareWriteList(folder, "phi");
+    chiSq.PrepareWriteList(folder, "chiSq");
+    confidenceLevel.PrepareWriteList(folder, "confidenceLevel");
+    pulls.PrepareWriteList(folder, "pulls");
 }
 
 void    GFit::Reset(Option_t* option)
@@ -60,6 +65,7 @@ void    GFit::Reset(Option_t* option)
     phi.Reset(option);
     chiSq.Reset(option);
     confidenceLevel.Reset(option);
+    pulls.Reset(option);
 }
 
 void GFit::Solve(const double time, const int channel)
@@ -77,10 +83,24 @@ void GFit::Solve(const double time, const int channel)
         phi.Fill(etap.Phi()*TMath::RadToDeg(), time);
         chiSq.Fill(result.ChiSquare, time);
         confidenceLevel.Fill(TMath::Prob(result.ChiSquare, result.NDoF), time);
+        for(int i=0; i<6; i++)
+        {
+            for(int p=0; p<3; p++)
+            {
+                std::stringstream s;
+                s << "Photon" << i;
+                s << "[" << p << "]";
+                //cout << result << endl;
+                //cout << s.str() << endl;
+                const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
+                pulls.Fill(var.Pull, (3*i)+p);
+            }
+        }
         //cout << result << endl;
+        //cout << name << " working" << endl;
         return;
     }
-    //cout << "fit " << name << " not working" << endl;
+    //cout << name << " not working" << endl;
 }
 
 
@@ -119,48 +139,6 @@ void    GFit1Constraints::AddConstraints()
         }
     );
 }
-
-void GFit1Constraints::Solve(const double time, const int channel)
-{
-    GFit::Solve(time, channel);
-    for(int i=0; i<6; i++)
-    {
-        for(int p=0; p<3; p++)
-        {
-            std::stringstream s;
-            s << "Photon" << i;
-            s << "[" << p << "]";
-            //cout << result << endl;
-            //cout << s.str() << endl;
-            const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
-            pulls.Fill(var.Pull, (3*i)+p);
-        }
-    }
-}
-
-void    GFit1Constraints::CalcResult()
-{
-    GFit::CalcResult();
-    pulls.CalcResult();
-}
-
-void    GFit1Constraints::PrepareWriteList(GHistWriteList* arr, const char* _Name)
-{
-    if(!arr)
-        return;
-
-    GHistWriteList* folder  = arr->GetDirectory(name);
-    GFit::PrepareWriteList(folder);
-    pulls.PrepareWriteList(folder, "pulls");
-}
-
-void    GFit1Constraints::Reset(Option_t* option)
-{
-    GFit::Reset(option);
-    pulls.Reset(option);
-}
-
-
 
 
 
@@ -302,8 +280,11 @@ void    GFit4Constraints::AddConstraints()
 
 
 
+
+
 GFitProton::GFitProton() :
-    GFit("fit7")
+    GFit("fit7"),
+    pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 21, 0, 21, kFALSE)
 {
     fitter.LinkVariable(std::string("Proton"), proton.Link(), proton.LinkSigma());
 
@@ -387,7 +368,7 @@ GFitProton::GFitProton() :
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector pro= FitParticle::Make(pr, 0);
+        TLorentzVector pro= FitParticle::Make(pr, MASS_PROTON);
 
         return beamAndTarget.Px()-v0.Px()-v1.Px()-v2.Px()-v3.Px()-v4.Px()-v5.Px()-pro.Px();
         }
@@ -405,6 +386,7 @@ GFitProton::GFitProton() :
         p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
         p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
         p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+        pr[1]    = std::atan2( R*sin(pr[1]), R*cos(pr[1]) - v_z);
 
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -412,7 +394,7 @@ GFitProton::GFitProton() :
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector pro= FitParticle::Make(pr, 0);
+        TLorentzVector pro= FitParticle::Make(pr, MASS_PROTON);
 
         return beamAndTarget.Py()-v0.Py()-v1.Py()-v2.Py()-v3.Py()-v4.Py()-v5.Py()-pro.Py();
         }
@@ -430,6 +412,7 @@ GFitProton::GFitProton() :
         p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
         p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
         p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+        pr[1]    = std::atan2( R*sin(pr[1]), R*cos(pr[1]) - v_z);
 
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -437,37 +420,57 @@ GFitProton::GFitProton() :
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector pro= FitParticle::Make(pr, 0);
+        TLorentzVector pro= FitParticle::Make(pr, MASS_PROTON);
 
         return beamAndTarget.Pz()-v0.Pz()-v1.Pz()-v2.Pz()-v3.Pz()-v4.Pz()-v5.Pz()-pro.Pz();
         }
     );
 
-    fitter.AddConstraint("E", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "Proton", "zVertex"},
-                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, const vector<double>& zv) {
-        constexpr double R = 25.4;
-        // last element in photons is vz (scalar has dimension 1)
-        // see AddConstraint below
-        const double v_z = zv[0];
-        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
-        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
-        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
-        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
-        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
-        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+//    fitter.AddConstraint("E", {"Photon0", "Photon1", "Photon2", "Photon3", "Photon4", "Photon5", "Proton", "zVertex"},
+//                        [&] (vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, const vector<double>& zv) {
+//        constexpr double R = 25.4;
+//        // last element in photons is vz (scalar has dimension 1)
+//        // see AddConstraint below
+//        const double v_z = zv[0];
+//        p0[1]    = std::atan2( R*sin(p0[1]), R*cos(p0[1]) - v_z);
+//        p1[1]    = std::atan2( R*sin(p1[1]), R*cos(p1[1]) - v_z);
+//        p2[1]    = std::atan2( R*sin(p2[1]), R*cos(p2[1]) - v_z);
+//        p3[1]    = std::atan2( R*sin(p3[1]), R*cos(p3[1]) - v_z);
+//        p4[1]    = std::atan2( R*sin(p4[1]), R*cos(p4[1]) - v_z);
+//        p5[1]    = std::atan2( R*sin(p5[1]), R*cos(p5[1]) - v_z);
+//        pr[1]    = std::atan2( R*sin(pr[1]), R*cos(pr[1]) - v_z);
 
-        TLorentzVector v0 = FitParticle::Make(p0, 0);
-        TLorentzVector v1 = FitParticle::Make(p1, 0);
-        TLorentzVector v2 = FitParticle::Make(p2, 0);
-        TLorentzVector v3 = FitParticle::Make(p3, 0);
-        TLorentzVector v4 = FitParticle::Make(p4, 0);
-        TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector pro= FitParticle::Make(pr, 0);
+//        TLorentzVector v0 = FitParticle::Make(p0, 0);
+//        TLorentzVector v1 = FitParticle::Make(p1, 0);
+//        TLorentzVector v2 = FitParticle::Make(p2, 0);
+//        TLorentzVector v3 = FitParticle::Make(p3, 0);
+//        TLorentzVector v4 = FitParticle::Make(p4, 0);
+//        TLorentzVector v5 = FitParticle::Make(p5, 0);
+//        TLorentzVector pro= FitParticle::Make(pr, MASS_PROTON);
 
-        return beamAndTarget.E()-v0.E()-v1.E()-v2.E()-v3.E()-v4.E()-v5.E()-pro.E();
-        }
-    );
+//        return beamAndTarget.E()-v0.E()-v1.E()-v2.E()-v3.E()-v4.E()-v5.E()-pro.E();
+//        }
+//    );
 }
+
+
+void GFitProton::Solve(const double time, const int channel)
+{
+    GFit::Solve(time, channel);
+    for(int p=0; p<3; p++)
+    {
+        std::stringstream s;
+        s << "Proton";
+        s << "[" << p << "]";
+        //cout << result << endl;
+        //cout << s.str() << endl;
+        const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
+        pulls.Fill(var.Pull, 18+p);
+    }
+}
+
+
+
 
 /*
 GHistFit::GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram)   :

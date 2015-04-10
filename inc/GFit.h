@@ -70,6 +70,7 @@ private:
     GH1         phi;
     GH1         chiSq;
     GH1         confidenceLevel;
+    GHistBGSub2 pulls;
 
 protected:
     std::string name;
@@ -103,7 +104,7 @@ public:
     virtual void        PrepareWriteList(GHistWriteList* arr, const char* _Name = 0);
     virtual void        Reset(Option_t* option = "");
     virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
-    virtual void Solve(const double time, const int channel);
+    virtual void        Solve(const double time, const int channel);
 };
 
 
@@ -136,10 +137,6 @@ public:
     ~GFit1Constraints() {}
 
     virtual void        AddConstraints();
-    virtual void        CalcResult();
-    virtual void        PrepareWriteList(GHistWriteList* arr, const char* _Name = 0);
-    virtual void        Reset(Option_t* option = "");
-    virtual void        Solve(const double time, const int channel);
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -163,19 +160,23 @@ public:
 
 class	GFit3Constraints    : public GFit
 {
+private:
+    GHistBGSub2     pulls;
+
 protected:
-    GFit3Constraints(const char* name)  :   GFit(name)      {AddConstraints();}
+    GFit3Constraints(const char* name)  :
+        GFit(name),
+        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
+    {AddConstraints();}
 
 public:
-    GFit3Constraints()                  :   GFit("fit3")    {AddConstraints();}
+    GFit3Constraints()                  :
+        GFit("fit3"),
+        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
+    {AddConstraints();}
     ~GFit3Constraints()                                     {}
 
     virtual void    AddConstraints();
-    /*virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
-    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}*/
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
@@ -197,16 +198,17 @@ public:
 
 class	GFit4Constraints    : public GFit1Constraints
 {
+private:
+    GHistBGSub2     pulls;
+
 public:
-    GFit4Constraints()                  :   GFit1Constraints("fit4")    {AddConstraints();}
+    GFit4Constraints()                  :
+        GFit1Constraints("fit4"),
+        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
+    {AddConstraints();}
     ~GFit4Constraints()                                                 {}
 
     virtual void    AddConstraints();
-    /*virtual TLorentzVector  GetMeson()                      {return fitter.GetTotalFitParticle();}
-    virtual TLorentzVector  GetTotal()                      {return GetMeson();}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return TLorentzVector(0.0, 0.0, 0.0, 938.27);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}*/
 };
 
 
@@ -224,17 +226,14 @@ class	GFitProton    : public GFit
 private:
     FitParticle     proton;
     TLorentzVector  beamAndTarget;
+    GHistBGSub2     pulls;
 
 public:
     GFitProton();
     ~GFitProton()                   {}
 
     virtual void    AddConstraints()    {}
-    /*virtual TLorentzVector  GetMeson();
-    virtual TLorentzVector  GetTotal()                      {return GetMeson() + fitter.GetParticle(6);}
-    virtual TLorentzVector  GetSub(const int i)             {return fitter.GetParticle(2*i)+fitter.GetParticle((2*i)+1);}
-    virtual TLorentzVector  GetRecoil()                     {return fitter.GetParticle(6);}
-    virtual Double_t        GetPull(const Int_t index)      {return fitter.Pull(index);}*/
+    virtual void    Solve(const double time, const int channel);
     void    Set(const TLorentzVector& p0,
                 const TLorentzVector& p1,
                 const TLorentzVector& p2,
