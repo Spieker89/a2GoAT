@@ -265,7 +265,7 @@ void	FitBins(const TFile* dataFile, const TFile* scalerFile, const TFile* out, c
 			x9[i]	+= TaggE[k];
 		x9[i]	/= size[i];
 		x9[i]	/= 1000;
-		dx9[i]	= 2.5 * addedChannels/1000;
+		dx9[i]	= 0;//2.5 * addedChannels/1000;
 	}
 	
 	for(int i=0; i<ch.size(); i++)
@@ -461,13 +461,13 @@ void	FitBins(const TFile* dataFile, const TFile* scalerFile, const TFile* out, c
 	{
 		x8[i]	= i+1;
 		dx8[i]	= 0;
-		y8[i]	= (4/0.08491)*y6[i]/sc[i];
+		y8[i]	= (4.2/0.08491)*y6[i]/sc[i];
 		Double_t	buf;
 		buf			= dy6[i]/sc[i];
 		dy8[i]		= dsc[i]*y6[i]/(sc[i]*sc[i]);
 		dy8[i]		*= dy8[i];
 		dy8[i]		+= buf*buf;
-		dy8[i]	 	 = (4/0.08491)*TMath::Sqrt(dy8[i]);
+		dy8[i]	 	 = (4.2/0.08491)*TMath::Sqrt(dy8[i]);
 	}
 	maincan->cd(10);
     TGraphErrors*	graph = new TGraphErrors(ch.size(), x8, y8, dx8, dy8);
