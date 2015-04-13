@@ -127,6 +127,24 @@ TH3F *kristallplus_targetminus_collerated_pt_proton;
 TH1F *triggertest;
 TH1F *poltable_energy;
 TH1F *poltable_energy_weight;
+
+TH2F *openingangle_ptopi0_energy_allcuts;
+TH2F *openingangle_gammatogamma_energy_allcuts;
+TH2F *openingangle_ptopi0_energy_nocuts;
+TH2F *openingangle_gammatogamma_energy_nocuts;
+
+TH3F *coplanarityverteilung_cospi0_collerated;
+TH3F *thetaverteilung_cospi0_collerated;
+TH3F *missingmassverteilung_cospi0_collerated;
+TH3F *missingmassverteilung_cospi0_collerated_proton;
+TH3F *invmassverteilung_cospi0_collerated;
+TH3F *invmassverteilung_cospi0_collerated_proton;
+
+
+TH3F *clustersize_cospi0_energy_collerated;
+TH3F *clustersize_cospi0_energy_collerated_proton;
+TH3F *thetaproton_cospi0_energy_collerated;
+
 // 	Double_t test1;
     virtual Bool_t  Start();
 
@@ -134,6 +152,7 @@ TH1F *poltable_energy_weight;
     virtual void	ProcessScalerRead();
     virtual void fOnEndProcessing();
     virtual void fOnBeforeEventProcessing();
+    virtual Bool_t    Write();
 //     virtual Double_t targetpol(TFile *f);
 
 Double_t targetpol(TFile *f){
@@ -148,9 +167,9 @@ Double_t targetpol(TFile *f){
 	string poledge;
 
 	ifstream in2;
-// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
-// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+ 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+//	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
 
 
 	Double_t runnumber;
@@ -187,8 +206,8 @@ string poledge(TFile *f){
 	ss >> runnumber1;
 	ifstream in2;
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
-// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+ 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+//	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
 
 
 
@@ -224,8 +243,8 @@ string polplane(TFile *f){
 	ss >> runnumber1;
 	ifstream in2;
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
-// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+ 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+//	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
 
 
 	Double_t runnumber;

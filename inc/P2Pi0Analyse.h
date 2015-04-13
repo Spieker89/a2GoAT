@@ -232,6 +232,7 @@ TH1F *poltable_energy_weight;
     virtual void	ProcessScalerRead();
     virtual void fOnEndProcessing();
     virtual void fOnBeforeEventProcessing();
+    virtual Bool_t    Write();
 //     virtual Double_t targetpol(TFile *f);
 
 Double_t targetpol(TFile *f){
@@ -242,8 +243,15 @@ Double_t targetpol(TFile *f){
 	stringstream ss(path1->Data());
 	Int_t runnumber1;
 	ss >> runnumber1;
+	string plane;
+	string poledge;
+
 	ifstream in2;
-	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_2013_11.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+
+
 	Double_t runnumber;
 	Double_t pol;
 	Double_t runnumber_array[1000];
@@ -254,7 +262,7 @@ Double_t targetpol(TFile *f){
 	if (in2.is_open()) {
 		while (1) {
 		
-		in2 >> runnumber >> pol;
+		in2 >> runnumber >> plane >> poledge >> pol;
 	//  	cout << runnumber << endl;
 		if (!in2.good()){pol1=500.;break;}
 		if(runnumber==runnumber1){pol1=pol;break;}
@@ -277,18 +285,22 @@ string poledge(TFile *f){
 	Int_t runnumber1;
 	ss >> runnumber1;
 	ifstream in2;
-	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+
+
 
 	Double_t runnumber;
 	string poledge;
 	string poledge1;
 	Int_t N = 0;
 	string plane;
+	Double_t pol;
 	if (in2.is_open()) {
 		while (1) {
 		
-		in2 >> runnumber >> plane >> poledge;
+		in2 >> runnumber >> plane >> poledge >> pol;
 	//  	cout << runnumber << endl;
 		if (!in2.good()){poledge1="nichtzuordbar";break;}
 		if(runnumber==runnumber1){poledge1=poledge;break;}
@@ -310,19 +322,23 @@ string polplane(TFile *f){
 	Int_t runnumber1;
 	ss >> runnumber1;
 	ifstream in2;
-	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+
+
 	Double_t runnumber;
 	string poledge;
 	string poledge1;
 	Int_t N = 0;
 	string plane;
 	string plane1;
+	Double_t pol;
 
 	if (in2.is_open()) {
 		while (1) {
 		
-		in2 >> runnumber >> plane >> poledge;
+		in2 >> runnumber >> plane >> poledge >> pol;
 // 	  	cout << runnumber << "\t" << poledge << "\t" << plane << endl;
 		if (!in2.good()){plane1="nichtzuordbar";break;}
 		if(runnumber==runnumber1){plane1=plane;break;}
@@ -334,6 +350,15 @@ string polplane(TFile *f){
 
 return plane1;
 }
+
+TLorentzVector CMVector(TLorentzVector vec,TLorentzVector vec_t,TLorentzVector vec_b)
+{
+TLorentzVector vec_cm=vec;
+TVector3 beta=((vec_t+vec_b).BoostVector())*(-1.0);
+vec_cm.Boost(beta);
+return vec_cm;
+}
+
 
 Double_t invariantemasse(TLorentzVector teilchen1, TLorentzVector teilchen2)
 {
@@ -379,15 +404,6 @@ Double_t ChiPionEta(Double_t inv111, TLorentzVector teilchen111, TLorentzVector 
 return TMath::Power((inv111-134.9766)/invariantemasseFehler(teilchen111,teilchen222),2) +  TMath::Power((inv222-547.853)/invariantemasseFehler(teilchen333,teilchen444),2);
 }
 
-
-
-TLorentzVector CMVector(TLorentzVector vec,TLorentzVector vec_t,TLorentzVector vec_b)
-{
-TLorentzVector vec_cm=vec;
-TVector3 beta=((vec_t+vec_b).BoostVector())*(-1.0);
-vec_cm.Boost(beta);
-return vec_cm;
-}
 
 			
 public:

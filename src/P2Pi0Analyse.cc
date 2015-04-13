@@ -460,10 +460,11 @@ P2Pi0Analyse::~P2Pi0Analyse()
 
 Bool_t	P2Pi0Analyse::Start()
 {
-pt=P2Pi0Analyse::targetpol(file_in);
-// polsetting=P2Pi0Analyse::poledge(file_in);
-// planesetting=P2Pi0Analyse::polplane(file_in);
+pt=P2Pi0Analyse::targetpol(inputFile);
 
+// planesetting=P2Pi0Analyse::polplane(inputFile);
+if(linpol->GetPolarizationPlane()==1){planesetting="PERP";}
+if(linpol->GetPolarizationPlane()==0){planesetting="PARA";}
     if(!IsGoATFile())
     {
         cout << "ERROR: Input File is not a GoAT file." << endl;
@@ -472,9 +473,1151 @@ pt=P2Pi0Analyse::targetpol(file_in);
     SetAsPhysicsFile();
 
     TraverseValidEvents();
+
+	return kTRUE;
+}
+
+void P2Pi0Analyse::fOnBeforeEventProcessing() {
+
+}
+
+
+void	P2Pi0Analyse::ProcessEvent()	
+{
+
+//:::::::::::::::::::::::::::::::::::::::::::::::::::Photonen festlegen::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+			
+	TLorentzVector photon1_4vektor = photons->Particle(0);
+	TLorentzVector photon2_4vektor = photons->Particle(1);
+	TLorentzVector photon3_4vektor = photons->Particle(2);
+	TLorentzVector photon4_4vektor = photons->Particle(3);
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Vektoren definieren:::::::::::::::::::::::::::::::::::::::::::::::::::
+			
+	TVector3 photon1_3vektor = photon1_4vektor.Vect();
+	TVector3 photon2_3vektor = photon2_4vektor.Vect();
+	TVector3 photon3_3vektor = photon3_4vektor.Vect();
+	TVector3 photon4_3vektor = photon4_4vektor.Vect();
+			
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::Berechne invariante Masse:::::::::::::::::::::::::::::::::::::::::::::::::
+			
+	//Berechne invariante Masse von Photon 1 und 2			
+	Double_t invariantemasse12 = invariantemasse(photon1_4vektor,photon2_4vektor);
+	//Berechne invariante Masse von Photon 3 und 4	
+	Double_t invariantemasse34 = invariantemasse(photon3_4vektor,photon4_4vektor);
+		
+	//Berechne invariante Masse von Photon 1 und 3
+	Double_t invariantemasse13 = invariantemasse(photon1_4vektor,photon3_4vektor);
+	//Berechne invariante Masse von Photon 2 und 4	
+	Double_t invariantemasse24 = invariantemasse(photon2_4vektor,photon4_4vektor);
+
+	//Berechne invariante Masse von Photon 1 und 4
+	Double_t invariantemasse14 =invariantemasse(photon1_4vektor,photon4_4vektor);
+	//Berechne invariante Masse von Photon 2 und 3	
+	Double_t invariantemasse23 = invariantemasse(photon2_4vektor,photon3_4vektor);
+
+//_______________________________passende Kombination finden____________________________________________	
+
+	Double_t invariantemasse1, invariantemasse2,Chi;
+
+	Double_t pion1_E, pion2_E, pion1_m, pion2_m, pion1_pz, pion2_pz;
+	Double_t photon1_E = photon1_4vektor.E();
+	Double_t photon2_E = photon2_4vektor.E();
+	Double_t photon3_E = photon3_4vektor.E();
+	Double_t photon4_E = photon4_4vektor.E();
+	Double_t photon1_pz = photon1_4vektor.Pz();
+	Double_t photon2_pz = photon2_4vektor.Pz();
+	Double_t photon3_pz = photon3_4vektor.Pz();
+	Double_t photon4_pz = photon4_4vektor.Pz();
+
+	Double_t Chi12 = ChiPionPion(invariantemasse12,photon1_4vektor,photon2_4vektor,invariantemasse34,photon3_4vektor,photon4_4vektor);
+	Double_t Chi13 = ChiPionPion(invariantemasse13,photon1_4vektor,photon3_4vektor,invariantemasse24,photon2_4vektor,photon4_4vektor);
+	Double_t Chi14 = ChiPionPion(invariantemasse14,photon1_4vektor,photon4_4vektor,invariantemasse23,photon2_4vektor,photon3_4vektor);
+
+	TLorentzVector pi01_4vect,pi02_4vect;
+
+	if(Chi12 < Chi13 && Chi12 < Chi14){
+		invariantemasse1 = invariantemasse12;
+		pi01_4vect = photons->Particle(0)+photons->Particle(1);
+		pion1_E = photon1_E + photon2_E ;
+		pion1_pz = photon1_pz + photon2_pz;	
+		invariantemasse2 = invariantemasse34;
+		pi02_4vect = photons->Particle(2)+photons->Particle(3);
+		pion2_E = photon3_E + photon4_E; 
+		pion2_pz = photon3_pz + photon4_pz;
+		Chi = Chi12;
+	}
+			
+	if(Chi13 < Chi12 && Chi13 < Chi14){
+		invariantemasse1 = invariantemasse13;
+		pi01_4vect = photons->Particle(0)+photons->Particle(2);
+		pion1_E = photon1_E + photon3_E ;
+		pion1_pz = photon1_pz + photon3_pz;		
+		invariantemasse2 = invariantemasse24;
+		pi02_4vect = photons->Particle(1)+photons->Particle(3);
+		pion2_E = photon2_E + photon4_E; 
+		pion2_pz = photon2_pz + photon4_pz;
+		Chi = Chi13;
+	}
+	
+	if(Chi14 < Chi13 && Chi14 < Chi12){
+		invariantemasse1 = invariantemasse14;
+		pi01_4vect = photons->Particle(0)+photons->Particle(3);
+		pion1_E = photon1_E + photon4_E ;
+		pion1_pz = photon1_pz + photon4_pz;		
+		invariantemasse2 = invariantemasse23;
+		pi02_4vect = photons->Particle(1)+photons->Particle(2);;
+		pion2_E = photon2_E + photon3_E; 
+		pion2_pz = photon2_pz + photon3_pz;
+		Chi = Chi14;
+	}	
+
+	pion1_m = invariantemasse1*invariantemasse1;
+	pion2_m = invariantemasse2*invariantemasse2;
+
+	Double_t Chi1[6];
+				
+	Chi1[0] = ChiPionEta(invariantemasse12,photon1_4vektor,photon2_4vektor,invariantemasse34,photon3_4vektor,photon3_4vektor);		
+	Chi1[1] = ChiPionEta(invariantemasse34,photon3_4vektor,photon4_4vektor,invariantemasse12,photon1_4vektor,photon2_4vektor);
+
+	Chi1[2]= ChiPionEta(invariantemasse13,photon1_4vektor,photon3_4vektor,invariantemasse24,photon2_4vektor,photon4_4vektor);
+	Chi1[3]= ChiPionEta(invariantemasse24,photon2_4vektor,photon4_4vektor,invariantemasse13,photon1_4vektor,photon3_4vektor);
+
+	Chi1[4]= ChiPionEta(invariantemasse14,photon1_4vektor,photon4_4vektor,invariantemasse23,photon2_4vektor,photon3_4vektor);
+	Chi1[5]= ChiPionEta(invariantemasse23,photon2_4vektor,photon3_4vektor,invariantemasse14,photon1_4vektor,photon4_4vektor);
+
+	Double_t vergleich=Chi1[0];
+
+	for(Int_t i=1; i<6;i++){
+		if(Chi1[i]<vergleich){vergleich = Chi1[i];}
+	}
+
+// 	cout << "FINALE: " << Chi << endl;		
+
+		//TEST the target polarization (no entry with pt=0)
+		test->Fill(pt);
+
+
+
+		for(Int_t j=0; j < tagger->GetNTagged();j++)
+		{
+		if(Chi > vergleich){continue;}
+
+		if(pt==5){continue;}
+
+			Double_t time= tagger->GetTaggedTime(j) - 0.25*(photons->GetTime(1)+photons->GetTime(0)+photons->GetTime(2)+photons->GetTime(3));
+			time1->Fill(time);
+
+			if(time > -20 && time < 5){
+				time_prompt->Fill(time);
+			}
+
+				if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+					time_side->Fill(time);
+				}
+
+			poltable_energy->Fill(tagger->GetTaggedEnergy(j));
+			poltable_energy_weight->Fill(tagger->GetTaggedEnergy(j),linpol->GetPolarizationDegree(tagger->GetTaggedChannel(j)));
+
+			//get target, beam and missng particle information
+			TLorentzVector protonvektor_target(0.,0.,0.,938.272046);
+			TLorentzVector  beam_4vect = TLorentzVector(0.,0.,tagger->GetTaggedEnergy(j),tagger->GetTaggedEnergy(j));
+			TLorentzVector  missingp_4vect = beam_4vect + protonvektor_target - pi02_4vect-pi01_4vect;
+			Double_t anglethetaproton_rek = TMath::RadToDeg()*missingp_4vect.Vect().Theta();
+			Double_t beamphoton1E=tagger->GetTaggedEnergy(j);
+			Double_t pb=linpol->GetPolarizationDegree(tagger->GetTaggedChannel(j));
+
+			//due to kinematic not possible -> kick them out
+			if(anglethetaproton_rek > 90){continue;}
+			
+			if(beamphoton1E<200 || beamphoton1E>800){continue;}
+
+			//energy dependent cuts
+			Double_t oben_copl=270.135+(-0.37891)*beamphoton1E+(0.000637701)*beamphoton1E*beamphoton1E+(-3.62165e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t unten_copl=89.4344+(0.360771)*beamphoton1E+(-0.000593373)*beamphoton1E*beamphoton1E+(3.32871e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t oben_theta=-52.7257+(0.352941)*beamphoton1E+(-0.000625629)*beamphoton1E*beamphoton1E+(3.63602e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t unten_theta=38.2131+(-0.302196)*beamphoton1E+(0.00058914)*beamphoton1E*beamphoton1E+(-3.67153e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t oben_mass=910.25+(0.375124)*beamphoton1E+(-0.000611761)*beamphoton1E*beamphoton1E+(3.88824e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t unten_mass=989.045+(-0.466069)*beamphoton1E+(0.000689688)*beamphoton1E*beamphoton1E+(-4.82698e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t oben_mass_proton=969.521+(0.0658678)*beamphoton1E+(-9.43064e-05)*beamphoton1E*beamphoton1E+(8.86854e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t unten_mass_proton=912.747+(0.00410493)*beamphoton1E+(-0.000197333)*beamphoton1E*beamphoton1E+(6.67124e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
+			
+			Double_t oben_inv=142.348+(0.0886059)*beamphoton1E+(-0.000129399)*beamphoton1E*beamphoton1E+(7.21352e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t unten_inv=112.242+(-0.0110781)*beamphoton1E+(1.20014e-06)*beamphoton1E*beamphoton1E+(8.16401e-09)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t oben_inv_proton=152.662+(0.00115463)*beamphoton1E+(6.3428e-05)*beamphoton1E*beamphoton1E+(-5.08229e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
+			Double_t unten_inv_proton=109.617+(0.0221158)*beamphoton1E+(-6.68222e-05)*beamphoton1E*beamphoton1E+(4.07149e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
+
+			//Missing Mass
+			Double_t missingmass=missingp_4vect.M();
+
+			//Boost-System
+
+			//Pi0Pi0-System
+			TLorentzVector pi0pi0_4vektor=pi01_4vect+pi02_4vect;
+			TLorentzVector pi0pi0_4vektor_boost = CMVector(pi0pi0_4vektor, beam_4vect, protonvektor_target);
+			Double_t invariantmass_pi0pi0 = pi0pi0_4vektor_boost.M();
+			TVector3 pi0pi0_3vektor_boost = pi0pi0_4vektor_boost.Vect();
+			Double_t cospi0pi0 = pi0pi0_3vektor_boost.CosTheta();
+			Double_t phimeson = TMath::RadToDeg()*(pi0pi0_4vektor.Vect().Phi());
+			
+			//pPi0-System for first Pion
+			TLorentzVector ppi01_4vektor = missingp_4vect+pi01_4vect;
+			TLorentzVector ppi01_4vektor_boost = CMVector(ppi01_4vektor, beam_4vect, protonvektor_target);
+			Double_t invariantmass_ppi01 = ppi01_4vektor_boost.M();
+			TVector3 ppi01_3vektor_boost = ppi01_4vektor_boost.Vect();
+			Double_t cosppi01 = ppi01_3vektor_boost.CosTheta();
+			Double_t phippi01 = TMath::RadToDeg()*ppi01_3vektor_boost.Phi();
+			
+			//pPi0-System for second Pion
+			TLorentzVector ppi02_4vektor = missingp_4vect+pi02_4vect;
+			TLorentzVector ppi02_4vektor_boost = CMVector(ppi02_4vektor, beam_4vect, protonvektor_target);
+			Double_t invariantmass_ppi02 = ppi02_4vektor_boost.M();
+			TVector3 ppi02_3vektor_boost = ppi02_4vektor_boost.Vect();
+			Double_t cosppi02 = ppi02_3vektor_boost.CosTheta();
+			Double_t phippi02 = TMath::RadToDeg()*ppi02_3vektor_boost.Phi();
+			
+			Double_t scalbackground_ppi0=-0.0625*0.5;
+			
+			Double_t scalbackgroundpb = -0.0625*pb;
+			Double_t scalbackgroundpt = -0.0625*pt;
+			
+			Double_t scalbackgroundpb_ppi0 = -0.5*0.0625*pb;
+			Double_t scalbackgroundpt_ppi0 = -0.5*0.0625*pt;
+			
+			Double_t scalsignalpb_ppi0 = 0.5*pb;
+			Double_t scalsignalpt_ppi0 = 0.5*pt;
+
+//...........................Histogramme vor jeglichen Cuts erstellen..................................
+			
+			
+			if(time > -20 && time < 5 ){
+
+				missingmass_collerated->Fill(missingmass);
+				
+				massesumme_collerated->Fill(invariantemasse34);
+				massesumme_collerated->Fill(invariantemasse24);
+				massesumme_collerated->Fill(invariantemasse23);	
+				massesumme_collerated->Fill(invariantemasse12);
+				massesumme_collerated->Fill(invariantemasse13);
+				massesumme_collerated->Fill(invariantemasse14);
+				
+				massegegenmasse_collerated->Fill(invariantemasse12,invariantemasse34);
+				massegegenmasse_collerated->Fill(invariantemasse34,invariantemasse12);
+				massegegenmasse_collerated->Fill(invariantemasse24,invariantemasse13);
+				massegegenmasse_collerated->Fill(invariantemasse13,invariantemasse24);
+				massegegenmasse_collerated->Fill(invariantemasse14,invariantemasse23);
+				massegegenmasse_collerated->Fill(invariantemasse23,invariantemasse14);
+			}
+			
+			if((time > -300 && time < -100) || (time > 100 && time < 300)){	
+				missingmass_collerated->Fill(missingmass,-0.0625);
+				
+				massesumme_collerated->Fill(invariantemasse34,-0.0625);
+				massesumme_collerated->Fill(invariantemasse24,-0.0625);
+				massesumme_collerated->Fill(invariantemasse23,-0.0625);	
+				massesumme_collerated->Fill(invariantemasse12,-0.0625);
+				massesumme_collerated->Fill(invariantemasse13,-0.0625);
+				massesumme_collerated->Fill(invariantemasse14,-0.0625);
+				
+				massegegenmasse_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
+				massegegenmasse_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
+				massegegenmasse_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
+				massegegenmasse_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
+				massegegenmasse_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
+				massegegenmasse_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
+			}								
+									
+			
+// 			::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::einzelne Cuts:::::::::::::::::::::::::::::::::::::::::
+			
+			
+// 			__________________invariante Masse______________________________________________________
+			
+			if(((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)) && (invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
+			
+				if(time > -20 && time < 5){
+			
+					missingmass_inv_collerated->Fill(missingmass); 
+					missingmassverteilung_collerated->Fill(missingmass, beamphoton1E); 
+
+				}
+					if((time > -300 && time < -100) ||(time > 100 && time < 300)){
+	
+						missingmass_inv_collerated->Fill(missingmass,-0.0625); 
+						missingmassverteilung_collerated->Fill(missingmass, beamphoton1E,-0.0625); 
+
+					}
+			}
+
+			if(missingmass>(unten_mass) && missingmass<(oben_mass)){
+									
+				if(time > -20 && time < 5){
+					massesumme_mass_collerated->Fill(invariantemasse13);
+					massesumme_mass_collerated->Fill(invariantemasse12);				
+					massesumme_mass_collerated->Fill(invariantemasse14);
+					massesumme_mass_collerated->Fill(invariantemasse34);
+					massesumme_mass_collerated->Fill(invariantemasse24);
+					massesumme_mass_collerated->Fill(invariantemasse23);
+					massegegenmasse_mass_collerated->Fill(invariantemasse12,invariantemasse34);
+					massegegenmasse_mass_collerated->Fill(invariantemasse13,invariantemasse24);
+					massegegenmasse_mass_collerated->Fill(invariantemasse14,invariantemasse23);
+					massegegenmasse_mass_collerated->Fill(invariantemasse34,invariantemasse12);
+					massegegenmasse_mass_collerated->Fill(invariantemasse24,invariantemasse13);
+					massegegenmasse_mass_collerated->Fill(invariantemasse23,invariantemasse14);
+				}
+					
+						if((time > -300 && time < -100) ||(time > 100 && time < 300)){						
+							massesumme_mass_collerated->Fill(invariantemasse13,-0.0625);
+							massesumme_mass_collerated->Fill(invariantemasse12,-0.0625);				
+							massesumme_mass_collerated->Fill(invariantemasse14,-0.0625);
+							massesumme_mass_collerated->Fill(invariantemasse34,-0.0625);
+							massesumme_mass_collerated->Fill(invariantemasse24,-0.0625);
+							massesumme_mass_collerated->Fill(invariantemasse23,-0.0625);
+							massegegenmasse_mass_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
+							massegegenmasse_mass_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
+							massegegenmasse_mass_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
+							massegegenmasse_mass_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
+							massegegenmasse_mass_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
+							massegegenmasse_mass_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
+						}
+			}
+			
+
+//_____________________________only one charged particle_________________________________
+
+				if(protons->GetNParticles()==1 || electrons->GetNParticles()==1 || chargedPions->GetNParticles()==1 || rootinos->GetNParticles()==1){
+
+					//get charged particle information
+					TLorentzVector proton_4vect_meas;
+					if(electrons->GetNParticles()==1){proton_4vect_meas=electrons->Particle(0);}
+					if(protons->GetNParticles()==1){proton_4vect_meas=protons->Particle(0);}
+					if(chargedPions->GetNParticles()==1){proton_4vect_meas=chargedPions->Particle(0);}
+					if(rootinos->GetNParticles()==1){proton_4vect_meas=rootinos->Particle(0);}
+
+					//Phi-Difference
+					Double_t anglephiproton = TMath::RadToDeg()*proton_4vect_meas.Vect().Phi();
+					Double_t phi = phimeson - anglephiproton;
+					if(phi < 0){phi = phi + 360;}
+			
+					//theta differenz
+					Double_t anglethetaproton_meas = TMath::RadToDeg()*proton_4vect_meas.Vect().Theta();
+					Double_t thetadiff=anglethetaproton_rek-anglethetaproton_meas;
+
+					//due to kinematic not possible -> kick them out
+					if(anglethetaproton_meas > 90){continue;}
+
+					if(time > -20 && time < 5 ){
+					
+						coplanarity_collerated->Fill(phi);
+						thetaproton_collerated->Fill(thetadiff);
+				
+					}
+					
+					if((time > -300 && time < -100) || (time > 100 && time < 300)){	
+					
+						coplanarity_collerated->Fill(phi,-0.0625);
+						thetaproton_collerated->Fill(thetadiff,-0.0625);
+					
+					}	
+
+		// 			::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::aufeinanderfolgende Cuts:::::::::::::::::::::::::::::::::::::::::
+					
+					
+// 			--------------------------------------------------------CopLanaritY-Cuts----------------------
+					
+		// 			__________________Missing Mass______________________________________________________
+					
+					if(missingmass>(unten_mass) && missingmass<(oben_mass)){
+					
+						if(time > -20 && time < 5){
+					
+							coplanarity_mass_collerated->Fill(phi);
+						}
+							if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+									
+								coplanarity_mass_collerated->Fill(phi,-0.0625);
+							}	
+						
+		// 			__________________Polarwinkel______________________________________________________
+					
+						if(thetadiff > (unten_theta) && thetadiff < (oben_theta)) {
+					
+							if(time > -20 && time < 5){
+					
+								coplanarity_mass_theta_collerated->Fill(phi);
+							}
+								if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+						
+									coplanarity_mass_theta_collerated->Fill(phi,-0.0625);
+								}
+						
+		// 			__________________invariante Masse______________________________________________________
+					
+							if(((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)) && (invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
+					
+								if(time > -20 && time < 5){
+					
+									coplanarity_mass_theta_inv_collerated->Fill(phi);
+									coplanarityverteilung_collerated->Fill(phi, beamphoton1E);
+					
+								}
+									if((time > -300 && time < -100) ||(time > 100 && time < 300)){					
+										coplanarity_mass_theta_inv_collerated->Fill(phi,-0.0625);
+										coplanarityverteilung_collerated->Fill(phi, beamphoton1E,-0.0625);
+					
+									}
+							}
+						}
+					}
+					
+// 			--------------------------------------------------------Missing Mass Cuts----------------------
+															
+		// 			__________________Polarwinkel______________________________________________________
+					
+					if(thetadiff > (unten_theta) && thetadiff < (oben_theta)) {
+					
+						if(time > -20 && time < 5){
+					
+							missingmass_theta_collerated->Fill(missingmass); 
+						}
+							if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+								
+								missingmass_theta_collerated->Fill(missingmass,-0.0625); 
+							}
+								
+					
+		// 			__________________Coplanarity______________________________________________________
+					
+						if((phi > ( (unten_copl)) && phi < ((oben_copl)))){
+					
+							if(time > -20 && time < 5){
+						
+								missingmass_theta_copl_collerated->Fill(missingmass); 
+							}
+								if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+									
+									missingmass_theta_copl_collerated->Fill(missingmass,-0.0625);
+								}
+					
+		// 			__________________invariante Masse______________________________________________________
+					
+							if(((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)) && (invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
+					
+								if(time > -20 && time < 5){
+					
+									missingmass_theta_copl_inv_collerated->Fill(missingmass);
+									missingmassverteilung_collerated_proton->Fill(missingmass, beamphoton1E); 
+								}
+									if((time > -300 && time < -100) ||(time > 100 && time < 300)){
+									
+										missingmass_theta_copl_inv_collerated->Fill(missingmass,-0.0625);
+										missingmassverteilung_collerated_proton->Fill(missingmass, beamphoton1E,-0.0625);
+									}								
+							}
+						}
+					}
+					
+// 			--------------------------------------------------------PolarWinkel Cuts----------------------			
+					
+		// 			__________________Missing Mass______________________________________________________
+					
+					if(missingmass>(unten_mass) && missingmass<(oben_mass)){
+					
+						if(time > -20 && time < 5){
+					
+								if(rootinos->HasTAPS(0)){
+								thetaproton_mass_taps_collerated->Fill(thetadiff); 
+								}
+								else
+								{thetaproton_mass_collerated->Fill(thetadiff); 
+								}	
+						}
+					
+							if((time > -300 && time < -100) ||(time > 100 && time < 300)){							
+								if(rootinos->HasTAPS(0)){
+								thetaproton_mass_taps_collerated->Fill(thetadiff,-0.0625); 
+								}
+								else
+								{thetaproton_mass_collerated->Fill(thetadiff,-0.0625); 
+								}
+							}		
+					
+		// 			__________________Coplanarity______________________________________________________
+					
+						if((phi > ((unten_copl)) && phi < ((oben_copl)))){
+					
+							if(time > -20 && time < 5){
+					
+								if(rootinos->HasTAPS(0)){
+								thetaproton_mass_copl_taps_collerated->Fill(thetadiff); 
+								}
+								else
+								{thetaproton_mass_copl_collerated->Fill(thetadiff); 
+								}		
+							}
+									
+								if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+									
+									if(rootinos->HasTAPS(0)){
+									thetaproton_mass_copl_taps_collerated->Fill(thetadiff,-0.0625); 
+									}
+									else
+									{thetaproton_mass_copl_collerated->Fill(thetadiff,-0.0625); 
+									}	
+								}
+					
+		// 			__________________invariante Masse______________________________________________________
+					
+							if(((invariantemasse1 > (pionmasse + unten_inv) && invariantemasse1 < (pionmasse + oben_inv)) && (invariantemasse2 > (pionmasse + unten_inv) && invariantemasse2 < (pionmasse + oben_inv)))){
+					
+								if(time > -20 && time < 5){
+					
+									if(rootinos->HasTAPS(0)){
+									thetaproton_mass_copl_inv_taps_collerated->Fill(thetadiff); 
+									thetaverteilung_collerated_taps->Fill(thetadiff, beamphoton1E);
+									}
+									else
+									{thetaproton_mass_copl_inv_collerated->Fill(thetadiff); 
+									}				
+									thetaverteilung_collerated->Fill(thetadiff, beamphoton1E);
+								}
+					
+									if((time > -300 && time < -100) ||(time > 100 && time < 300)){
+					
+										if(rootinos->HasTAPS(0)){
+										thetaproton_mass_copl_inv_taps_collerated->Fill(thetadiff,-0.0625); 
+										thetaverteilung_collerated_taps->Fill(thetadiff, beamphoton1E,-0.0625);
+
+										}
+										else
+										{thetaproton_mass_copl_inv_collerated->Fill(thetadiff,-0.0625); 
+										}	
+										thetaverteilung_collerated->Fill(thetadiff, beamphoton1E,-0.0625);
+									}
+							}
+						}	
+					}
+// 			................................invarianteMasse Cut...................................................................................
+										
+		// 			__________________Missing Mass______________________________________________________
+					
+					if(missingmass>(unten_mass) && missingmass<(oben_mass)){
+									
+						if(time > -20 && time < 5){
+							massesumme_mass_collerated_proton->Fill(invariantemasse13);
+							massesumme_mass_collerated_proton->Fill(invariantemasse12);				
+							massesumme_mass_collerated_proton->Fill(invariantemasse14);
+							massesumme_mass_collerated_proton->Fill(invariantemasse34);
+							massesumme_mass_collerated_proton->Fill(invariantemasse24);
+							massesumme_mass_collerated_proton->Fill(invariantemasse23);
+							massegegenmasse_mass_collerated_proton->Fill(invariantemasse12,invariantemasse34);
+							massegegenmasse_mass_collerated_proton->Fill(invariantemasse13,invariantemasse24);
+							massegegenmasse_mass_collerated_proton->Fill(invariantemasse14,invariantemasse23);
+							massegegenmasse_mass_collerated_proton->Fill(invariantemasse34,invariantemasse12);
+							massegegenmasse_mass_collerated_proton->Fill(invariantemasse24,invariantemasse13);
+							massegegenmasse_mass_collerated_proton->Fill(invariantemasse23,invariantemasse14);
+					}
+					
+							if((time > -300 && time < -100) ||(time > 100 && time < 300)){						
+								massesumme_mass_collerated_proton->Fill(invariantemasse13,-0.0625);
+								massesumme_mass_collerated_proton->Fill(invariantemasse12,-0.0625);				
+								massesumme_mass_collerated_proton->Fill(invariantemasse14,-0.0625);
+								massesumme_mass_collerated_proton->Fill(invariantemasse34,-0.0625);
+								massesumme_mass_collerated_proton->Fill(invariantemasse24,-0.0625);
+								massesumme_mass_collerated_proton->Fill(invariantemasse23,-0.0625);
+								massegegenmasse_mass_collerated_proton->Fill(invariantemasse12,invariantemasse34,-0.0625);
+								massegegenmasse_mass_collerated_proton->Fill(invariantemasse13,invariantemasse24,-0.0625);
+								massegegenmasse_mass_collerated_proton->Fill(invariantemasse14,invariantemasse23,-0.0625);
+								massegegenmasse_mass_collerated_proton->Fill(invariantemasse34,invariantemasse12,-0.0625);
+								massegegenmasse_mass_collerated_proton->Fill(invariantemasse24,invariantemasse13,-0.0625);
+								massegegenmasse_mass_collerated_proton->Fill(invariantemasse23,invariantemasse14,-0.0625);
+							}
+					
+		// 			__________________Polarwinkel______________________________________________________
+					
+						if((phi > ((unten_copl)) && phi < (oben_copl))){		
+									
+							if(time > -20 && time < 5){
+								massesumme_mass_copl_collerated->Fill(invariantemasse13);
+								massesumme_mass_copl_collerated->Fill(invariantemasse12);				
+								massesumme_mass_copl_collerated->Fill(invariantemasse14);
+								massesumme_mass_copl_collerated->Fill(invariantemasse34);
+								massesumme_mass_copl_collerated->Fill(invariantemasse24);
+								massesumme_mass_copl_collerated->Fill(invariantemasse23);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse12,invariantemasse34);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse13,invariantemasse24);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse14,invariantemasse23);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse34,invariantemasse12);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse24,invariantemasse13);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse23,invariantemasse14);
+							}
+					
+								if((time > -300 && time < -100) ||(time > 100 && time < 300)){					
+								massesumme_mass_copl_collerated->Fill(invariantemasse13,-0.0625);
+								massesumme_mass_copl_collerated->Fill(invariantemasse12,-0.0625);				
+								massesumme_mass_copl_collerated->Fill(invariantemasse14,-0.0625);
+								massesumme_mass_copl_collerated->Fill(invariantemasse34,-0.0625);
+								massesumme_mass_copl_collerated->Fill(invariantemasse24,-0.0625);
+								massesumme_mass_copl_collerated->Fill(invariantemasse23,-0.0625);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
+								massegegenmasse_mass_copl_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
+								}	
+									
+		// 			__________________Coplanarity______________________________________________________
+																							
+							if(thetadiff > (unten_theta) && thetadiff < (oben_theta)) {
+						
+								if(time > -20 && time < 5){
+									massesumme_mass_theta_copl_collerated->Fill(invariantemasse13);
+									massesumme_mass_theta_copl_collerated->Fill(invariantemasse12);				
+									massesumme_mass_theta_copl_collerated->Fill(invariantemasse14);
+									massesumme_mass_theta_copl_collerated->Fill(invariantemasse34);
+									massesumme_mass_theta_copl_collerated->Fill(invariantemasse24);
+									massesumme_mass_theta_copl_collerated->Fill(invariantemasse23);
+					
+									massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse2);
+									massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse1);
+					
+									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse12,invariantemasse34);
+									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse13,invariantemasse24);
+									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse14,invariantemasse23);
+									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse34,invariantemasse12);
+									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse24,invariantemasse13);
+									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse23,invariantemasse14);
+								}
+					
+									if((time > -300 && time < -100) ||(time > 100 && time < 300)){					
+										massesumme_mass_theta_copl_collerated->Fill(invariantemasse13,-0.0625);
+										massesumme_mass_theta_copl_collerated->Fill(invariantemasse12,-0.0625);				
+										massesumme_mass_theta_copl_collerated->Fill(invariantemasse14,-0.0625);
+										massesumme_mass_theta_copl_collerated->Fill(invariantemasse34,-0.0625);
+										massesumme_mass_theta_copl_collerated->Fill(invariantemasse24,-0.0625);
+										massesumme_mass_theta_copl_collerated->Fill(invariantemasse23,-0.0625);
+					
+										massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse2,-0.0625);
+										massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse1,-0.0625);
+					
+										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
+										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
+										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
+										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
+										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
+										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
+									}
+					
+								if(invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)){
+					
+									if(time > -20 && time < 5 ){
+									massesumme_mass_theta_copl_inv1_collerated->Fill(invariantemasse2);
+									massesumme_mass_theta_copl_inv_beam_collerated->Fill(invariantemasse2,beamphoton1E);
+					
+									}
+									
+										if((time > -300 && time < -100) ||(time > 100 && time < 300)){				
+										massesumme_mass_theta_copl_inv1_collerated->Fill(invariantemasse2,-0.0625);
+										massesumme_mass_theta_copl_inv_beam_collerated->Fill(invariantemasse2,beamphoton1E,-0.0625);
+					
+										}
+													
+								}	
+								
+							}							    				
+						}		
+					}
+
+					//stuff after all cuts and creation of needed analysis histograms
+					if(time > -20 && time < 5){
+	
+						if(((missingmass>(unten_mass_proton) && missingmass<(oben_mass_proton))  && thetadiff > (unten_theta) && thetadiff < (oben_theta)) && (phi > ((unten_copl)) && phi < ((oben_copl))) && ((invariantemasse1 > (unten_inv_proton) && invariantemasse1 < (oben_inv_proton)))&& ((invariantemasse2 > (unten_inv_proton) && invariantemasse2 < (oben_inv_proton)))){
+
+						if(rootinos->HasCB(0)){
+							Check_CBdE_E->Fill(proton_4vect_meas.E(),rootinos->GetVetoEnergy(0));
+						}
+
+						if(rootinos->HasTAPS(0)){
+							Check_TAPSdE_E->Fill(proton_4vect_meas.E(),rootinos->GetVetoEnergy(0));
+						}
+
+						cosverteilung_collerated_proton->Fill(cospi0pi0,beamphoton1E);
+						cosppi0verteilung_collerated_proton->Fill(cosppi01,beamphoton1E,0.5);
+						cosppi0verteilung_collerated_proton->Fill(cosppi02,beamphoton1E,0.5);
+				
+						invverteilung_collerated_proton->Fill(invariantmass_pi0pi0,beamphoton1E);
+						invppi0verteilung_collerated_proton->Fill(invariantmass_ppi01,beamphoton1E,0.5);
+						invppi0verteilung_collerated_proton->Fill(invariantmass_ppi02,beamphoton1E,0.5);
+				
+						cosverteilung_thetaproton_collerated_proton->Fill(cospi0pi0,anglethetaproton_meas);
+									
+ 							if(planesetting=="PARA"){
+
+				
+								if(pt>0 || pt==5){
+									kristallminus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0, beamphoton1E);
+									kristallminus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0, beamphoton1E,pb);
+									kristallminus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0, beamphoton1E,pt);
+									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01, beamphoton1E,0.5);
+									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpt_ppi0);
+									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02, beamphoton1E,0.5);
+									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpt_ppi0);
+					
+									kristallminus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E);
+									kristallminus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pb);
+									kristallminus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pt);
+									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,0.5);
+									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpt_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,0.5);
+									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpt_ppi0);
+								}
+		
+								if(pt<0 || pt==5){
+									kristallminus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E);
+									kristallminus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
+									kristallminus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
+									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,0.5);
+									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
+									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,0.5);
+									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
+					
+									kristallminus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
+									kristallminus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
+									kristallminus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
+									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
+									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
+									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
+								}
+							}
+
+ 							if(planesetting=="PERP"){
+
+			
+								if(pt>0 || pt==5){
+									kristallplus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E);
+									kristallplus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
+									kristallplus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
+									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,0.5);
+									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
+									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,0.5);
+									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
+					
+									kristallplus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
+									kristallplus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
+									kristallplus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
+									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
+									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
+									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
+								}
+				
+								if(pt<0 || pt==5){
+									kristallplus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E);
+									kristallplus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
+									kristallplus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
+									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,0.5);
+									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
+									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,0.5);
+									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
+					
+									kristallplus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
+									kristallplus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
+									kristallplus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
+									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
+									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
+									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
+								}
+	
+							}						
+	
+						}
+	
+					}//end prompt
+	
+					if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+	
+						if(((missingmass>(unten_mass_proton) && missingmass<(oben_mass_proton))  && thetadiff > (unten_theta) && thetadiff < (oben_theta)) && (phi > ((unten_copl)) && phi < ((oben_copl))) && ((invariantemasse1 > (unten_inv_proton) && invariantemasse1 < (oben_inv_proton)))&& ((invariantemasse2 > (unten_inv_proton) && invariantemasse2 < (oben_inv_proton)))){
+
+							if(rootinos->HasCB(0)){
+								Check_CBdE_E->Fill(proton_4vect_meas.E(),rootinos->GetVetoEnergy(0),-0.0625);
+							}
+	
+							if(rootinos->HasTAPS(0)){
+								Check_TAPSdE_E->Fill(proton_4vect_meas.E(),rootinos->GetVetoEnergy(0),-0.0625);
+							}
+		
+							cosverteilung_collerated_proton->Fill(cospi0pi0,beamphoton1E,-0.0625);
+							cosppi0verteilung_collerated_proton->Fill(cosppi01,beamphoton1E,scalbackground_ppi0);
+							cosppi0verteilung_collerated_proton->Fill(cosppi02,beamphoton1E,scalbackground_ppi0);
+				
+							invverteilung_collerated_proton->Fill(invariantmass_pi0pi0,beamphoton1E,-0.0625);
+							invppi0verteilung_collerated_proton->Fill(invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+							invppi0verteilung_collerated_proton->Fill(invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+				
+							cosverteilung_thetaproton_collerated_proton->Fill(cospi0pi0,anglethetaproton_meas,-0.0625);
+
+							if(planesetting=="PARA"){
+
+			
+								if(pt>0 || pt==5){
+									kristallminus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0, beamphoton1E,-0.0625);
+									kristallminus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpb);
+									kristallminus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpt);
+									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01, beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpt_ppi0);
+									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02, beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpt_ppi0);
+					
+									kristallminus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,-0.0625);
+									kristallminus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpb);
+									kristallminus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpt);
+									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpt_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpt_ppi0);
+								}
+			
+								if(pt<0 || pt==5){
+									kristallminus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
+									kristallminus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
+									kristallminus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
+									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
+									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
+					
+									kristallminus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
+									kristallminus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
+									kristallminus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
+									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,scalbackgroundpt_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
+								}
+							}
+
+							if(planesetting=="PERP"){
+
+			
+								if(pt>0 || pt==5){
+									kristallplus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
+									kristallplus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
+									kristallplus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
+									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
+									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
+					
+									kristallplus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
+									kristallplus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
+									kristallplus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
+									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
+								}
+				
+								if(pt<0 || pt==5){
+									kristallplus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
+									kristallplus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
+									kristallplus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
+									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
+									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
+					
+									kristallplus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
+									kristallplus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
+									kristallplus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
+									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
+									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
+								}
+							}						
+						}
+	
+					}//end sideband
+// 				
+				}
+//_________________________________________________ end of all events with proton identified
+
+			if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))&&trigger->GetNErrors()!=0){
+				events_witherror->Fill(phimeson,cospi0pi0, beamphoton1E);
+			}
+
+			if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
+				events_all->Fill(phimeson,cospi0pi0, beamphoton1E);
+			}
+
+			if(time > -20 && time < 5){
+
+				if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
+					cosverteilung_collerated->Fill(cospi0pi0,beamphoton1E);
+					cosppi0verteilung_collerated->Fill(cosppi01,beamphoton1E,0.5);
+					cosppi0verteilung_collerated->Fill(cosppi02,beamphoton1E,0.5);
+			
+					invverteilung_collerated->Fill(invariantmass_pi0pi0,beamphoton1E);
+					invppi0verteilung_collerated->Fill(invariantmass_ppi01,beamphoton1E,0.5);
+					invppi0verteilung_collerated->Fill(invariantmass_ppi02,beamphoton1E,0.5);
+			
+ 					if(planesetting=="PARA"){
+
+		
+						if(pt>0 || pt==5){
+							kristallminus_targetplus_collerated->Fill(phimeson,cospi0pi0, beamphoton1E);
+							kristallminus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0, beamphoton1E,pb);
+							kristallminus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0, beamphoton1E,pt);
+							kristallminus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01, beamphoton1E,0.5);
+							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpt_ppi0);
+							kristallminus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02, beamphoton1E,0.5);
+							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpt_ppi0);
+			
+							kristallminus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E);
+							kristallminus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pb);
+							kristallminus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pt);
+							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01, beamphoton1E,0.5);
+							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpt_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02, beamphoton1E,0.5);
+							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpt_ppi0);
+						}
+
+						if(pt<0 || pt==5){
+							kristallminus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E);
+							kristallminus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
+							kristallminus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
+							kristallminus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,0.5);
+							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
+							kristallminus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,0.5);
+							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
+			
+							kristallminus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
+							kristallminus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
+							kristallminus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
+							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
+							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
+							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
+						}
+					}
+
+					if(planesetting=="PERP"){
+		
+						if(pt>0 || pt==5){
+							kristallplus_targetplus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E);
+							kristallplus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
+							kristallplus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
+							kristallplus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,0.5);
+							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
+							kristallplus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,0.5);
+							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
+			
+							kristallplus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
+							kristallplus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
+							kristallplus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
+							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
+							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
+							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
+						}
+			
+						if(pt<0 || pt==5){
+							kristallplus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E);
+							kristallplus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
+							kristallplus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
+							kristallplus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,0.5);
+							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
+							kristallplus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,0.5);
+							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
+			
+							kristallplus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
+							kristallplus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
+							kristallplus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
+							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
+							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
+							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
+						}
+					}						
+				}
+			}//end prompt
+
+			if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
+
+				if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
+
+					cosverteilung_collerated->Fill(cospi0pi0,beamphoton1E,-0.0625);
+					cosppi0verteilung_collerated->Fill(cosppi01,beamphoton1E,scalbackground_ppi0);
+					cosppi0verteilung_collerated->Fill(cosppi02,beamphoton1E,scalbackground_ppi0);
+		
+					invverteilung_collerated->Fill(invariantmass_pi0pi0,beamphoton1E,-0.0625);
+					invppi0verteilung_collerated->Fill(invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+					invppi0verteilung_collerated->Fill(invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+		
+ 					if(planesetting=="PARA"){
+
+		
+						if(pt>0  || pt==5){
+							kristallminus_targetplus_collerated->Fill(phimeson,cospi0pi0, beamphoton1E,-0.0625);
+							kristallminus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpb);
+							kristallminus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpt);
+							kristallminus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01, beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpt_ppi0);
+							kristallminus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02, beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpt_ppi0);
+			
+							kristallminus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,-0.0625);
+							kristallminus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpb);
+							kristallminus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpt);
+							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpt_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpt_ppi0);
+						}
+			
+						if(pt<0  || pt==5){
+							kristallminus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
+							kristallminus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
+							kristallminus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
+							kristallminus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
+							kristallminus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
+			
+							kristallminus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
+							kristallminus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
+							kristallminus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
+							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,scalbackgroundpt_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
+						}
+					}
+
+					if(planesetting=="PERP"){
+
+		
+						if(pt>0  || pt==5){
+							kristallplus_targetplus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
+							kristallplus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
+							kristallplus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
+							kristallplus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
+							kristallplus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
+			
+							kristallplus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
+							kristallplus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
+							kristallplus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
+							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
+						}
+
+						if(pt<0  || pt==5){
+							 kristallplus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
+							kristallplus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
+							kristallplus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
+							kristallplus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
+							kristallplus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
+			
+							kristallplus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
+							kristallplus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
+							kristallplus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
+							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
+							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
+						}
+					}						
+				}
+			}//end sideband
+
+		}//tagger
+}
+
+
+void P2Pi0Analyse::fOnEndProcessing() {
+
+}
+
+Bool_t	P2Pi0Analyse::Write(){
+//FOR CARBON
+// polsetting=P2Pi0Analyse::poledge(inputFile);
 // TString *data=new TString(polsetting);
-// TDirectory* curDir1  = file_out->mkdir(Form("%s",data->Data()));
-TDirectory* curDir1  = file_out->mkdir(Form("Butanol%i",(Int_t)linpol->GetEdgeSetting()));
+// TDirectory* curDir1  = outputFile->mkdir(Form("%s",data->Data()));
+
+TDirectory* curDir1  = outputFile->mkdir(Form("Butanol%i",(Int_t)linpol->GetEdgeSetting()));
 curDir1->cd();
 poltable_energy->Write();
 poltable_energy_weight->Write();
@@ -684,1144 +1827,7 @@ thetaverteilung_collerated_taps->Write();
 coplanarityverteilung_collerated->Write();
 missingmassverteilung_collerated_proton->Write();
 
-file_out->Close();
-
-	return kTRUE;
-}
-
-void P2Pi0Analyse::fOnBeforeEventProcessing() {
-
-}
-
-
-void	P2Pi0Analyse::ProcessEvent()	
-{
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::Photonen festlegen::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-			
-	TLorentzVector photon1_4vektor = photons->Particle(0);
-	TLorentzVector photon2_4vektor = photons->Particle(1);
-	TLorentzVector photon3_4vektor = photons->Particle(2);
-	TLorentzVector photon4_4vektor = photons->Particle(3);
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Vektoren definieren:::::::::::::::::::::::::::::::::::::::::::::::::::
-			
-	TVector3 photon1_3vektor = photon1_4vektor.Vect();
-	TVector3 photon2_3vektor = photon2_4vektor.Vect();
-	TVector3 photon3_3vektor = photon3_4vektor.Vect();
-	TVector3 photon4_3vektor = photon4_4vektor.Vect();
-			
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::Berechne invariante Masse:::::::::::::::::::::::::::::::::::::::::::::::::
-			
-	//Berechne invariante Masse von Photon 1 und 2			
-	Double_t invariantemasse12 = invariantemasse(photon1_4vektor,photon2_4vektor);
-	//Berechne invariante Masse von Photon 3 und 4	
-	Double_t invariantemasse34 = invariantemasse(photon3_4vektor,photon4_4vektor);
-		
-	//Berechne invariante Masse von Photon 1 und 3
-	Double_t invariantemasse13 = invariantemasse(photon1_4vektor,photon3_4vektor);
-	//Berechne invariante Masse von Photon 2 und 4	
-	Double_t invariantemasse24 = invariantemasse(photon2_4vektor,photon4_4vektor);
-
-	//Berechne invariante Masse von Photon 1 und 4
-	Double_t invariantemasse14 =invariantemasse(photon1_4vektor,photon4_4vektor);
-	//Berechne invariante Masse von Photon 2 und 3	
-	Double_t invariantemasse23 = invariantemasse(photon2_4vektor,photon3_4vektor);
-
-//_______________________________passende Kombination finden____________________________________________	
-
-	Double_t invariantemasse1, invariantemasse2,Chi;
-
-	Double_t pion1_E, pion2_E, pion1_m, pion2_m, pion1_pz, pion2_pz;
-	Double_t photon1_E = photon1_4vektor.E();
-	Double_t photon2_E = photon2_4vektor.E();
-	Double_t photon3_E = photon3_4vektor.E();
-	Double_t photon4_E = photon4_4vektor.E();
-	Double_t photon1_pz = photon1_4vektor.Pz();
-	Double_t photon2_pz = photon2_4vektor.Pz();
-	Double_t photon3_pz = photon3_4vektor.Pz();
-	Double_t photon4_pz = photon4_4vektor.Pz();
-
-	Double_t Chi12 = ChiPionPion(invariantemasse12,photon1_4vektor,photon2_4vektor,invariantemasse34,photon3_4vektor,photon4_4vektor);
-	Double_t Chi13 = ChiPionPion(invariantemasse13,photon1_4vektor,photon3_4vektor,invariantemasse24,photon2_4vektor,photon4_4vektor);
-	Double_t Chi14 = ChiPionPion(invariantemasse14,photon1_4vektor,photon4_4vektor,invariantemasse23,photon2_4vektor,photon3_4vektor);
-
-	TLorentzVector pi01_4vect,pi02_4vect;
-
-	if(Chi12 < Chi13 && Chi12 < Chi14){
-		invariantemasse1 = invariantemasse12;
-		pi01_4vect = photons->Particle(0)+photons->Particle(1);
-		pion1_E = photon1_E + photon2_E ;
-		pion1_pz = photon1_pz + photon2_pz;	
-		invariantemasse2 = invariantemasse34;
-		pi02_4vect = photons->Particle(2)+photons->Particle(3);
-		pion2_E = photon3_E + photon4_E; 
-		pion2_pz = photon3_pz + photon4_pz;
-		Chi = Chi12;
-	}
-			
-	if(Chi13 < Chi12 && Chi13 < Chi14){
-		invariantemasse1 = invariantemasse13;
-		pi01_4vect = photons->Particle(0)+photons->Particle(2);
-		pion1_E = photon1_E + photon3_E ;
-		pion1_pz = photon1_pz + photon3_pz;		
-		invariantemasse2 = invariantemasse24;
-		pi02_4vect = photons->Particle(1)+photons->Particle(3);
-		pion2_E = photon2_E + photon4_E; 
-		pion2_pz = photon2_pz + photon4_pz;
-		Chi = Chi13;
-	}
-	
-	if(Chi14 < Chi13 && Chi14 < Chi12){
-		invariantemasse1 = invariantemasse14;
-		pi01_4vect = photons->Particle(0)+photons->Particle(3);
-		pion1_E = photon1_E + photon4_E ;
-		pion1_pz = photon1_pz + photon4_pz;		
-		invariantemasse2 = invariantemasse23;
-		pi02_4vect = photons->Particle(1)+photons->Particle(2);;
-		pion2_E = photon2_E + photon3_E; 
-		pion2_pz = photon2_pz + photon3_pz;
-		Chi = Chi14;
-	}	
-
-	pion1_m = invariantemasse1*invariantemasse1;
-	pion2_m = invariantemasse2*invariantemasse2;
-
-	Double_t Chi1[6];
-				
-	Chi1[0] = ChiPionEta(invariantemasse12,photon1_4vektor,photon2_4vektor,invariantemasse34,photon3_4vektor,photon3_4vektor);		
-	Chi1[1] = ChiPionEta(invariantemasse34,photon3_4vektor,photon4_4vektor,invariantemasse12,photon1_4vektor,photon2_4vektor);
-
-	Chi1[2]= ChiPionEta(invariantemasse13,photon1_4vektor,photon3_4vektor,invariantemasse24,photon2_4vektor,photon4_4vektor);
-	Chi1[3]= ChiPionEta(invariantemasse24,photon2_4vektor,photon4_4vektor,invariantemasse13,photon1_4vektor,photon3_4vektor);
-
-	Chi1[4]= ChiPionEta(invariantemasse14,photon1_4vektor,photon4_4vektor,invariantemasse23,photon2_4vektor,photon3_4vektor);
-	Chi1[5]= ChiPionEta(invariantemasse23,photon2_4vektor,photon3_4vektor,invariantemasse14,photon1_4vektor,photon4_4vektor);
-
-	Double_t vergleich=Chi1[0];
-
-	for(Int_t i=1; i<6;i++){
-		if(Chi1[i]<vergleich){vergleich = Chi1[i];}
-	}
-
-// 	cout << "FINALE: " << Chi << endl;		
-
-		//TEST the target polarization (no entry with pt=0)
-		test->Fill(pt);
-
-
-
-		for(Int_t j=0; j < tagger->GetNTagged();j++)
-		{
-		if(Chi > vergleich){continue;}
-
-		if(pt==5){continue;}
-
-			Double_t time= tagger->GetTagged_t(j) - 0.25*(photons->GetTime(1)+photons->GetTime(0)+photons->GetTime(2)+photons->GetTime(3));
-			time1->Fill(time);
-// 			cout << invariantemasse1 << "\t" << invariantemasse2 << "\t" << invariantemasse12 << "\t" << invariantemasse34 << "\t" <<invariantemasse13 <<"\t" << invariantemasse24 << "\t" << invariantemasse14 << "\t" << invariantemasse23 << endl;
-// 			cout << photons->GetTime(0) << "\t" << photons->GetTime(1) << "\t" << photons->GetTime(2) << "\t" << photons->GetTime(3) << endl;
-
-			if(time > -20 && time < 5){
-				time_prompt->Fill(time);
-			}
-
-				if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-					time_side->Fill(time);
-				}
-
-			poltable_energy->Fill(tagger->GetPhotonBeam_E(j));
-			poltable_energy_weight->Fill(tagger->GetPhotonBeam_E(j),linpol->GetPolDegree(tagger->GetTagged_ch(j)));
-
-			//get target, beam and missng particle information
-			TLorentzVector protonvektor_target(0.,0.,0.,938.272046);
-			TLorentzVector  beam_4vect = TLorentzVector(0.,0.,tagger->GetPhotonBeam_E(j),tagger->GetPhotonBeam_E(j));
-			TLorentzVector  missingp_4vect = beam_4vect + protonvektor_target - pi02_4vect-pi01_4vect;
-			Double_t anglethetaproton_rek = TMath::RadToDeg()*missingp_4vect.Vect().Theta();
-			Double_t beamphoton1E=tagger->GetPhotonBeam_E(j);
-			Double_t pb=linpol->GetPolDegree(tagger->GetTagged_ch(j));
-
-			//due to kinematic not possible -> kick them out
-			if(anglethetaproton_rek > 90){continue;}
-			
-			if(beamphoton1E<200 || beamphoton1E>800){continue;}
-
-			//energy dependent cuts
-			Double_t oben_copl=270.135+(-0.37891)*beamphoton1E+(0.000637701)*beamphoton1E*beamphoton1E+(-3.62165e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t unten_copl=89.4344+(0.360771)*beamphoton1E+(-0.000593373)*beamphoton1E*beamphoton1E+(3.32871e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t oben_theta=-52.7257+(0.352941)*beamphoton1E+(-0.000625629)*beamphoton1E*beamphoton1E+(3.63602e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t unten_theta=38.2131+(-0.302196)*beamphoton1E+(0.00058914)*beamphoton1E*beamphoton1E+(-3.67153e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t oben_mass=910.25+(0.375124)*beamphoton1E+(-0.000611761)*beamphoton1E*beamphoton1E+(3.88824e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t unten_mass=989.045+(-0.466069)*beamphoton1E+(0.000689688)*beamphoton1E*beamphoton1E+(-4.82698e-07)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t oben_mass_proton=969.521+(0.0658678)*beamphoton1E+(-9.43064e-05)*beamphoton1E*beamphoton1E+(8.86854e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t unten_mass_proton=912.747+(0.00410493)*beamphoton1E+(-0.000197333)*beamphoton1E*beamphoton1E+(6.67124e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
-			
-			Double_t oben_inv=142.348+(0.0886059)*beamphoton1E+(-0.000129399)*beamphoton1E*beamphoton1E+(7.21352e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t unten_inv=112.242+(-0.0110781)*beamphoton1E+(1.20014e-06)*beamphoton1E*beamphoton1E+(8.16401e-09)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t oben_inv_proton=152.662+(0.00115463)*beamphoton1E+(6.3428e-05)*beamphoton1E*beamphoton1E+(-5.08229e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
-			Double_t unten_inv_proton=109.617+(0.0221158)*beamphoton1E+(-6.68222e-05)*beamphoton1E*beamphoton1E+(4.07149e-08)*beamphoton1E*beamphoton1E*beamphoton1E;
-
-			//Missing Mass
-			Double_t missingmass=missingp_4vect.M();
-
-			//Boost-System
-
-			//Pi0Pi0-System
-			TLorentzVector pi0pi0_4vektor=pi01_4vect+pi02_4vect;
-			TLorentzVector pi0pi0_4vektor_boost = CMVector(pi0pi0_4vektor, beam_4vect, protonvektor_target);
-			Double_t invariantmass_pi0pi0 = pi0pi0_4vektor_boost.M();
-			TVector3 pi0pi0_3vektor_boost = pi0pi0_4vektor_boost.Vect();
-			Double_t cospi0pi0 = pi0pi0_3vektor_boost.CosTheta();
-			Double_t phimeson = TMath::RadToDeg()*(pi0pi0_4vektor.Vect().Phi());
-			
-			//pPi0-System for first Pion
-			TLorentzVector ppi01_4vektor = missingp_4vect+pi01_4vect;
-			TLorentzVector ppi01_4vektor_boost = CMVector(ppi01_4vektor, beam_4vect, protonvektor_target);
-			Double_t invariantmass_ppi01 = ppi01_4vektor_boost.M();
-			TVector3 ppi01_3vektor_boost = ppi01_4vektor_boost.Vect();
-			Double_t cosppi01 = ppi01_3vektor_boost.CosTheta();
-			Double_t phippi01 = TMath::RadToDeg()*ppi01_3vektor_boost.Phi();
-			
-			//pPi0-System for second Pion
-			TLorentzVector ppi02_4vektor = missingp_4vect+pi02_4vect;
-			TLorentzVector ppi02_4vektor_boost = CMVector(ppi02_4vektor, beam_4vect, protonvektor_target);
-			Double_t invariantmass_ppi02 = ppi02_4vektor_boost.M();
-			TVector3 ppi02_3vektor_boost = ppi02_4vektor_boost.Vect();
-			Double_t cosppi02 = ppi02_3vektor_boost.CosTheta();
-			Double_t phippi02 = TMath::RadToDeg()*ppi02_3vektor_boost.Phi();
-			
-			Double_t scalbackground_ppi0=-0.0625*0.5;
-			
-			Double_t scalbackgroundpb = -0.0625*pb;
-			Double_t scalbackgroundpt = -0.0625*pt;
-			
-			Double_t scalbackgroundpb_ppi0 = -0.5*0.0625*pb;
-			Double_t scalbackgroundpt_ppi0 = -0.5*0.0625*pt;
-			
-			Double_t scalsignalpb_ppi0 = 0.5*pb;
-			Double_t scalsignalpt_ppi0 = 0.5*pt;
-
-//...........................Histogramme vor jeglichen Cuts erstellen..................................
-			
-			
-			if(time > -20 && time < 5 ){
-
-				missingmass_collerated->Fill(missingmass);
-				
-				massesumme_collerated->Fill(invariantemasse34);
-				massesumme_collerated->Fill(invariantemasse24);
-				massesumme_collerated->Fill(invariantemasse23);	
-				massesumme_collerated->Fill(invariantemasse12);
-				massesumme_collerated->Fill(invariantemasse13);
-				massesumme_collerated->Fill(invariantemasse14);
-				
-				massegegenmasse_collerated->Fill(invariantemasse12,invariantemasse34);
-				massegegenmasse_collerated->Fill(invariantemasse34,invariantemasse12);
-				massegegenmasse_collerated->Fill(invariantemasse24,invariantemasse13);
-				massegegenmasse_collerated->Fill(invariantemasse13,invariantemasse24);
-				massegegenmasse_collerated->Fill(invariantemasse14,invariantemasse23);
-				massegegenmasse_collerated->Fill(invariantemasse23,invariantemasse14);
-			}
-			
-			if((time > -300 && time < -100) || (time > 100 && time < 300)){	
-				missingmass_collerated->Fill(missingmass,-0.0625);
-				
-				massesumme_collerated->Fill(invariantemasse34,-0.0625);
-				massesumme_collerated->Fill(invariantemasse24,-0.0625);
-				massesumme_collerated->Fill(invariantemasse23,-0.0625);	
-				massesumme_collerated->Fill(invariantemasse12,-0.0625);
-				massesumme_collerated->Fill(invariantemasse13,-0.0625);
-				massesumme_collerated->Fill(invariantemasse14,-0.0625);
-				
-				massegegenmasse_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
-				massegegenmasse_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
-				massegegenmasse_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
-				massegegenmasse_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
-				massegegenmasse_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
-				massegegenmasse_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
-			}								
-									
-			
-// 			::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::einzelne Cuts:::::::::::::::::::::::::::::::::::::::::
-			
-			
-// 			__________________invariante Masse______________________________________________________
-			
-			if(((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)) && (invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
-			
-				if(time > -20 && time < 5){
-			
-					missingmass_inv_collerated->Fill(missingmass); 
-					missingmassverteilung_collerated->Fill(missingmass, beamphoton1E); 
-
-				}
-					if((time > -300 && time < -100) ||(time > 100 && time < 300)){
-	
-						missingmass_inv_collerated->Fill(missingmass,-0.0625); 
-						missingmassverteilung_collerated->Fill(missingmass, beamphoton1E,-0.0625); 
-
-					}
-			}
-
-			if(missingmass>(unten_mass) && missingmass<(oben_mass)){
-									
-				if(time > -20 && time < 5){
-					massesumme_mass_collerated->Fill(invariantemasse13);
-					massesumme_mass_collerated->Fill(invariantemasse12);				
-					massesumme_mass_collerated->Fill(invariantemasse14);
-					massesumme_mass_collerated->Fill(invariantemasse34);
-					massesumme_mass_collerated->Fill(invariantemasse24);
-					massesumme_mass_collerated->Fill(invariantemasse23);
-					massegegenmasse_mass_collerated->Fill(invariantemasse12,invariantemasse34);
-					massegegenmasse_mass_collerated->Fill(invariantemasse13,invariantemasse24);
-					massegegenmasse_mass_collerated->Fill(invariantemasse14,invariantemasse23);
-					massegegenmasse_mass_collerated->Fill(invariantemasse34,invariantemasse12);
-					massegegenmasse_mass_collerated->Fill(invariantemasse24,invariantemasse13);
-					massegegenmasse_mass_collerated->Fill(invariantemasse23,invariantemasse14);
-				}
-					
-						if((time > -300 && time < -100) ||(time > 100 && time < 300)){						
-							massesumme_mass_collerated->Fill(invariantemasse13,-0.0625);
-							massesumme_mass_collerated->Fill(invariantemasse12,-0.0625);				
-							massesumme_mass_collerated->Fill(invariantemasse14,-0.0625);
-							massesumme_mass_collerated->Fill(invariantemasse34,-0.0625);
-							massesumme_mass_collerated->Fill(invariantemasse24,-0.0625);
-							massesumme_mass_collerated->Fill(invariantemasse23,-0.0625);
-							massegegenmasse_mass_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
-							massegegenmasse_mass_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
-							massegegenmasse_mass_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
-							massegegenmasse_mass_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
-							massegegenmasse_mass_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
-							massegegenmasse_mass_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
-						}
-			}
-			
-				//only one charged particle
-				if(protons->GetNParticles()==1 || electrons->GetNParticles()==1 || chargedPi->GetNParticles()==1 || rootinos->GetNParticles()==1){
-
-					//get charged particle information
-					TLorentzVector proton_4vect_meas;
-					if(electrons->GetNParticles()==1){proton_4vect_meas=electrons->Particle(0);}
-					if(protons->GetNParticles()==1){proton_4vect_meas=protons->Particle(0);}
-					if(chargedPi->GetNParticles()==1){proton_4vect_meas=chargedPi->Particle(0);}
-					if(rootinos->GetNParticles()==1){proton_4vect_meas=rootinos->Particle(0);}
-
-					//Phi-Difference
-					Double_t anglephiproton = TMath::RadToDeg()*proton_4vect_meas.Vect().Phi();
-					Double_t phi = phimeson - anglephiproton;
-					if(phi < 0){phi = phi + 360;}
-			
-					//theta differenz
-					Double_t anglethetaproton_meas = TMath::RadToDeg()*proton_4vect_meas.Vect().Theta();
-					Double_t thetadiff=anglethetaproton_rek-anglethetaproton_meas;
-
-					//due to kinematic not possible -> kick them out
-					if(anglethetaproton_meas > 90){continue;}
-
-					if(time > -20 && time < 5 ){
-					
-						coplanarity_collerated->Fill(phi);
-						thetaproton_collerated->Fill(thetadiff);
-				
-					}
-					
-					if((time > -300 && time < -100) || (time > 100 && time < 300)){	
-					
-						coplanarity_collerated->Fill(phi,-0.0625);
-						thetaproton_collerated->Fill(thetadiff,-0.0625);
-					
-					}	
-
-		// 			::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::aufeinanderfolgende Cuts:::::::::::::::::::::::::::::::::::::::::
-					
-					
-		// 			--------------------------------------------------------CopLanaritY-Cuts----------------------
-					
-		// 			__________________Missing Mass______________________________________________________
-					
-					if(missingmass>(unten_mass) && missingmass<(oben_mass)){
-					
-						if(time > -20 && time < 5){
-					
-							coplanarity_mass_collerated->Fill(phi);
-						}
-							if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-									
-								coplanarity_mass_collerated->Fill(phi,-0.0625);
-							}	
-						
-		// 			__________________Polarwinkel______________________________________________________
-					
-						if(thetadiff > (unten_theta) && thetadiff < (oben_theta)) {
-					
-							if(time > -20 && time < 5){
-					
-								coplanarity_mass_theta_collerated->Fill(phi);
-							}
-								if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-						
-									coplanarity_mass_theta_collerated->Fill(phi,-0.0625);
-								}
-						
-		// 			__________________invariante Masse______________________________________________________
-					
-							if(((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)) && (invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
-					
-								if(time > -20 && time < 5){
-					
-									coplanarity_mass_theta_inv_collerated->Fill(phi);
-									coplanarityverteilung_collerated->Fill(phi, beamphoton1E);
-					
-								}
-									if((time > -300 && time < -100) ||(time > 100 && time < 300)){					
-										coplanarity_mass_theta_inv_collerated->Fill(phi,-0.0625);
-										coplanarityverteilung_collerated->Fill(phi, beamphoton1E,-0.0625);
-					
-									}
-							}
-						}
-					}
-					
-		// 			--------------------------------------------------------Missing Mass Cuts----------------------
-															
-		// 			__________________Polarwinkel______________________________________________________
-					
-					if(thetadiff > (unten_theta) && thetadiff < (oben_theta)) {
-					
-						if(time > -20 && time < 5){
-					
-							missingmass_theta_collerated->Fill(missingmass); 
-						}
-							if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-								
-								missingmass_theta_collerated->Fill(missingmass,-0.0625); 
-							}
-								
-					
-		// 			__________________Coplanarity______________________________________________________
-					
-						if((phi > ( (unten_copl)) && phi < ((oben_copl)))){
-					
-							if(time > -20 && time < 5){
-						
-								missingmass_theta_copl_collerated->Fill(missingmass); 
-							}
-								if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-									
-									missingmass_theta_copl_collerated->Fill(missingmass,-0.0625);
-								}
-					
-		// 			__________________invariante Masse______________________________________________________
-					
-							if(((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)) && (invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
-					
-								if(time > -20 && time < 5){
-					
-									missingmass_theta_copl_inv_collerated->Fill(missingmass);
-									missingmassverteilung_collerated_proton->Fill(missingmass, beamphoton1E); 
-								}
-									if((time > -300 && time < -100) ||(time > 100 && time < 300)){
-									
-										missingmass_theta_copl_inv_collerated->Fill(missingmass,-0.0625);
-										missingmassverteilung_collerated_proton->Fill(missingmass, beamphoton1E,-0.0625);
-									}								
-							}
-						}
-					}
-					
-		// 			--------------------------------------------------------PolarWinkel Cuts----------------------			
-					
-		// 			__________________Missing Mass______________________________________________________
-					
-					if(missingmass>(unten_mass) && missingmass<(oben_mass)){
-					
-						if(time > -20 && time < 5){
-					
-								if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-								thetaproton_mass_taps_collerated->Fill(thetadiff); 
-								}
-								else
-								{thetaproton_mass_collerated->Fill(thetadiff); 
-								}	
-						}
-					
-							if((time > -300 && time < -100) ||(time > 100 && time < 300)){							
-								if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-								thetaproton_mass_taps_collerated->Fill(thetadiff,-0.0625); 
-								}
-								else
-								{thetaproton_mass_collerated->Fill(thetadiff,-0.0625); 
-								}
-							}		
-					
-		// 			__________________Coplanarity______________________________________________________
-					
-						if((phi > ((unten_copl)) && phi < ((oben_copl)))){
-					
-							if(time > -20 && time < 5){
-					
-								if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-								thetaproton_mass_copl_taps_collerated->Fill(thetadiff); 
-								}
-								else
-								{thetaproton_mass_copl_collerated->Fill(thetadiff); 
-								}		
-							}
-									
-								if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-									
-									if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-									thetaproton_mass_copl_taps_collerated->Fill(thetadiff,-0.0625); 
-									}
-									else
-									{thetaproton_mass_copl_collerated->Fill(thetadiff,-0.0625); 
-									}	
-								}
-					
-		// 			__________________invariante Masse______________________________________________________
-					
-							if(((invariantemasse1 > (pionmasse + unten_inv) && invariantemasse1 < (pionmasse + oben_inv)) && (invariantemasse2 > (pionmasse + unten_inv) && invariantemasse2 < (pionmasse + oben_inv)))){
-					
-								if(time > -20 && time < 5){
-					
-									if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-									thetaproton_mass_copl_inv_taps_collerated->Fill(thetadiff); 
-									thetaverteilung_collerated_taps->Fill(thetadiff, beamphoton1E);
-									}
-									else
-									{thetaproton_mass_copl_inv_collerated->Fill(thetadiff); 
-									}				
-									thetaverteilung_collerated->Fill(thetadiff, beamphoton1E);
-								}
-					
-									if((time > -300 && time < -100) ||(time > 100 && time < 300)){
-					
-										if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-										thetaproton_mass_copl_inv_taps_collerated->Fill(thetadiff,-0.0625); 
-										thetaverteilung_collerated_taps->Fill(thetadiff, beamphoton1E,-0.0625);
-
-										}
-										else
-										{thetaproton_mass_copl_inv_collerated->Fill(thetadiff,-0.0625); 
-										}	
-										thetaverteilung_collerated->Fill(thetadiff, beamphoton1E,-0.0625);
-									}
-							}
-						}	
-					}
-		// 			................................invarianteMasse Cut...................................................................................
-										
-		// 			__________________Missing Mass______________________________________________________
-					
-					if(missingmass>(unten_mass) && missingmass<(oben_mass)){
-									
-						if(time > -20 && time < 5){
-							massesumme_mass_collerated_proton->Fill(invariantemasse13);
-							massesumme_mass_collerated_proton->Fill(invariantemasse12);				
-							massesumme_mass_collerated_proton->Fill(invariantemasse14);
-							massesumme_mass_collerated_proton->Fill(invariantemasse34);
-							massesumme_mass_collerated_proton->Fill(invariantemasse24);
-							massesumme_mass_collerated_proton->Fill(invariantemasse23);
-							massegegenmasse_mass_collerated_proton->Fill(invariantemasse12,invariantemasse34);
-							massegegenmasse_mass_collerated_proton->Fill(invariantemasse13,invariantemasse24);
-							massegegenmasse_mass_collerated_proton->Fill(invariantemasse14,invariantemasse23);
-							massegegenmasse_mass_collerated_proton->Fill(invariantemasse34,invariantemasse12);
-							massegegenmasse_mass_collerated_proton->Fill(invariantemasse24,invariantemasse13);
-							massegegenmasse_mass_collerated_proton->Fill(invariantemasse23,invariantemasse14);
-					}
-					
-							if((time > -300 && time < -100) ||(time > 100 && time < 300)){						
-								massesumme_mass_collerated_proton->Fill(invariantemasse13,-0.0625);
-								massesumme_mass_collerated_proton->Fill(invariantemasse12,-0.0625);				
-								massesumme_mass_collerated_proton->Fill(invariantemasse14,-0.0625);
-								massesumme_mass_collerated_proton->Fill(invariantemasse34,-0.0625);
-								massesumme_mass_collerated_proton->Fill(invariantemasse24,-0.0625);
-								massesumme_mass_collerated_proton->Fill(invariantemasse23,-0.0625);
-								massegegenmasse_mass_collerated_proton->Fill(invariantemasse12,invariantemasse34,-0.0625);
-								massegegenmasse_mass_collerated_proton->Fill(invariantemasse13,invariantemasse24,-0.0625);
-								massegegenmasse_mass_collerated_proton->Fill(invariantemasse14,invariantemasse23,-0.0625);
-								massegegenmasse_mass_collerated_proton->Fill(invariantemasse34,invariantemasse12,-0.0625);
-								massegegenmasse_mass_collerated_proton->Fill(invariantemasse24,invariantemasse13,-0.0625);
-								massegegenmasse_mass_collerated_proton->Fill(invariantemasse23,invariantemasse14,-0.0625);
-							}
-					
-		// 			__________________Polarwinkel______________________________________________________
-					
-						if((phi > ((unten_copl)) && phi < (oben_copl))){		
-									
-							if(time > -20 && time < 5){
-								massesumme_mass_copl_collerated->Fill(invariantemasse13);
-								massesumme_mass_copl_collerated->Fill(invariantemasse12);				
-								massesumme_mass_copl_collerated->Fill(invariantemasse14);
-								massesumme_mass_copl_collerated->Fill(invariantemasse34);
-								massesumme_mass_copl_collerated->Fill(invariantemasse24);
-								massesumme_mass_copl_collerated->Fill(invariantemasse23);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse12,invariantemasse34);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse13,invariantemasse24);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse14,invariantemasse23);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse34,invariantemasse12);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse24,invariantemasse13);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse23,invariantemasse14);
-							}
-					
-								if((time > -300 && time < -100) ||(time > 100 && time < 300)){					
-								massesumme_mass_copl_collerated->Fill(invariantemasse13,-0.0625);
-								massesumme_mass_copl_collerated->Fill(invariantemasse12,-0.0625);				
-								massesumme_mass_copl_collerated->Fill(invariantemasse14,-0.0625);
-								massesumme_mass_copl_collerated->Fill(invariantemasse34,-0.0625);
-								massesumme_mass_copl_collerated->Fill(invariantemasse24,-0.0625);
-								massesumme_mass_copl_collerated->Fill(invariantemasse23,-0.0625);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
-								massegegenmasse_mass_copl_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
-								}	
-									
-		// 			__________________Coplanarity______________________________________________________
-																							
-							if(thetadiff > (unten_theta) && thetadiff < (oben_theta)) {
-						
-								if(time > -20 && time < 5){
-									massesumme_mass_theta_copl_collerated->Fill(invariantemasse13);
-									massesumme_mass_theta_copl_collerated->Fill(invariantemasse12);				
-									massesumme_mass_theta_copl_collerated->Fill(invariantemasse14);
-									massesumme_mass_theta_copl_collerated->Fill(invariantemasse34);
-									massesumme_mass_theta_copl_collerated->Fill(invariantemasse24);
-									massesumme_mass_theta_copl_collerated->Fill(invariantemasse23);
-					
-									massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse2);
-									massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse1);
-					
-									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse12,invariantemasse34);
-									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse13,invariantemasse24);
-									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse14,invariantemasse23);
-									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse34,invariantemasse12);
-									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse24,invariantemasse13);
-									massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse23,invariantemasse14);
-								}
-					
-									if((time > -300 && time < -100) ||(time > 100 && time < 300)){					
-										massesumme_mass_theta_copl_collerated->Fill(invariantemasse13,-0.0625);
-										massesumme_mass_theta_copl_collerated->Fill(invariantemasse12,-0.0625);				
-										massesumme_mass_theta_copl_collerated->Fill(invariantemasse14,-0.0625);
-										massesumme_mass_theta_copl_collerated->Fill(invariantemasse34,-0.0625);
-										massesumme_mass_theta_copl_collerated->Fill(invariantemasse24,-0.0625);
-										massesumme_mass_theta_copl_collerated->Fill(invariantemasse23,-0.0625);
-					
-										massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse2,-0.0625);
-										massesumme_mass_theta_copl_inv_collerated->Fill(invariantemasse1,-0.0625);
-					
-										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse12,invariantemasse34,-0.0625);
-										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse13,invariantemasse24,-0.0625);
-										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse14,invariantemasse23,-0.0625);
-										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse34,invariantemasse12,-0.0625);
-										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse24,invariantemasse13,-0.0625);
-										massegegenmasse_mass_theta_copl_collerated->Fill(invariantemasse23,invariantemasse14,-0.0625);
-									}
-					
-								if(invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)){
-					
-									if(time > -20 && time < 5 ){
-									massesumme_mass_theta_copl_inv1_collerated->Fill(invariantemasse2);
-									massesumme_mass_theta_copl_inv_beam_collerated->Fill(invariantemasse2,beamphoton1E);
-					
-									}
-									
-										if((time > -300 && time < -100) ||(time > 100 && time < 300)){				
-										massesumme_mass_theta_copl_inv1_collerated->Fill(invariantemasse2,-0.0625);
-										massesumme_mass_theta_copl_inv_beam_collerated->Fill(invariantemasse2,beamphoton1E,-0.0625);
-					
-										}
-													
-								}	
-								
-							}							    				
-						}		
-					}
-
-					//stuff after all cuts and creation of needed analysis histograms
-					if(time > -20 && time < 5){
-	
-						if(((missingmass>(unten_mass_proton) && missingmass<(oben_mass_proton))  && thetadiff > (unten_theta) && thetadiff < (oben_theta)) && (phi > ((unten_copl)) && phi < ((oben_copl))) && ((invariantemasse1 > (unten_inv_proton) && invariantemasse1 < (oben_inv_proton)))&& ((invariantemasse2 > (unten_inv_proton) && invariantemasse2 < (oben_inv_proton)))){
-
-						if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_CB){
-							Check_CBdE_E->Fill(proton_4vect_meas.E(),rootinos->Get_dE(0));
-						}
-
-						if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-							Check_TAPSdE_E->Fill(proton_4vect_meas.E(),rootinos->Get_dE(0));
-						}
-
-						cosverteilung_collerated_proton->Fill(cospi0pi0,beamphoton1E);
-						cosppi0verteilung_collerated_proton->Fill(cosppi01,beamphoton1E,0.5);
-						cosppi0verteilung_collerated_proton->Fill(cosppi02,beamphoton1E,0.5);
-				
-						invverteilung_collerated_proton->Fill(invariantmass_pi0pi0,beamphoton1E);
-						invppi0verteilung_collerated_proton->Fill(invariantmass_ppi01,beamphoton1E,0.5);
-						invppi0verteilung_collerated_proton->Fill(invariantmass_ppi02,beamphoton1E,0.5);
-				
-						cosverteilung_thetaproton_collerated_proton->Fill(cospi0pi0,anglethetaproton_meas);
-									
-// 							if(planesetting=="PARA"){
-							if(linpol->GetPolPlane()==0){
-				
-								if(pt>0 || pt==5){
-									kristallminus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0, beamphoton1E);
-									kristallminus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0, beamphoton1E,pb);
-									kristallminus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0, beamphoton1E,pt);
-									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01, beamphoton1E,0.5);
-									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpt_ppi0);
-									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02, beamphoton1E,0.5);
-									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpt_ppi0);
-					
-									kristallminus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E);
-									kristallminus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pb);
-									kristallminus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pt);
-									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,0.5);
-									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpt_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,0.5);
-									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpt_ppi0);
-								}
-		
-								if(pt<0 || pt==5){
-									kristallminus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E);
-									kristallminus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
-									kristallminus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
-									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,0.5);
-									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
-									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,0.5);
-									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
-					
-									kristallminus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
-									kristallminus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
-									kristallminus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
-									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
-									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
-									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
-								}
-							}
-
-// 							if(planesetting=="PERP"){
-							if(linpol->GetPolPlane()==1){
-			
-								if(pt>0 || pt==5){
-									kristallplus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E);
-									kristallplus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
-									kristallplus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
-									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,0.5);
-									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
-									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,0.5);
-									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
-					
-									kristallplus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
-									kristallplus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
-									kristallplus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
-									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
-									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
-									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
-								}
-				
-								if(pt<0 || pt==5){
-									kristallplus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E);
-									kristallplus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
-									kristallplus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
-									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,0.5);
-									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
-									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,0.5);
-									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
-					
-									kristallplus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
-									kristallplus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
-									kristallplus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
-									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
-									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
-									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
-								}
-	
-							}						
-	
-						}
-	
-					}//end prompt
-	
-					if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-	
-						if(((missingmass>(unten_mass_proton) && missingmass<(oben_mass_proton))  && thetadiff > (unten_theta) && thetadiff < (oben_theta)) && (phi > ((unten_copl)) && phi < ((oben_copl))) && ((invariantemasse1 > (unten_inv_proton) && invariantemasse1 < (oben_inv_proton)))&& ((invariantemasse2 > (unten_inv_proton) && invariantemasse2 < (oben_inv_proton)))){
-
-							if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_CB){
-								Check_CBdE_E->Fill(proton_4vect_meas.E(),rootinos->Get_dE(0),-0.0625);
-							}
-	
-							if(rootinos->GetApparatus(0) == GTreeRawEvent::APPARATUS_TAPS){
-								Check_TAPSdE_E->Fill(proton_4vect_meas.E(),rootinos->Get_dE(0),-0.0625);
-							}
-		
-							cosverteilung_collerated_proton->Fill(cospi0pi0,beamphoton1E,-0.0625);
-							cosppi0verteilung_collerated_proton->Fill(cosppi01,beamphoton1E,scalbackground_ppi0);
-							cosppi0verteilung_collerated_proton->Fill(cosppi02,beamphoton1E,scalbackground_ppi0);
-				
-							invverteilung_collerated_proton->Fill(invariantmass_pi0pi0,beamphoton1E,-0.0625);
-							invppi0verteilung_collerated_proton->Fill(invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-							invppi0verteilung_collerated_proton->Fill(invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-				
-							cosverteilung_thetaproton_collerated_proton->Fill(cospi0pi0,anglethetaproton_meas,-0.0625);
-
-// 							if(planesetting=="PARA"){
-							if(linpol->GetPolPlane()==0){
-			
-								if(pt>0 || pt==5){
-									kristallminus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0, beamphoton1E,-0.0625);
-									kristallminus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpb);
-									kristallminus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpt);
-									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01, beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpt_ppi0);
-									kristallminus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02, beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpt_ppi0);
-					
-									kristallminus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,-0.0625);
-									kristallminus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpb);
-									kristallminus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpt);
-									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpt_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpt_ppi0);
-								}
-			
-								if(pt<0 || pt==5){
-									kristallminus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
-									kristallminus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
-									kristallminus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
-									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
-									kristallminus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
-					
-									kristallminus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
-									kristallminus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
-									kristallminus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
-									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,scalbackgroundpt_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallminus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
-								}
-							}
-
-// 							if(planesetting=="PERP"){
-							if(linpol->GetPolPlane()==1){
-			
-								if(pt>0 || pt==5){
-									kristallplus_targetplus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
-									kristallplus_targetplus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
-									kristallplus_targetplus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
-									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
-									kristallplus_targetplus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetplus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetplus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
-					
-									kristallplus_targetplus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
-									kristallplus_targetplus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
-									kristallplus_targetplus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
-									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetplus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
-								}
-				
-								if(pt<0 || pt==5){
-									kristallplus_targetminus_collerated_proton->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
-									kristallplus_targetminus_collerated_pb_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
-									kristallplus_targetminus_collerated_pt_proton->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
-									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
-									kristallplus_targetminus_ppi0_collerated_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetminus_ppi0_collerated_pb_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetminus_ppi0_collerated_pt_proton->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
-					
-									kristallplus_targetminus_im_collerated_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
-									kristallplus_targetminus_im_collerated_pb_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
-									kristallplus_targetminus_im_collerated_pt_proton->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
-									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_pb_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
-									kristallplus_targetminus_im_ppi0_collerated_pt_proton->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
-								}
-							}						
-						}
-	
-					}//end sideband
-// 				
-				}
-// 				//all events with proton identified
-
-			if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))&&trigger->GetNError()!=0){
-				events_witherror->Fill(phimeson,cospi0pi0, beamphoton1E);
-			}
-
-			if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
-				events_all->Fill(phimeson,cospi0pi0, beamphoton1E);
-			}
-
-			if(time > -20 && time < 5){
-
-				if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
-					cosverteilung_collerated->Fill(cospi0pi0,beamphoton1E);
-					cosppi0verteilung_collerated->Fill(cosppi01,beamphoton1E,0.5);
-					cosppi0verteilung_collerated->Fill(cosppi02,beamphoton1E,0.5);
-			
-					invverteilung_collerated->Fill(invariantmass_pi0pi0,beamphoton1E);
-					invppi0verteilung_collerated->Fill(invariantmass_ppi01,beamphoton1E,0.5);
-					invppi0verteilung_collerated->Fill(invariantmass_ppi02,beamphoton1E,0.5);
-			
-// 					if(planesetting=="PARA"){
-					if(linpol->GetPolPlane()==0){
-		
-						if(pt>0 || pt==5){
-							kristallminus_targetplus_collerated->Fill(phimeson,cospi0pi0, beamphoton1E);
-							kristallminus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0, beamphoton1E,pb);
-							kristallminus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0, beamphoton1E,pt);
-							kristallminus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01, beamphoton1E,0.5);
-							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01, beamphoton1E,scalsignalpt_ppi0);
-							kristallminus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02, beamphoton1E,0.5);
-							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02, beamphoton1E,scalsignalpt_ppi0);
-			
-							kristallminus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E);
-							kristallminus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pb);
-							kristallminus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,pt);
-							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01, beamphoton1E,0.5);
-							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalsignalpt_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02, beamphoton1E,0.5);
-							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalsignalpt_ppi0);
-						}
-
-						if(pt<0 || pt==5){
-							kristallminus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E);
-							kristallminus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
-							kristallminus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
-							kristallminus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,0.5);
-							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
-							kristallminus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,0.5);
-							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
-			
-							kristallminus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
-							kristallminus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
-							kristallminus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
-							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
-							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
-							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
-						}
-					}
-
-// 					if(planesetting=="PERP"){
-					if(linpol->GetPolPlane()==1){
-		
-						if(pt>0 || pt==5){
-							kristallplus_targetplus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E);
-							kristallplus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
-							kristallplus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
-							kristallplus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,0.5);
-							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
-							kristallplus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,0.5);
-							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
-			
-							kristallplus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
-							kristallplus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
-							kristallplus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
-							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
-							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
-							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
-						}
-			
-						if(pt<0 || pt==5){
-							kristallplus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E);
-							kristallplus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,pb);
-							kristallplus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,pt);
-							kristallplus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,0.5);
-							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalsignalpt_ppi0);
-							kristallplus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,0.5);
-							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalsignalpt_ppi0);
-			
-							kristallplus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E);
-							kristallplus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pb);
-							kristallplus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,pt);
-							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,0.5);
-							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalsignalpt_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,0.5);
-							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpb_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalsignalpt_ppi0);
-						}
-					}						
-				}
-			}//end prompt
-
-			if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-
-				if((missingmass>(unten_mass) && missingmass<(oben_mass))&& ((invariantemasse1 > (unten_inv) && invariantemasse1 < (oben_inv)))&& ((invariantemasse2 > (unten_inv) && invariantemasse2 < (oben_inv)))){
-
-					cosverteilung_collerated->Fill(cospi0pi0,beamphoton1E,-0.0625);
-					cosppi0verteilung_collerated->Fill(cosppi01,beamphoton1E,scalbackground_ppi0);
-					cosppi0verteilung_collerated->Fill(cosppi02,beamphoton1E,scalbackground_ppi0);
-		
-					invverteilung_collerated->Fill(invariantmass_pi0pi0,beamphoton1E,-0.0625);
-					invppi0verteilung_collerated->Fill(invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-					invppi0verteilung_collerated->Fill(invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-		
-// 					if(planesetting=="PARA"){
-					if(linpol->GetPolPlane()==0){
-		
-						if(pt>0  || pt==5){
-							kristallminus_targetplus_collerated->Fill(phimeson,cospi0pi0, beamphoton1E,-0.0625);
-							kristallminus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpb);
-							kristallminus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0, beamphoton1E,scalbackgroundpt);
-							kristallminus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01, beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01, beamphoton1E,scalbackgroundpt_ppi0);
-							kristallminus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02, beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02, beamphoton1E,scalbackgroundpt_ppi0);
-			
-							kristallminus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,-0.0625);
-							kristallminus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpb);
-							kristallminus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0, beamphoton1E,scalbackgroundpt);
-							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01, beamphoton1E,scalbackgroundpt_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02, beamphoton1E,scalbackgroundpt_ppi0);
-						}
-			
-						if(pt<0  || pt==5){
-							kristallminus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
-							kristallminus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
-							kristallminus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
-							kristallminus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
-							kristallminus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
-			
-							kristallminus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
-							kristallminus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
-							kristallminus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
-							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,scalbackgroundpt_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallminus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
-						}
-					}
-
-// 					if(planesetting=="PERP"){
-					if(linpol->GetPolPlane()==1){
-		
-						if(pt>0  || pt==5){
-							kristallplus_targetplus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
-							kristallplus_targetplus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
-							kristallplus_targetplus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
-							kristallplus_targetplus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
-							kristallplus_targetplus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetplus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetplus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
-			
-							kristallplus_targetplus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
-							kristallplus_targetplus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
-							kristallplus_targetplus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
-							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetplus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
-						}
-
-						if(pt<0  || pt==5){
-							 kristallplus_targetminus_collerated->Fill(phimeson,cospi0pi0,beamphoton1E,-0.0625);
-							kristallplus_targetminus_collerated_pb->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpb);
-							kristallplus_targetminus_collerated_pt->Fill(phimeson,cospi0pi0,beamphoton1E,scalbackgroundpt);
-							kristallplus_targetminus_ppi0_collerated->Fill(phippi01,cosppi01,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi01,cosppi01,beamphoton1E,scalbackgroundpt_ppi0);
-							kristallplus_targetminus_ppi0_collerated->Fill(phippi02,cosppi02,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetminus_ppi0_collerated_pb->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetminus_ppi0_collerated_pt->Fill(phippi02,cosppi02,beamphoton1E,scalbackgroundpt_ppi0);
-			
-							kristallplus_targetminus_im_collerated->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,-0.0625);
-							kristallplus_targetminus_im_collerated_pb->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpb);
-							kristallplus_targetminus_im_collerated_pt->Fill(phimeson,invariantmass_pi0pi0,beamphoton1E,scalbackgroundpt);
-							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi01,invariantmass_ppi01,beamphoton1E,scalbackgroundpt_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackground_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated_pb->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpb_ppi0);
-							kristallplus_targetminus_im_ppi0_collerated_pt->Fill(phippi02,invariantmass_ppi02,beamphoton1E,scalbackgroundpt_ppi0);
-						}
-					}						
-				}
-			}//end sideband
-
-		}//tagger
-}
-
-
-void P2Pi0Analyse::fOnEndProcessing() {
-
+outputFile->Close();
 }
 
 
