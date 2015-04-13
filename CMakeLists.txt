@@ -159,16 +159,24 @@ add_executable(MyPhysics
    ${GOAT_GHIST}
    inc/GKinFitterParticle.h
    inc/GKinFitter.h
+   #inc/GFitHist.h
    inc/GFit.h
-   #inc/GHistFit.h
+   inc/GFitProton.h
+   inc/GFitBeam.h
+   inc/GFitBeamProton.h
+   #inc/GFitVertex.h
    inc/GHistEvent.h
    inc/GCheckProton.h
    inc/GAnalysis3Mesons.h
    inc/MyPhysics.h
    src/GKinFitterParticle.cc
    src/GKinFitter.cc
+   #src/GFitHist.cc
    src/GFit.cc
-   #src/GHistFit.cc
+   src/GFitProton.cc
+   src/GFitBeam.cc
+   src/GFitBeamProton.cc
+   #src/GFitVertex.cc
    src/GHistEvent.cc
    src/GCheckProton.cc
    src/GAnalysis3Mesons.cc

@@ -9,8 +9,8 @@ GHistEvent::GHistEvent(const char* name, const char* title, Bool_t linkHistogram
     GHistLinked(linkHistogram),
     im(TString(name).Append("_im"), TString(title).Append(" inv. Mass"), 1500, 0, 1500, 48, kFALSE),
     mm(TString(name).Append("_mm"), TString(title).Append(" mis. Mass"), 2000, 0, 2000, 48, kFALSE),
-    theta(TString(name).Append("_theta"), TString(title).Append(" Theta"), 1800, 0, 180, 48, kFALSE),
-    phi(TString(name).Append("_phi"), TString(title).Append(" Phi"), 3600, -180, 180, 48, kFALSE)
+    theta(TString(name).Append("_theta"), TString(title).Append(" Theta"), 1800, 0, 180, kFALSE),
+    phi(TString(name).Append("_phi"), TString(title).Append(" Phi"), 3600, -180, 180, kFALSE)
 {
 
 }
@@ -56,11 +56,11 @@ void    GHistEvent::PrepareWriteList(GHistWriteList* arr, const char* name)
 
 GHistEvent3Mesons::GHistEvent3Mesons(const char* name, const char* title, Bool_t linkHistogram) :
     GHistEvent(name, title, linkHistogram),
-    sub0_im(TString(name).Append("_sub0im"), TString(title).Append(" sub Part. 0 inv. Mass"), 800, 0, 800, 48, kFALSE),
-    sub1_im(TString(name).Append("_sub1im"), TString(title).Append(" sub Part. 1 inv. Mass"), 400, 0, 400, 48, kFALSE),
-    sub2_im(TString(name).Append("_sub2im"), TString(title).Append(" sub Part. 2 inv. Mass"), 400, 0, 400, 48, kFALSE),
-    sub_theta(TString(name).Append("_subTheta"), TString(title).Append(" sub Part. Theta"), 1800, 0, 180, 48, kFALSE),
-    sub_phi(TString(name).Append("_subPhi"), TString(title).Append(" sub Part. Phi"), 3600, -180, 180, 48, kFALSE)
+    sub0_im(TString(name).Append("_sub0im"), TString(title).Append(" sub Part. 0 inv. Mass"), 800, 0, 800, kFALSE),
+    sub1_im(TString(name).Append("_sub1im"), TString(title).Append(" sub Part. 1 inv. Mass"), 400, 0, 400, kFALSE),
+    sub2_im(TString(name).Append("_sub2im"), TString(title).Append(" sub Part. 2 inv. Mass"), 400, 0, 400, kFALSE)//,
+    //sub_theta(TString(name).Append("_subTheta"), TString(title).Append(" sub Part. Theta"), 1800, 0, 180, 48, kFALSE),
+    //sub_phi(TString(name).Append("_subPhi"), TString(title).Append(" sub Part. Phi"), 3600, -180, 180, 48, kFALSE)
 {
 
 }
@@ -70,6 +70,7 @@ GHistEvent3Mesons::~GHistEvent3Mesons()
 
 }
 
+/*
 void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t* SUB_THETA, const Double_t* SUB_PHI, const Double_t taggerTime)
 {
     GHistEvent::Fill(IM, MM, Theta, Phi, taggerTime);
@@ -93,7 +94,7 @@ void    GHistEvent3Mesons::Fill(const Double_t IM, const Double_t MM, const Doub
         sub_theta.Fill(SUB_THETA[i], taggerTime);
         sub_phi.Fill(SUB_PHI[i], taggerTime);
     }
-}
+}*/
 
 void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name)
 {
@@ -107,16 +108,16 @@ void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* nam
         sub0_im.PrepareWriteList(arr, TString(name).Append("_sub0IM").Data());
         sub1_im.PrepareWriteList(arr, TString(name).Append("_sub1IM").Data());
         sub2_im.PrepareWriteList(arr, TString(name).Append("_sub2IM").Data());
-        sub_theta.PrepareWriteList(arr, TString(name).Append("_subTheta").Data());
-        sub_phi.PrepareWriteList(arr, TString(name).Append("_subPhi").Data());
+        //sub_theta.PrepareWriteList(arr, TString(name).Append("_subTheta").Data());
+        //sub_phi.PrepareWriteList(arr, TString(name).Append("_subPhi").Data());
     }
     else
     {
         sub0_im.PrepareWriteList(arr);
         sub1_im.PrepareWriteList(arr);
         sub2_im.PrepareWriteList(arr);
-        sub_theta.PrepareWriteList(arr);
-        sub_phi.PrepareWriteList(arr);
+        //sub_theta.PrepareWriteList(arr);
+        //sub_phi.PrepareWriteList(arr);
     }
 }
 
@@ -137,10 +138,10 @@ void    GHistEvent3Mesons::PrepareWriteList(GHistWriteList* arr, const char* nam
 
 GHistEventProton::GHistEventProton(const char* name, const char* title, Bool_t linkHistogram) :
     GHistEvent(name, title, linkHistogram),
-    E(TString(name).Append("_protonE"), TString(title).Append(" Proton E"), 800, 0, 800, 48, kFALSE),
-    Ecalc(TString(name).Append("_protonEcalc"), TString(title).Append(" Proton E calculated"), 400, 0, 400, 48, kFALSE),
-    protonTheta(TString(name).Append("_protonTheta"), TString(title).Append(" Proton Theta"), 1800, 0, 180, 48, kFALSE),
-    protonPhi(TString(name).Append("_protonPhi"), TString(title).Append(" Proton Phi"), 3600, -180, 180, 48, kFALSE)
+    E(TString(name).Append("_protonE"), TString(title).Append(" Proton E"), 800, 0, 800, kFALSE),
+    Ecalc(TString(name).Append("_protonEcalc"), TString(title).Append(" Proton E calculated"), 400, 0, 400, kFALSE),
+    protonTheta(TString(name).Append("_protonTheta"), TString(title).Append(" Proton Theta"), 1800, 0, 180, kFALSE),
+    protonPhi(TString(name).Append("_protonPhi"), TString(title).Append(" Proton Phi"), 3600, -180, 180, kFALSE)
 {
 
 }
@@ -180,11 +181,11 @@ void    GHistEventProton::PrepareWriteList(GHistWriteList* arr, const char* name
 
 GHistEvent3MesonsProton::GHistEvent3MesonsProton(const char* name, const char* title, Bool_t linkHistogram) :
     GHistEventProton(name, title, linkHistogram),
-    sub0_im(TString(name).Append("_sub0im"), TString(title).Append(" sub Part. 0 inv. Mass"), 800, 0, 800, 48, kFALSE),
-    sub1_im(TString(name).Append("_sub1im"), TString(title).Append(" sub Part. 1 inv. Mass"), 400, 0, 400, 48, kFALSE),
-    sub2_im(TString(name).Append("_sub2im"), TString(title).Append(" sub Part. 2 inv. Mass"), 400, 0, 400, 48, kFALSE),
-    sub_theta(TString(name).Append("_subTheta"), TString(title).Append(" sub Part. Theta"), 1800, 0, 180, 48, kFALSE),
-    sub_phi(TString(name).Append("_subPhi"), TString(title).Append(" sub Part. Phi"), 3600, -180, 180, 48, kFALSE)
+    sub0_im(TString(name).Append("_sub0im"), TString(title).Append(" sub Part. 0 inv. Mass"), 800, 0, 800, kFALSE),
+    sub1_im(TString(name).Append("_sub1im"), TString(title).Append(" sub Part. 1 inv. Mass"), 400, 0, 400, kFALSE),
+    sub2_im(TString(name).Append("_sub2im"), TString(title).Append(" sub Part. 2 inv. Mass"), 400, 0, 400, kFALSE)//,
+    //sub_theta(TString(name).Append("_subTheta"), TString(title).Append(" sub Part. Theta"), 1800, 0, 180, 48, kFALSE),
+    //sub_phi(TString(name).Append("_subPhi"), TString(title).Append(" sub Part. Phi"), 3600, -180, 180, 48, kFALSE)
 {
 
 }
@@ -194,6 +195,7 @@ GHistEvent3MesonsProton::~GHistEvent3MesonsProton()
 
 }
 
+/*
 void    GHistEvent3MesonsProton::Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t* SUB_THETA, const Double_t* SUB_PHI, const Double_t taggerTime)
 {
     GHistEventProton::Fill(IM, MM, Theta, Phi, taggerTime);
@@ -217,8 +219,9 @@ void    GHistEvent3MesonsProton::Fill(const Double_t IM, const Double_t MM, cons
         sub_theta.Fill(SUB_THETA[i], taggerTime);
         sub_phi.Fill(SUB_PHI[i], taggerTime);
     }
-}
+}*/
 
+/*
 void    GHistEvent3MesonsProton::Fill(const Double_t IM, const Double_t MM, const Double_t Theta, const Double_t Phi, const Double_t ProtonE, const Double_t ProtonEcalc, const Double_t ProtonTheta, const Double_t ProtonPhi, const Double_t SUB0_IM, const Double_t SUB1_IM, const Double_t SUB2_IM, const Double_t* SUB_THETA, const Double_t* SUB_PHI, const Double_t taggerTime)
 {
     GHistEventProton::Fill(IM, MM, Theta, Phi, ProtonE, ProtonEcalc, ProtonTheta, ProtonPhi, taggerTime);
@@ -242,7 +245,7 @@ void    GHistEvent3MesonsProton::Fill(const Double_t IM, const Double_t MM, cons
         sub_theta.Fill(SUB_THETA[i], taggerTime);
         sub_phi.Fill(SUB_PHI[i], taggerTime);
     }
-}
+}*/
 
 void    GHistEvent3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char* name)
 {
@@ -256,15 +259,15 @@ void    GHistEvent3MesonsProton::PrepareWriteList(GHistWriteList* arr, const cha
         sub0_im.PrepareWriteList(arr, TString(name).Append("_sub0IM").Data());
         sub1_im.PrepareWriteList(arr, TString(name).Append("_sub1IM").Data());
         sub2_im.PrepareWriteList(arr, TString(name).Append("_sub2IM").Data());
-        sub_theta.PrepareWriteList(arr, TString(name).Append("_subTheta").Data());
-        sub_phi.PrepareWriteList(arr, TString(name).Append("_subPhi").Data());
+        //sub_theta.PrepareWriteList(arr, TString(name).Append("_subTheta").Data());
+        //sub_phi.PrepareWriteList(arr, TString(name).Append("_subPhi").Data());
     }
     else
     {
         sub0_im.PrepareWriteList(arr);
         sub1_im.PrepareWriteList(arr);
         sub2_im.PrepareWriteList(arr);
-        sub_theta.PrepareWriteList(arr);
-        sub_phi.PrepareWriteList(arr);
+        //sub_theta.PrepareWriteList(arr);
+        //sub_phi.PrepareWriteList(arr);
     }
 }

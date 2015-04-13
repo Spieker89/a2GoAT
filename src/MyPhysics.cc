@@ -3,8 +3,8 @@
 
 
 MyPhysics::MyPhysics()    :
-    hist_eta("eta", "eta", kTRUE),
-    hist_eta_proton("eta_proton", "eta_proton", kTRUE),
+    //hist_eta("eta", "eta", kTRUE),
+    //hist_eta_proton("eta_proton", "eta_proton", kTRUE),
     hist_etap("etap", "etap", kTRUE),
     hist_etap_proton("etap_proton", "etap_proton", kTRUE),
     EPTscalers("EPT_Scaler", "EPT_Scaler", 1000, 0, 100000000, 48),
@@ -44,17 +44,17 @@ Bool_t	MyPhysics::Start()
 
 void	MyPhysics::ProcessEvent()
 {
-    if(GetEtas()->GetNParticles()>0)
-    {
-        hist_eta.Fill(*GetEtas(), *GetPhotons(), *GetTagger(), kTRUE);
-        if(GetProtons()->GetNParticles()>0)
-            hist_eta_proton.Fill(*GetEtas(), *GetPhotons(), *GetProtons(), *GetTagger(), kTRUE);
-    }
+//    if(GetEtas()->GetNParticles()>0)
+//    {
+//        hist_eta.Fill(*GetEtas(), *GetPhotons(), *GetTagger());
+//        if(GetProtons()->GetNParticles()>0)
+//            hist_eta_proton.Fill(*GetEtas(), *GetPhotons(), *GetProtons(), *GetTagger());
+//    }
     if(GetEtaPrimes()->GetNParticles()>0)
     {
-        hist_etap.Fill(*GetEtaPrimes(), *GetPhotons(), *GetTagger(), kTRUE);
+        hist_etap.Fill(*GetEtaPrimes(), *GetPhotons(), *GetTagger());
         if(GetProtons()->GetNParticles()>0)
-            hist_etap_proton.Fill(*GetEtaPrimes(), *GetPhotons(), *GetProtons(), *GetTagger(), kTRUE);
+            hist_etap_proton.Fill(*GetEtaPrimes(), *GetPhotons(), *GetProtons(), *GetTagger());
     }
 }
 

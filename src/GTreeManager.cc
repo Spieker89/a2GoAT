@@ -346,6 +346,7 @@ Bool_t  GTreeManager::TraverseValidEvents_GoATTreeFile()
     {
         cout << "No Scaler tree available. Expect MC data. Loop over all events" << endl;
         cout << "\tProcess events from " << 0 << " to " << GetNEntries() << "."<< endl;
+        //TraverseEntries(0, 1000);
         TraverseEntries(0, GetNEntries());
         return true;
     }

@@ -14,11 +14,19 @@ class	GFit    : public GHistLinked
 protected:
     // lightweight structure for linking to fitter
     struct FitParticle {
+        void SetFromBeam(const Double_t beam) {
+            Ek = beam;
+            Theta = 0;
+            Phi = 0;
+            Ek_Sigma = 1;
+            Theta_Sigma = 1*TMath::DegToRad();
+            Phi_Sigma = 10;
+        }
         void SetFromVector(const TLorentzVector& p_) {
             Ek = p_.E()-p_.M();
             Theta = p_.Theta();
             Phi = p_.Phi();
-            Ek_Sigma = 0.02*Ek*pow(Ek,-0.36);
+            Ek_Sigma = 0.01*Ek*pow(Ek,-0.36);
             Theta_Sigma = 2.5*TMath::DegToRad();
             if(Theta>20*TMath::DegToRad() && Theta<160*TMath::DegToRad()) {
                 Phi_Sigma = Theta_Sigma/sin(Theta);
@@ -26,6 +34,10 @@ protected:
             else {
                 Phi_Sigma = 1*TMath::DegToRad();
             }
+        }
+        void SetToProtonResolution()
+        {
+            Ek_Sigma = 0.5*Ek*pow(Ek,-0.36);
         }
         static TLorentzVector Make(const std::vector<double>& EkThetaPhi,
                                    const Double_t m){
@@ -61,29 +73,44 @@ protected:
 
     };
 
+    APLCON                      fitter;
+    Double_t                    beam;
+    APLCON::Result_t            result;
+
+    GHistBGSub2             pulls;
+
 private:
+    std::string                 name;
     std::vector<FitParticle>    aplconPhotons;
 
-    GH1         im;
-    GH1         zVertex;
-    GH1         theta;
-    GH1         phi;
-    GH1         chiSq;
-    GH1         confidenceLevel;
-    GHistBGSub2 pulls;
+    GH1                     im;
+    GHistBGSub              sub0Im;
+    GHistBGSub              sub1Im;
+    GHistBGSub              sub2Im;
+    GH1                     theta;
+    GHistBGSub              phi;
+    GH1                     chiSq;
+    GH1                     confidenceLevel;
 
-protected:
-    std::string name;
-    APLCON      fitter;
-    APLCON::Result_t result;
+    virtual int GetNDOF()   {return 18;}
 
-    virtual void    AddConstraints() = 0;
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5)
+public:
+    GFit(const char* _Name, const Bool_t linkHistogram);
+    ~GFit()             {}
+
+    virtual void    AddConstraintsIM();
+    virtual void    AddConstraintMM();
+    virtual void    CalcResult();
+    virtual Int_t   Fill(Double_t x)    {return 0;}
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void    Reset(Option_t* option = "");
+    virtual Int_t   WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
+    virtual void    Set(const TLorentzVector& p0,
+                        const TLorentzVector& p1,
+                        const TLorentzVector& p2,
+                        const TLorentzVector& p3,
+                        const TLorentzVector& p4,
+                        const TLorentzVector& p5)
     {
         aplconPhotons[0].SetFromVector(p0);
         aplconPhotons[1].SetFromVector(p1);
@@ -92,242 +119,34 @@ protected:
         aplconPhotons[4].SetFromVector(p4);
         aplconPhotons[5].SetFromVector(p5);
     }
-
-
-    GFit(const char* name);
-
-public:
-    ~GFit()                                 {}
-
-    virtual void        CalcResult();
-    virtual Int_t       Fill(Double_t x)    {return 0;}
-    virtual void        PrepareWriteList(GHistWriteList* arr, const char* _Name = 0);
-    virtual void        Reset(Option_t* option = "");
-    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
-    virtual void        Solve(const double time, const int channel);
+    virtual void    SetBeam(const Double_t _Beam)    {beam=_Beam;}
+    virtual bool    Solve(const double time, const int channel);
 };
 
 
 
 
-
-
-
-
-
-
-class	GFit1Constraints    : public GFit
+class	GFitVertex    : public GFit
 {
 private:
-    TLorentzVector  beamAndTarget;
+    GH1     vertex;
 
-    GHistBGSub2     pulls;
+    void    ConvertTheta(std::vector<double>& p, std::vector<double>& v)  {p[1] = std::atan2( 25.4*sin(p[1]), 25.4*cos(p[1]) - v[0]);}
 
-protected:
-    GFit1Constraints(const char* name)  :
-        GFit(name),
-        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
-    {AddConstraints();}
+    virtual int GetNDOF()   {return 18;}
 
 public:
-    GFit1Constraints()                  :
-        GFit("fit1"),
-        pulls(TString("fit1").Append("_pulls"), TString("fit1").Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
-    {AddConstraints();}
-    ~GFit1Constraints() {}
+    GFitVertex(const char* _Name, const Bool_t linkHistogram);
+    ~GFitVertex()             {}
 
-    virtual void        AddConstraints();
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5,
-                const TLorentzVector& _BeamAndTarget)
-    {
-        beamAndTarget   = _BeamAndTarget;
-        GFit::Set(p0, p1, p2, p3, p4, p5);
-    }
+    virtual void    AddConstraintsIM();
+    virtual void    AddConstraintMM();
+    virtual void    CalcResult();
+    virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
+    virtual void    Reset(Option_t* option = "");
+    virtual bool    Solve(const double time, const int channel);
 };
 
 
-
-
-
-
-
-
-
-class	GFit3Constraints    : public GFit
-{
-private:
-    GHistBGSub2     pulls;
-
-protected:
-    GFit3Constraints(const char* name)  :
-        GFit(name),
-        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
-    {AddConstraints();}
-
-public:
-    GFit3Constraints()                  :
-        GFit("fit3"),
-        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
-    {AddConstraints();}
-    ~GFit3Constraints()                                     {}
-
-    virtual void    AddConstraints();
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5)
-    {
-        GFit::Set(p0, p1, p2, p3, p4, p5);
-    }
-};
-
-
-
-
-
-
-
-
-
-class	GFit4Constraints    : public GFit1Constraints
-{
-private:
-    GHistBGSub2     pulls;
-
-public:
-    GFit4Constraints()                  :
-        GFit1Constraints("fit4"),
-        pulls(TString(name).Append("_pulls"), TString(name).Append("_pulls"), 100, -5, 5, 18, 0, 18, kFALSE)
-    {AddConstraints();}
-    ~GFit4Constraints()                                                 {}
-
-    virtual void    AddConstraints();
-};
-
-
-
-
-
-
-
-
-
-
-
-class	GFitProton    : public GFit
-{
-private:
-    FitParticle     proton;
-    TLorentzVector  beamAndTarget;
-    GHistBGSub2     pulls;
-
-public:
-    GFitProton();
-    ~GFitProton()                   {}
-
-    virtual void    AddConstraints()    {}
-    virtual void    Solve(const double time, const int channel);
-    void    Set(const TLorentzVector& p0,
-                const TLorentzVector& p1,
-                const TLorentzVector& p2,
-                const TLorentzVector& p3,
-                const TLorentzVector& p4,
-                const TLorentzVector& p5,
-                const TLorentzVector& _Proton,
-                const TLorentzVector& _BeamAndTarget)
-    {
-        beamAndTarget   = _BeamAndTarget;
-        proton.SetFromVector(_Proton);
-        GFit::Set(p0, p1, p2, p3, p4, p5);
-    }
-};
-
-
-
-
-
-
-
-
-
-
-/*
-class   GHistFit    : public    GHistLinked
-{
-private:
-    Int_t       nPulls;
-    GH1         im;
-    GH1         sub0im;
-    GH1         sub1im;
-    GH1         sub2im;
-    GH1         theta;
-    GH1         phi;
-    GH1         Pim;
-    GH1         Ptheta;
-    GH1         Pphi;
-    GH1         chiSq;
-    GH1         VchiSq;
-    GH1         CchiSq;
-    GH1         confidenceLevel;
-    GH1         VconfidenceLevel;
-    GH1         CconfidenceLevel;
-    GHistBGSub2 pulls;
-public:
-    GHistFit(const char* name, const char* title, const Int_t _NPulls, Bool_t linkHistogram= kTRUE);
-    ~GHistFit();
-
-    virtual void        CalcResult();
-    virtual Int_t       Fill(Double_t x)                {return 0;}
-    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime);
-    virtual Int_t       Fill(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel);
-    virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
-    virtual void        Reset(Option_t* option = "");
-    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
-};
-
-
-class   GHistIterativeFit    : public    GHistLinked
-{
-private:
-    GHistBGSub2 im;
-    GHistBGSub2 sub0im;
-    GHistBGSub2 sub1im;
-    GHistBGSub2 sub2im;
-    GHistBGSub2 mm;
-    GHistBGSub2 totE;
-    GHistBGSub2 totPx;
-    GHistBGSub2 totPy;
-    GHistBGSub2 totPz;
-    GHistBGSub2 VchiSq;
-    GHistBGSub2 VconfidenceLevel;
-    GHistBGSub2 CchiSq;
-    GHistBGSub2 CconfidenceLevel;
-    GHistBGSub2 chiSq;
-    GHistBGSub2 confidenceLevel;
-    GHistFit    final;
-
-public:
-    GHistIterativeFit(const char* name, const char* title, const Int_t _NPulls, const Int_t _NSteps, Bool_t linkHistogram= kTRUE);
-    ~GHistIterativeFit();
-
-    virtual void        CalcResult();
-    virtual Int_t       Fill(Double_t x)                {return 0;}
-    virtual Int_t       Fill(GFit& fitter);
-    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime)                              {return final.Fill(fitter, taggerTime);}
-    virtual Int_t       FillFinal(GFit& fitter, const Double_t taggerTime, const Int_t taggerChannel)   {return final.Fill(fitter, taggerTime, taggerChannel);}
-    virtual void        PrepareWriteList(GHistWriteList* arr, const char* name = 0);
-    virtual void        Reset(Option_t* option = "");
-    virtual void        ScalerReadCorrection(const Double_t CorrectionFactor, const Bool_t CreateHistogramsForSingleScalerReads = kFALSE);
-    virtual Int_t       WriteWithoutCalcResult(const char* name = 0, Int_t option = 0, Int_t bufsize = 0)   {return 0;}
-};
-*/
 
 #endif
