@@ -22,8 +22,6 @@ Do-Particle-Reconstruction: 1
 #
 #Cut-TAPS-TOF:           configfiles/cuts/TAPS_TOF.root Hadron
 
-Do-Meson-Reconstruction: 1
-=======
 Do-Charged-Particle-Reconstruction: 1
 #Cut-dE-E-CB-Proton: 	configfiles/cuts/CB_DeltaE-E_Proton.root Proton
 #Cut-dE-E-CB-Pion: 		configfiles/cuts/CB_DeltaE-E_Pion.root Pion
@@ -32,9 +30,9 @@ Do-Charged-Particle-Reconstruction: 1
 #Cut-dE-E-TAPS-Electron: configfiles/cuts/TAPS_DeltaE-E.root CutElectron
 
 Do-Meson-Reconstruction: 0
-Cut-IM-Width-Pi0: 20
-Cut-IM-Width-Eta: 44
-Cut-IM-Width-Eta-Prime: 60
+#Cut-IM-Width-Pi0: 20
+#Cut-IM-Width-Eta: 44
+#Cut-IM-Width-Eta-Prime: 60
 
 
 #-----------------------------------------------------------------------
@@ -61,6 +59,7 @@ Sort-NParticles: 	3-
 #				Type 	Number	Theta-min 	Theta-max
 Sort-Particle:	neutral	2=		0			180
 Sort-Particle:	charged	1- 		0			180
+
 
 # Note: (I'll put this here while we don't have a manual)
 # the charged and neutral particle cuts are additional 
