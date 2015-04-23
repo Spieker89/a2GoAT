@@ -12,13 +12,13 @@ void	FitScaleMC(const char* fileName)
 	{
 		std::cout << "Can not open output file resultFitScaleMC.root" << std::endl;
 		return;
-	}	
+	}	    
     
-	TH2D*	hist2	= (TH2D*)file->Get("CalibCB");
+	TH2D*	hist2	= (TH2D*)file->Get("CalibCBCorr");
 	TH1D*	hist	= hist2->ProjectionX();
 	if(!hist)
 	{
-		std::cout << "Can not open hist CalibCB." << std::endl;
+		std::cout << "Can not open hist CalibCBCorr." << std::endl;
 		return;
 	}
 	
@@ -51,11 +51,11 @@ void	FitScaleMCEta(const char* fileName)
 		return;
 	}	
     
-	TH2D*	hist2	= (TH2D*)file->Get("CalibCB");
+	TH2D*	hist2	= (TH2D*)file->Get("CalibCBCorr");
 	TH1D*	hist	= hist2->ProjectionX();
 	if(!hist)
 	{
-		std::cout << "Can not open hist CalibCB." << std::endl;
+		std::cout << "Can not open hist CalibCBCorr." << std::endl;
 		return;
 	}
 	
