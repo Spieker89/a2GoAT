@@ -352,8 +352,10 @@ GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* tit
     fitProton6Vertex.AddConstraintsIM();
 
     fitBeamProton6.AddConstraintsTotMomentum();
+    fitBeamProton6.AddConstraintsTotEnergy();
     fitBeamProton6.AddConstraintsIM();
     fitBeamProton6Vertex.AddConstraintsTotMomentum();
+    fitBeamProton6Vertex.AddConstraintsTotEnergy();
     fitBeamProton6Vertex.AddConstraintsIM();
 }
 
