@@ -151,7 +151,7 @@ void	FitBinsFitAll(const TH1D* hist, Double_t* par)
 	h->Fit(fit, "R");
     h->SetAxisRange(850, 1050);
     h->SetStats(0);
-    h->GetXaxis()->SetTitle("inv. Mass (#eta#pi^{0}#pi^{0}) [MeV/c]");
+    h->GetXaxis()->SetTitle("inv. mass (6#gamma) [MeV/c]");
     h->SetTitle("");
 	h->Draw();
 	
@@ -483,11 +483,60 @@ void	FitBins(const TFile* dataFile, const TFile* scalerFile, const TFile* out, c
 	endResultCan	= new TCanvas("FitBinsEndResult", "FitBinsEndResult", 1500, 800);
 	endResultCan->Divide(1, 1);
 	endResultCan->cd(1);
-    TGraphErrors*	graph = new TGraphErrors(ch.size()-3, x9, y9, dx9, dy9);
+    TGraphErrors*	graph = new TGraphErrors(ch.size()-2, x9, y9, dx9, dy9);
     graph->GetXaxis()->SetTitle("E_{#gamma} [MeV]");
     graph->GetYaxis()->SetTitle("[#mub]");
     graph->SetTitle("");
 	graph->Draw();
+	
+	Double_t	x10[7];
+	Double_t	dx10[7];
+	Double_t	y10[7];
+	Double_t	dy10[7];
+	x10[0]	= 1.450;
+	dx10[0]	= 0;
+	y10[0]	= 0.308;
+	dy10[0]	= 0.013;
+	
+	x10[1]	= 1.470;
+	dx10[1]	= 0;
+	y10[1]	= 0.516;
+	dy10[1]	= 0.013;
+	
+	x10[2]	= 1.490;
+	dx10[2]	= 0;
+	y10[2]	= 0.555;
+	dy10[2]	= 0.015;
+	
+	x10[3]	= 1.510;
+	dx10[3]	= 0;
+	y10[3]	= 0.637;
+	dy10[3]	= 0.016;
+	
+	x10[4]	= 1.530;
+	dx10[4]	= 0;
+	y10[4]	= 0.669;
+	dy10[4]	= 0.015;
+	
+	x10[5]	= 1.550;
+	dx10[5]	= 0;
+	y10[5]	= 0.758;
+	dy10[5]	= 0.019;
+	
+	x10[6]	= 1.570;
+	dx10[6]	= 0;
+	y10[6]	= 0.818;
+	dy10[6]	= 0.023;
+
+    TGraphErrors*	sergeyGraph = new TGraphErrors(7, x10, y10, dx10, dy10);
+    sergeyGraph->GetXaxis()->SetTitle("E_{#gamma} [MeV]");
+    sergeyGraph->GetYaxis()->SetTitle("[#mub]");
+    sergeyGraph->SetTitle("");
+	sergeyGraph->SetLineColor(kRed);
+	sergeyGraph->Draw("SAME");
+	
+	TF1*	fit = new TF1("fitfkt", "pol2(0)", 1.4, 1.6);
+	sergeyGraph->Fit(fit, "R");
 	
 	out->cd();
 	maincan->Write();

@@ -210,11 +210,11 @@ void	Result(const char* dataFileName, const char* mcSignalFileName, const char* 
 	out->cd();
 	can->Write();*/
 	
-	TFile*	scalerFile		= TFile::Open("/home/ott/ScalerPhysics_CB.root");
-	if(!scalerFile)
-	{
-		std::cout << "Can not open scalerFile /home/ott/ScalerPhysics_CB.root" << std::endl;
-		return;
-	}
-	FitBins(dataFile, scalerFile, out, 3);
+	//TFile*	scalerFile		= TFile::Open("/home/ott/ScalerPhysics_CB.root");
+	//if(!scalerFile)
+	//{
+	//	std::cout << "Can not open scalerFile /home/ott/ScalerPhysics_CB.root" << std::endl;
+	//	return;
+	//}
+	FitBins(dataFile, dataFile, out, 3, "WithProton/fitBeam4/TaggerBinning/IM_Bins");
 }
