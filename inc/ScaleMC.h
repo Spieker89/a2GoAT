@@ -14,6 +14,8 @@ class	ScaleMC  : public GTreeManager
 private:
     GHistBGSub2     CalibCB;
     GHistBGSub2     CalibTAPS;
+    GHistBGSub2     CalibCBCorr;
+    GHistBGSub2     CalibTAPSCorr;
 
 protected:
     virtual Bool_t  Start();
