@@ -9,13 +9,18 @@
 class	GFitProton    : public GFit
 {
 private:
-    FitParticle     aplconProton;
+    double              aplconProtonTheta;
+    double              aplconProtonPhi;
+    double              aplconProtonThetaSigma;
+    double              aplconProtonPhiSigma;
 
     GH1                 protonEnergy;
     GH1                 protonTheta;
     GHistBGSub          protonPhi;
 
     virtual int GetNDOF()   {return 21;}
+    std::vector<double*>    GetLink()       {return {&aplconProtonTheta, &aplconProtonPhi};}
+    std::vector<double*>    GetLinkSigma()  {return {&aplconProtonThetaSigma, &aplconProtonPhiSigma};}
 
 public:
     GFitProton(const char* _Name, const Bool_t linkHistogram);
@@ -26,7 +31,7 @@ public:
     virtual void    CalcResult();
     virtual void    PrepareWriteList(GHistWriteList* arr, const char* name = 0);
     virtual void    Reset(Option_t* option = "");
-    virtual void    SetProton(const TLorentzVector proton)    {aplconProton.SetFromVector(proton); aplconProton.SetToProtonResolution();}
+    virtual void    SetProton(const TLorentzVector proton)    {aplconProtonTheta = proton.Theta(); aplconProtonPhi = proton.Phi();}
     virtual bool    Solve(const double time, const int channel);
 };
 

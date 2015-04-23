@@ -48,6 +48,16 @@ protected:
             TLorentzVector l(pv, E);
             return l;
         }
+        static TLorentzVector Make(const Double_t Ek,
+                                   const std::vector<double>& ThetaPhi,
+                                   const Double_t m){
+            const double E = Ek + m;
+            const Double_t p = sqrt( E*E - m*m );
+            TVector3 pv(1,0,0);
+            pv.SetMagThetaPhi(p, ThetaPhi[0], ThetaPhi[1]);
+            TLorentzVector l(pv, E);
+            return l;
+        }
         static TLorentzVector Make(const FitParticle& p,
                                    const Double_t m) {
             return Make(std::vector<double>{p.Ek, p.Theta, p.Phi}, m);
