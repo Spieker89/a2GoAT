@@ -27,7 +27,7 @@ bool GFitBeam::Solve(const double time, const int channel)
             std::stringstream s;
             s << "Be[" << p << "]";
             const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
-            pulls.Fill(var.Pull, p);
+            pulls.Fill(var.Pull, p, time);
         }
         return true;
     }

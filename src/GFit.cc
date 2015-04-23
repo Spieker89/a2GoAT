@@ -65,7 +65,7 @@ bool GFit::Solve(const double time, const int channel)
                 //cout << result << endl;
                 //cout << s.str() << endl;
                 const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
-                pulls.Fill(var.Pull, (3*i)+p+3);
+                pulls.Fill(var.Pull, (3*i)+p+3, time);
             }
         }
         //cout << result << endl;

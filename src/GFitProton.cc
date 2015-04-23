@@ -94,7 +94,7 @@ bool GFitProton::Solve(const double time, const int channel)
             std::stringstream s;
             s << "Pr[" << p << "]";
             const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
-            pulls.Fill(var.Pull, 21+p);
+            pulls.Fill(var.Pull, 21+p, time);
         }
         //cout << result << endl;
         //cout << name << " working" << endl;
