@@ -108,6 +108,14 @@ else()
     message(STATUS "Pluto disabled")
 endif()
 
+add_executable(scaleMC
+   ${GOAT_BASE}
+   ${GOAT_GHIST}
+   inc/ScaleMC.h
+   src/ScaleMC.cc
+   src/scaleMC_main.cc
+   )
+target_link_libraries(scaleMC ${LIBS} ${ROOT_LIBRARIES})
 
 add_executable(goat
    ${GOAT_BASE}

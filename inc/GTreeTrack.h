@@ -91,6 +91,7 @@ public:
             Double_t        GetPseudoVertexY(const Int_t index)       const	{return pseudoVertexY[index];}
     const	Double_t*       GetPseudoVertexZ()                        const	{return pseudoVertexZ;}
             Double_t        GetPseudoVertexZ(const Int_t index)       const	{return pseudoVertexZ[index];}
+            void            SetClusterEnergy(const Int_t index, const Double_t energy) {clusterEnergy[index] = energy;}
     virtual void            Print(const Bool_t All = kFALSE)    const;
 
     friend  class GTreeParticle;
