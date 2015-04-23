@@ -93,6 +93,7 @@ private:
     std::string                 name;
     std::vector<FitParticle>    aplconPhotons;
 
+    GHistBGSub              steps;
     GH1                     im;
     GHistBGSub              sub0Im;
     GHistBGSub              sub1Im;

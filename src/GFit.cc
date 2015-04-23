@@ -15,6 +15,7 @@ GFit::GFit(const char* _Name, const Bool_t linkHistogram)   :
     fitter(_Name),
     pulls(TString(_Name).Append("_pulls"), TString(_Name).Append(" pulls"), 200, -10, 10, 18, 0, 24, kFALSE),
     name(_Name),
+    steps(TString(_Name).Append("_steps"), TString(_Name).Append(" steps"), 100, 0, 100, kFALSE),
     im(TString(_Name).Append("_IM"), TString(_Name).Append(" inv Mass"), 2000, 0, 2000, 48, kFALSE),
     sub0Im(TString(_Name).Append("_sub0Im"), TString(_Name).Append(" sub0 inv Mass"), 500, 300, 800, kFALSE),
     sub1Im(TString(_Name).Append("_sub1Im"), TString(_Name).Append(" sub1 inv Mass"), 300, 0, 300, kFALSE),
@@ -42,6 +43,7 @@ bool GFit::Solve(const double time, const int channel)
     result = fitter.DoFit();
     if(result.Status == APLCON::Result_Status_t::Success)
     {
+        steps.Fill(result.NIterations);
         Double_t    cl  = TMath::Prob(result.ChiSquare, GetNDOF()-result.NDoF);
         confidenceLevel.Fill(cl, time);
         if(cl<0.05) return false;
@@ -127,6 +129,7 @@ void    GFit::AddConstraintsIM()
 
     void    GFit::CalcResult()
     {
+        steps.CalcResult();
         im.CalcResult();
         sub0Im.CalcResult();
         sub1Im.CalcResult();
@@ -143,6 +146,7 @@ void    GFit::AddConstraintsIM()
         if(!arr)
             return;
 
+        steps.PrepareWriteList(arr, "steps");
         im.PrepareWriteList(arr, "IM");
         sub0Im.PrepareWriteList(arr, "sub0Im");
         sub1Im.PrepareWriteList(arr, "sub1Im");
@@ -156,6 +160,7 @@ void    GFit::AddConstraintsIM()
 
     void    GFit::Reset(Option_t* option)
     {
+        steps.Reset(option);
         im.Reset(option);
         sub0Im.Reset(option);
         sub1Im.Reset(option);
