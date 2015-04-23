@@ -98,7 +98,8 @@ private:
     GHistBGSub              sub0Im;
     GHistBGSub              sub1Im;
     GHistBGSub              sub2Im;
-    GH1                     theta;
+    GHistBGSub              theta;
+    GH1                     thetaCM;
     GHistBGSub              phi;
     GH1                     chiSq;
     GH1                     confidenceLevel;

@@ -13,16 +13,17 @@ using namespace std;
 GFit::GFit(const char* _Name, const Bool_t linkHistogram)   :
     GHistLinked(linkHistogram),
     fitter(_Name),
-    pulls(TString(_Name).Append("_pulls"), TString(_Name).Append(" pulls"), 200, -10, 10, 18, 0, 24, kFALSE),
+    pulls(TString(_Name).Append("_pulls"), TString(_Name).Append(" pulls"), 200, -10, 10, 24, 0, 24, kFALSE),
     name(_Name),
     steps(TString(_Name).Append("_steps"), TString(_Name).Append(" steps"), 100, 0, 100, kFALSE),
     im(TString(_Name).Append("_IM"), TString(_Name).Append(" inv Mass"), 2000, 0, 2000, 48, kFALSE),
     sub0Im(TString(_Name).Append("_sub0Im"), TString(_Name).Append(" sub0 inv Mass"), 500, 300, 800, kFALSE),
     sub1Im(TString(_Name).Append("_sub1Im"), TString(_Name).Append(" sub1 inv Mass"), 300, 0, 300, kFALSE),
     sub2Im(TString(_Name).Append("_sub2Im"), TString(_Name).Append(" sub2 inv Mass"), 300, 0, 300, kFALSE),
-    theta(TString(_Name).Append("_theta"), TString(_Name).Append(" theta"), 180, 0, 180, 48, kFALSE),
+    theta(TString(_Name).Append("_theta"), TString(_Name).Append(" theta"), 180, 0, 180, kFALSE),
+    thetaCM(TString(_Name).Append("_thetaCM"), TString(_Name).Append(" thetaCM"), 180, 0, 180, 48, kFALSE),
     phi(TString(_Name).Append("_phi"), TString(_Name).Append(" phi"), 360, -180, 180, kFALSE),
-    chiSq(TString(_Name).Append("_ChiSq"), TString(_Name).Append(" ChiSq"), 1000, 0, 10, 48, kFALSE),
+    chiSq(TString(_Name).Append("_ChiSq"), TString(_Name).Append(" ChiSq"), 1000, 0, 100, 48, kFALSE),
     confidenceLevel(TString(_Name).Append("_ConfLev"), TString(_Name).Append(" ConfLev"), 1000, 0, 1, 48, kFALSE)
 {
     aplconPhotons.resize(6);
@@ -46,7 +47,7 @@ bool GFit::Solve(const double time, const int channel)
         steps.Fill(result.NIterations);
         Double_t    cl  = TMath::Prob(result.ChiSquare, GetNDOF()-result.NDoF);
         confidenceLevel.Fill(cl, time);
-        if(cl<0.05) return false;
+        if(cl<0.01) return false;
         TLorentzVector etap(0,0,0,0);
         for(size_t t=0;t<aplconPhotons.size();t++)
             etap += FitParticle::Make(aplconPhotons[t], 0);
@@ -54,7 +55,7 @@ bool GFit::Solve(const double time, const int channel)
         sub0Im.Fill((FitParticle::Make(aplconPhotons[0], 0)+FitParticle::Make(aplconPhotons[1], 0)).M(), time);
         sub1Im.Fill((FitParticle::Make(aplconPhotons[2], 0)+FitParticle::Make(aplconPhotons[3], 0)).M(), time);
         sub2Im.Fill((FitParticle::Make(aplconPhotons[4], 0)+FitParticle::Make(aplconPhotons[5], 0)).M(), time);
-        theta.Fill(etap.Theta()*TMath::RadToDeg(), time, channel);
+        theta.Fill(etap.Theta()*TMath::RadToDeg(), time);
         phi.Fill(etap.Phi()*TMath::RadToDeg(), time);
         chiSq.Fill(result.ChiSquare, time);
         for(int i=0; i<6; i++)
