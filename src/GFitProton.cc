@@ -88,7 +88,6 @@ bool GFitProton::Solve(const double time, const int channel)
         protonEnergy.Fill(pe.Value.After, time, channel);
         protonTheta.Fill(aplconProtonTheta*TMath::RadToDeg(), time, channel);
         protonPhi.Fill(aplconProtonPhi*TMath::RadToDeg(), time);
-        pulls.Fill(pe.Pull, 21, time);
         for(int p=0; p<2; p++)
         {
             std::stringstream s;

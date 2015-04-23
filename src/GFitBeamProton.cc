@@ -12,17 +12,18 @@ using namespace std;
 
 GFitBeamProton::GFitBeamProton(const char* _Name, const Bool_t linkHistogram)   :
     GFitBeam(_Name, linkHistogram),
-    protonEnergy(TString(_Name).Append("_protonEnergy"), TString(_Name).Append(" protonEnergy"), 300, 0, 300, 48, kFALSE),
+    protonEnergy(TString(_Name).Append("_protonEnergy"), TString(_Name).Append(" protonEnergy"), 1000, 0, 1000, 48, kFALSE),
     protonTheta(TString(_Name).Append("_protonTheta"), TString(_Name).Append(" protonTheta"), 180, 0, 180, 48, kFALSE),
     protonPhi(TString(_Name).Append("_protonPhi"), TString(_Name).Append(" protonPhi"), 360, -180, 180, kFALSE)
 {
-    fitter.LinkVariable("Pr", aplconProton.Link(), aplconProton.LinkSigma());
+    fitter.AddUnmeasuredVariable("PE", 250);
+    fitter.LinkVariable("PA", GetLink(), GetLinkSigma());
 }
 
 void    GFitBeamProton::AddConstraintsTotMomentum()
 {
-    fitter.AddConstraint("px", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr"},
-                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr) {
+    fitter.AddConstraint("px", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE"},
+                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -30,13 +31,13 @@ void    GFitBeamProton::AddConstraintsTotMomentum()
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+        TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
         return vb.Px()-v0.Px()-v1.Px()-v2.Px()-v3.Px()-v4.Px()-v5.Px()-vp.Px();
         }
     );
-    fitter.AddConstraint("py", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr"},
-                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr) {
+    fitter.AddConstraint("py", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE"},
+                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -44,13 +45,13 @@ void    GFitBeamProton::AddConstraintsTotMomentum()
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+        TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
         return vb.Py()-v0.Py()-v1.Py()-v2.Py()-v3.Py()-v4.Py()-v5.Py()-vp.Py();
         }
     );
-    fitter.AddConstraint("pz", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr"},
-                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr) {
+    fitter.AddConstraint("pz", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE"},
+                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -58,7 +59,7 @@ void    GFitBeamProton::AddConstraintsTotMomentum()
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+        TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
         return vb.Pz()-v0.Pz()-v1.Pz()-v2.Pz()-v3.Pz()-v4.Pz()-v5.Pz()-vp.Pz();
         }
@@ -67,8 +68,8 @@ void    GFitBeamProton::AddConstraintsTotMomentum()
 
 void    GFitBeamProton::AddConstraintsTotEnergy()
 {
-    fitter.AddConstraint("e", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr"},
-                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr) {
+    fitter.AddConstraint("e", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE"},
+                        [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -76,7 +77,7 @@ void    GFitBeamProton::AddConstraintsTotEnergy()
         TLorentzVector v3 = FitParticle::Make(p3, 0);
         TLorentzVector v4 = FitParticle::Make(p4, 0);
         TLorentzVector v5 = FitParticle::Make(p5, 0);
-        TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+        TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
         return vb.E()+MASS_PROTON-v0.E()-v1.E()-v2.E()-v3.E()-v4.E()-v5.E()-vp.E();
         }
@@ -87,18 +88,16 @@ bool GFitBeamProton::Solve(const double time, const int channel)
 {
     if(GFitBeam::Solve(time, channel))
     {
-        TLorentzVector proton(FitParticle::Make(aplconProton, MASS_PROTON));
-        protonEnergy.Fill(proton.E(), time, channel);
-        //const APLCON::Result_Variable_t& var = result.Variables.at("zVertex");
-        //zVertex.Fill(var.Value.After, time, channel);
-        protonTheta.Fill(proton.Theta()*TMath::RadToDeg(), time, channel);
-        protonPhi.Fill(proton.Phi()*TMath::RadToDeg(), time);
-        for(int p=0; p<3; p++)
+        const APLCON::Result_Variable_t& pe = result.Variables.at("PE");
+        protonEnergy.Fill(pe.Value.After, time, channel);
+        protonTheta.Fill(aplconProtonTheta*TMath::RadToDeg(), time, channel);
+        protonPhi.Fill(aplconProtonPhi*TMath::RadToDeg(), time);
+        for(int p=0; p<2; p++)
         {
             std::stringstream s;
-            s << "Pr[" << p << "]";
+            s << "PA[" << p << "]";
             const APLCON::Result_Variable_t& var = result.Variables.at(s.str());
-            pulls.Fill(var.Pull, 21+p, time);
+            pulls.Fill(var.Pull, 22+p, time);
         }
         //cout << result << endl;
         //cout << name << " working" << endl;
@@ -210,8 +209,8 @@ bool GFitBeamProton::Solve(const double time, const int channel)
 
     void    GFitBeamProtonVertex::AddConstraintsTotMomentum()
     {
-        fitter.AddConstraint("px", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr", "Ve"},
-                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, vector<double>& v) {
+        fitter.AddConstraint("px", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE", "Ve"},
+                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe, vector<double>& v) {
             ConvertTheta(be, v);
             ConvertTheta(p0, v);
             ConvertTheta(p1, v);
@@ -219,7 +218,7 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             ConvertTheta(p3, v);
             ConvertTheta(p4, v);
             ConvertTheta(p5, v);
-            ConvertTheta(pr, v);
+            pa[0] = std::atan2( 25.4*sin(pa[0]), 25.4*cos(pa[0]) - v[0]);
             TLorentzVector vb = FitParticle::Make(be, 0);
             TLorentzVector v0 = FitParticle::Make(p0, 0);
             TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -227,13 +226,13 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             TLorentzVector v3 = FitParticle::Make(p3, 0);
             TLorentzVector v4 = FitParticle::Make(p4, 0);
             TLorentzVector v5 = FitParticle::Make(p5, 0);
-            TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+            TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
             return vb.Px()-v0.Px()-v1.Px()-v2.Px()-v3.Px()-v4.Px()-v5.Px()-vp.Px();
             }
         );
-        fitter.AddConstraint("py", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr", "Ve"},
-                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, vector<double>& v) {
+        fitter.AddConstraint("py", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE", "Ve"},
+                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe, vector<double>& v) {
             ConvertTheta(be, v);
             ConvertTheta(p0, v);
             ConvertTheta(p1, v);
@@ -241,7 +240,7 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             ConvertTheta(p3, v);
             ConvertTheta(p4, v);
             ConvertTheta(p5, v);
-            ConvertTheta(pr, v);
+            pa[0] = std::atan2( 25.4*sin(pa[0]), 25.4*cos(pa[0]) - v[0]);
             TLorentzVector vb = FitParticle::Make(be, 0);
             TLorentzVector v0 = FitParticle::Make(p0, 0);
             TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -249,13 +248,13 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             TLorentzVector v3 = FitParticle::Make(p3, 0);
             TLorentzVector v4 = FitParticle::Make(p4, 0);
             TLorentzVector v5 = FitParticle::Make(p5, 0);
-            TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+            TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
             return vb.Py()-v0.Py()-v1.Py()-v2.Py()-v3.Py()-v4.Py()-v5.Py()-vp.Py();
             }
         );
-        fitter.AddConstraint("pz", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr", "Ve"},
-                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, vector<double>& v) {
+        fitter.AddConstraint("pz", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE", "Ve"},
+                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe, vector<double>& v) {
             ConvertTheta(be, v);
             ConvertTheta(p0, v);
             ConvertTheta(p1, v);
@@ -263,7 +262,7 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             ConvertTheta(p3, v);
             ConvertTheta(p4, v);
             ConvertTheta(p5, v);
-            ConvertTheta(pr, v);
+            pa[0] = std::atan2( 25.4*sin(pa[0]), 25.4*cos(pa[0]) - v[0]);
             TLorentzVector vb = FitParticle::Make(be, 0);
             TLorentzVector v0 = FitParticle::Make(p0, 0);
             TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -271,7 +270,7 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             TLorentzVector v3 = FitParticle::Make(p3, 0);
             TLorentzVector v4 = FitParticle::Make(p4, 0);
             TLorentzVector v5 = FitParticle::Make(p5, 0);
-            TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+            TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
             return vb.Pz()-v0.Pz()-v1.Pz()-v2.Pz()-v3.Pz()-v4.Pz()-v5.Pz()-vp.Pz();
             }
@@ -280,8 +279,8 @@ bool GFitBeamProton::Solve(const double time, const int channel)
 
     void    GFitBeamProtonVertex::AddConstraintsTotEnergy()
     {
-        fitter.AddConstraint("e", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "Pr", "Ve"},
-                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pr, vector<double>& v) {
+        fitter.AddConstraint("e", {"Be", "Ph0", "Ph1", "Ph2", "Ph3", "Ph4", "Ph5", "PA", "PE", "Ve"},
+                            [&] (vector<double>& be, vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& p4, vector<double>& p5, vector<double>& pa, vector<double>& pe, vector<double>& v) {
             ConvertTheta(be, v);
             ConvertTheta(p0, v);
             ConvertTheta(p1, v);
@@ -289,7 +288,7 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             ConvertTheta(p3, v);
             ConvertTheta(p4, v);
             ConvertTheta(p5, v);
-            ConvertTheta(pr, v);
+            pa[0] = std::atan2( 25.4*sin(pa[0]), 25.4*cos(pa[0]) - v[0]);
             TLorentzVector vb = FitParticle::Make(be, 0);
             TLorentzVector v0 = FitParticle::Make(p0, 0);
             TLorentzVector v1 = FitParticle::Make(p1, 0);
@@ -297,7 +296,7 @@ bool GFitBeamProton::Solve(const double time, const int channel)
             TLorentzVector v3 = FitParticle::Make(p3, 0);
             TLorentzVector v4 = FitParticle::Make(p4, 0);
             TLorentzVector v5 = FitParticle::Make(p5, 0);
-            TLorentzVector vp = FitParticle::Make(pr, MASS_PROTON);
+            TLorentzVector vp = FitParticle::Make(pe[0], pa, MASS_PROTON);
 
             return vb.E()+MASS_PROTON-v0.E()-v1.E()-v2.E()-v3.E()-v4.E()-v5.E()-vp.E();
             }
