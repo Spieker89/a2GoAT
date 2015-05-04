@@ -44,9 +44,9 @@ void	ScaleMC::ProcessEvent()
             else
             {
                 if(GetTracks()->HasCB(i) == kFALSE)
-                    CalibCB.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(i));
+                    CalibTAPS.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(i));
                 if(GetTracks()->HasCB(j) == kFALSE)
-                    CalibCB.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(j));
+                    CalibTAPS.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(j));
             }
         }
     }
@@ -68,12 +68,14 @@ void	ScaleMC::ProcessEvent()
             else
             {
                 if(GetTracks()->HasCB(i) == kFALSE)
-                    CalibCBCorr.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(i));
+                    CalibTAPSCorr.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(i));
                 if(GetTracks()->HasCB(j) == kFALSE)
-                    CalibCBCorr.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(j));
+                    CalibTAPSCorr.Fill((GetTracks()->GetVector(i)+GetTracks()->GetVector(j)).M(), GetTracks()->GetCentralCrystal(j));
             }
         }
     }
+
+    if(tagger->GetNTagged()!=1) return;
 
     GetTracks()->Fill();
     GetTagger()->Fill();
