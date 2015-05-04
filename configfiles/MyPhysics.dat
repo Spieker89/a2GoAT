@@ -1,16 +1,4 @@
-Cut-Eta-SubIM:                  110.9624	168.3416    109.2863	159.8657    104.7574	160.5606
-Cut-Eta-MM:                     900.1889	1088.2491
-Cut-Eta-ConfidenceLevel:        0.1             0.1
-Cut-Eta-Proton-MinAngle:        10
-Cut-Eta-Proton-Coplanarity:     160     200
-Cut-Eta-Proton-SubIM:           119.3841	158.2879    117.9278	150.3302    113.6797	152.6143
-Cut-Eta-Proton-MM:              855.872	1100.026
-Cut-Eta-Proton-ConfidenceLevel: 0.1             0.1
-Cut-Etap-SubIM                  502.0797	578.9463    115.8638	147.5342    112.3685	146.7315
-Cut-Etap-MM:                    906.7068	986.3932
-Cut-Etap-ConfidenceLevel:       0.1             0.1
-Cut-Etap-Proton-MinAngle:       10
-Cut-Etap-Proton-Coplanarity:    160     200
-Cut-Etap-Proton-SubIM:          516.5764	573.1756    122.2736	144.7064    120.334	143.692
-Cut-Etap-Proton-MM:             907.7906	977.2094
-Cut-Etap-Proton-ConfidenceLevel: 0.1             0.1
+Cut-Etap-SubIM:                 493.270850 597.210618 103.808766 161.851968 91.416835 170.625821
+Cut-Etap-MM:                    879.538005 991.266878
+Cut-Etap-Proton-SubIM:          503.237120 588.285455 115.103030 152.216530 110.235016 155.076974
+Cut-Etap-Proton-MM:             883.949976 988.347396

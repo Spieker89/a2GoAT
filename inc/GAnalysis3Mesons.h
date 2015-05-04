@@ -22,9 +22,12 @@ private:
     Bool_t              isEtap;
 
     GHistEvent3Mesons   hist_raw;
+    GHistBGSub          hist_raw_SubAll;
     GHistEvent3Mesons   hist_SubImCut;
+    GHistBGSub          hist_SubImCut_SubAll;
 
     GHistEvent3Mesons   hist_MMCut;
+    GHistBGSub          hist_SubAll;
 
 //    GFit                fit1;
 //    GHistEvent3Mesons   hist_fit1;
@@ -36,6 +39,7 @@ private:
 //    GHistEvent3Mesons   hist_fit3Vertex;
     GFit                fit4;
     GHistEvent3Mesons   hist_fit4;
+    GHistBGSub          hist_fit4_SubAll;
 //    GFitVertex          fit4Vertex;
 //    GHistEvent3Mesons   hist_fit4Vertex;
 
@@ -84,12 +88,15 @@ private:
 
     GHistEvent3MesonsProton   hist_raw;
     GHistBGSub2         hist_raw_TOF;
+    GHistBGSub          hist_raw_SubAll;
 
     GHistEvent3MesonsProton   hist_SubImCut;
     GHistBGSub2         hist_SubImCut_TOF;
+    GHistBGSub          hist_SubImCut_SubAll;
 
     GHistEvent3MesonsProton   hist_MMCut;
     GHistBGSub2         hist_TOF;
+    GHistBGSub          hist_SubAll;
 
 //    GFit                fit4;
 //    GHistEvent3Mesons   hist_fit4;
@@ -103,6 +110,7 @@ private:
 
     GFitProton          fitProton6;
     GHistEvent3MesonsProton   hist_fitProton6;
+    GHistBGSub          hist_fitProton6_SubAll;
 //    GFitProtonVertex    fitProton6Vertex;
 //    GHistEvent3Mesons   hist_fitProton6Vertex;
 

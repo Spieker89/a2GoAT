@@ -8,8 +8,11 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
     GHistLinked(linkHistogram),
     isEtap(_IsEtap),
     hist_raw(TString(name).Append("raw"), TString(title).Append("raw"), kFALSE),
+    hist_raw_SubAll(TString(name).Append("raw_SubAll"), TString(title).Append("raw_SubAll"), 1000, 0, 1000, kFALSE),
     hist_SubImCut(TString(name).Append("SubImCut"), TString(title).Append("SubImCut"), kFALSE),
+    hist_SubImCut_SubAll(TString(name).Append("SubImCut_SubAll"), TString(title).Append("SubImCut_SubAll"), 1000, 0, 1000, kFALSE),
     hist_MMCut(TString(name).Append("MMCut"), TString(title).Append("MMCut"), kFALSE),
+    hist_SubAll(TString(name).Append("SubAll"), TString(title).Append("SubAll"), 1000, 0, 1000, kFALSE),
 //    fit1("fit1", kFALSE),
 //    hist_fit1(TString(name).Append("hist_fit1"), TString(title).Append("hist_fit1"), kFALSE),
 //    fit1Vertex("fit1Vertex", kFALSE),
@@ -19,7 +22,8 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
 //    fit3Vertex("fit3Vertex", kFALSE),
 //    hist_fit3Vertex(TString(name).Append("hist_fit3Vertex"), TString(title).Append("hist_fit3Vertex"), kFALSE),
     fit4("fit4", kFALSE),
-    hist_fit4(TString(name).Append("hist_fit4"), TString(title).Append("hist_fit4"), kFALSE)
+    hist_fit4(TString(name).Append("hist_fit4"), TString(title).Append("hist_fit4"), kFALSE),
+    hist_fit4_SubAll(TString(name).Append("fit4_SubAll"), TString(title).Append("fit4_SubAll"), 1000, 0, 1000, kFALSE)
 //    fit4Vertex("fit4Vertex", kFALSE),
 //    hist_fit4Vertex(TString(name).Append("hist_fit4Vertex"), TString(title).Append("hist_fit4Vertex"), kFALSE),
 //    fitBeam1("fitBeam1", kFALSE),
@@ -71,8 +75,11 @@ GAnalysis3Mesons::~GAnalysis3Mesons()
 void   GAnalysis3Mesons::CalcResult()
 {
     hist_raw.CalcResult();
+    hist_raw_SubAll.CalcResult();
     hist_SubImCut.CalcResult();
+    hist_SubImCut_SubAll.CalcResult();
     hist_MMCut.CalcResult();
+    hist_SubAll.CalcResult();
 
 //    fit1.CalcResult();
 //    hist_fit1.CalcResult();
@@ -84,6 +91,7 @@ void   GAnalysis3Mesons::CalcResult()
 //    hist_fit3Vertex.CalcResult();
     fit4.CalcResult();
     hist_fit4.CalcResult();
+    hist_fit4_SubAll.CalcResult();
 //    fit4Vertex.CalcResult();
 //    hist_fit4Vertex.CalcResult();
 
@@ -118,8 +126,14 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
         helpCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
 
         hist_raw.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+        for(int k=0; k<6; k++)
+        {
+            for(int l=k+1; l<6; l++)
+                hist_raw_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+        }
     }
 
+    //cout << cutSubIM[0] << "   " << cutSubIM[1] << "   " << cutSubIM[2] << "   " << cutSubIM[3] << "   " << cutSubIM[4] << "   " << cutSubIM[5] << "   " << cutMM[6] << "   " << cutMM[7] << endl;
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
         (sub_im_1>cutSubIM[2] && sub_im_1<cutSubIM[3]) &&
         (sub_im_2>cutSubIM[4] && sub_im_2<cutSubIM[5]))
@@ -131,10 +145,20 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
             helpCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
 
             hist_SubImCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+            for(int k=0; k<6; k++)
+            {
+                for(int l=k+1; l<6; l++)
+                    hist_SubImCut_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+            }
 
             if(mm>cutMM[0] && mm<cutMM[1])
             {
                 hist_MMCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                for(int k=0; k<6; k++)
+                {
+                    for(int l=k+1; l<6; l++)
+                        hist_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+                }
 
 //                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
 //                fit1.SetBeam(tagger.GetTaggedEnergy(i));
@@ -167,7 +191,14 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
 //                if(fit3Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
 //                    hist_fit3Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 if(fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                {
                     hist_fit4.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                    for(int k=0; k<6; k++)
+                    {
+                        for(int l=k+1; l<6; l++)
+                            hist_fit4_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+                    }
+                }
 //                if(fit4Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
 //                    hist_fit4Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
@@ -197,12 +228,15 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
 
     GHistWriteList* folder  = h->GetDirectory("Raw");
     hist_raw.PrepareWriteList(folder, TString(name).Append("_Raw").Data());
+    hist_raw_SubAll.PrepareWriteList(folder, "SubAll");
 
     folder  = h->GetDirectory("SubIM_Cut");
     hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
+    hist_SubImCut_SubAll.PrepareWriteList(folder, "SubAll");
 
     folder  = h->GetDirectory("MM_Cut");
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
+    hist_SubAll.PrepareWriteList(folder, "SubAll");
 
 //    folder  = h->GetDirectory("fit1");
 //    fit1.PrepareWriteList(folder);
@@ -221,6 +255,7 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
     folder  = h->GetDirectory("fit4");
     fit4.PrepareWriteList(folder);
     hist_fit4.PrepareWriteList(folder, "fit4");
+    hist_fit4_SubAll.PrepareWriteList(folder, "SubAll");
 //    folder  = folder->GetDirectory("Vertex");
 //    fit4Vertex.PrepareWriteList(folder);
 //    hist_fit4Vertex.PrepareWriteList(folder, "fit4Vertex");
@@ -250,8 +285,11 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
 void    GAnalysis3Mesons::Reset(Option_t* option)
 {
     hist_raw.Reset(option);
+    hist_raw_SubAll.Reset(option);
     hist_SubImCut.Reset(option);
+    hist_SubImCut_SubAll.Reset(option);
     hist_MMCut.Reset(option);
+    hist_SubAll.Reset(option);
 
 //    fit1.Reset(option);
 //    hist_fit1.Reset(option);
@@ -263,6 +301,7 @@ void    GAnalysis3Mesons::Reset(Option_t* option)
 //    hist_fit3Vertex.Reset(option);
     fit4.Reset(option);
     hist_fit4.Reset(option);
+    hist_fit4_SubAll.Reset(option);
 //    fit4Vertex.Reset(option);
 //    hist_fit4Vertex.Reset(option);
 
@@ -308,10 +347,13 @@ GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* tit
     checkProton(TString(name).Append("checkProton"), TString(title).Append("checkProton"), kFALSE),
     hist_raw(TString(name).Append("raw"), TString(title).Append("raw"), kFALSE),
     hist_raw_TOF(TString(name).Append("raw_TOF"), TString(title).Append("raw_TOF"), 300, -15, 15, 800, 0, 800, kFALSE),
+    hist_raw_SubAll(TString(name).Append("raw_SubAll"), TString(title).Append("raw_SubAll"), 1000, 0, 1000, kFALSE),
     hist_SubImCut(TString(name).Append("SubImCut"), TString(title).Append("SubImCut"), kFALSE),
     hist_SubImCut_TOF(TString(name).Append("SubImCut_TOF"), TString(title).Append("SubImCut_TOF"), 300, -15, 15, 800, 0, 800, kFALSE),
+    hist_SubImCut_SubAll(TString(name).Append("SubImCut_SubAll"), TString(title).Append("SubImCut_SubAll"), 1000, 0, 1000, kFALSE),
     hist_MMCut(TString(name).Append("MMCut"), TString(title).Append("MMCut"), kFALSE),
     hist_TOF(TString(name).Append("TOF"), TString(title).Append("TOF"), 300, -15, 15, 800, 0, 800, kFALSE),
+    hist_SubAll(TString(name).Append("SubAll"), TString(title).Append("SubAll"), 1000, 0, 1000, kFALSE),
 //    fit4("fit4", kFALSE),
 //    hist_fit4(TString(name).Append("hist_fit4"), TString(title).Append("hist_fit4"), kFALSE),
 //    fit4Vertex("fit4Vertex", kFALSE),
@@ -321,7 +363,8 @@ GAnalysis3MesonsProton::GAnalysis3MesonsProton(const char* name, const char* tit
 //    fitBeam4Vertex("fitBeam4Vertex", kFALSE),
 //    hist_fitBeam4Vertex(TString(name).Append("hist_fitBeam4Vertex"), TString(title).Append("hist_fitBeam4Vertex"), kFALSE),
     fitProton6("fitProton6", kFALSE),
-    hist_fitProton6(TString(name).Append("hist_fitProton6"), TString(title).Append("hist_fitProton6"), kFALSE)
+    hist_fitProton6(TString(name).Append("hist_fitProton6"), TString(title).Append("hist_fitProton6"), kFALSE),
+    hist_fitProton6_SubAll(TString(name).Append("fitProton6_SubAll"), TString(title).Append("fitProton6_SubAll"), 1000, 0, 1000, kFALSE)
 //    fitProton6Vertex("fitProton6Vertex", kFALSE),
 //    hist_fitProton6Vertex(TString(name).Append("hist_fitProton6Vertex"), TString(title).Append("hist_fitProton6Vertex"), kFALSE),
 //    fitBeamProton6("fitBeamProton6", kFALSE),
@@ -374,10 +417,13 @@ void   GAnalysis3MesonsProton::CalcResult()
     checkProton.CalcResult();
     hist_raw.CalcResult();
     hist_raw_TOF.CalcResult();
+    hist_raw_SubAll.CalcResult();
     hist_SubImCut.CalcResult();
     hist_SubImCut_TOF.CalcResult();
+    hist_SubImCut_SubAll.CalcResult();
     hist_MMCut.CalcResult();
     hist_TOF.CalcResult();
+    hist_SubAll.CalcResult();
 
 //    fit4.CalcResult();
 //    hist_fit4.CalcResult();
@@ -391,6 +437,7 @@ void   GAnalysis3MesonsProton::CalcResult()
 
     fitProton6.CalcResult();
     hist_fitProton6.CalcResult();
+    hist_fitProton6_SubAll.CalcResult();
 //    fitProton6Vertex.CalcResult();
 //    hist_fitProton6Vertex.CalcResult();
 
@@ -422,6 +469,11 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 
         hist_raw.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
         hist_raw_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
+        for(int k=0; k<6; k++)
+        {
+            for(int l=k+1; l<6; l++)
+                hist_raw_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+        }
     }
 
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
@@ -441,11 +493,21 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 
             hist_SubImCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
             hist_SubImCut_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
+            for(int k=0; k<6; k++)
+            {
+                for(int l=k+1; l<6; l++)
+                    hist_SubImCut_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+            }
 
             if(mm>cutMM[0] && mm<cutMM[1])
             {
                 hist_MMCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 hist_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
+                for(int k=0; k<6; k++)
+                {
+                    for(int l=k+1; l<6; l++)
+                        hist_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+                }
 
 //                fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
 //                fit4.SetBeam(tagger.GetTaggedEnergy(i));
@@ -482,7 +544,14 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 //                    hist_fitBeam4Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
                 if(fitProton6.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                {
                     hist_fitProton6.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                    for(int k=0; k<6; k++)
+                    {
+                        for(int l=k+1; l<6; l++)
+                            hist_fitProton6_SubAll.Fill((photons.Particle(k)+photons.Particle(l)).M(), tagger.GetTaggedTime(i));
+                    }
+                }
 //                if(fitProton6Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
 //                    hist_fitProton6Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
@@ -508,14 +577,17 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
     folder  = h->GetDirectory("Raw");
     hist_raw.PrepareWriteList(folder, TString(name).Append("_Raw").Data());
     hist_raw_TOF.PrepareWriteList(folder, TString(name).Append("_Raw_TOF").Data());
+    hist_raw_SubAll.PrepareWriteList(folder, "SubAll");
 
     folder  = h->GetDirectory("SubIM_Cut");
     hist_SubImCut.PrepareWriteList(folder, TString(name).Append("_subIMCut").Data());
     hist_SubImCut_TOF.PrepareWriteList(folder, TString(name).Append("_subIMCut_TOF").Data());
+    hist_SubImCut_SubAll.PrepareWriteList(folder, "SubAll");
 
     folder  = h->GetDirectory("MM_Cut");
     hist_TOF.PrepareWriteList(folder, TString(name).Append("_TOF").Data());
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
+    hist_SubAll.PrepareWriteList(folder, "SubAll");
 
 //    folder  = h->GetDirectory("fit4");
 //    fit4.PrepareWriteList(folder);
@@ -534,6 +606,7 @@ void    GAnalysis3MesonsProton::PrepareWriteList(GHistWriteList* arr, const char
     folder  = h->GetDirectory("fitProton6");
     fitProton6.PrepareWriteList(folder);
     hist_fitProton6.PrepareWriteList(folder, "fitProton6");
+    hist_fitProton6_SubAll.PrepareWriteList(folder, "SubAll");
 //    folder  = folder->GetDirectory("Vertex");
 //    fitProton6Vertex.PrepareWriteList(folder);
 //    hist_fitProton6Vertex.PrepareWriteList(folder, "fitProton6Vertex");
@@ -551,10 +624,13 @@ void    GAnalysis3MesonsProton::Reset(Option_t* option)
     checkProton.Reset(option);
     hist_raw.Reset(option);
     hist_raw_TOF.Reset(option);
+    hist_raw_SubAll.Reset(option);
     hist_SubImCut.Reset(option);
     hist_SubImCut_TOF.Reset(option);
+    hist_SubImCut_SubAll.Reset(option);
     hist_MMCut.Reset(option);
     hist_TOF.Reset(option);
+    hist_SubAll.Reset(option);
 
 //    fit4.Reset(option);
 //    hist_fit4.Reset(option);
@@ -568,6 +644,7 @@ void    GAnalysis3MesonsProton::Reset(Option_t* option)
 
     fitProton6.Reset(option);
     hist_fitProton6.Reset(option);
+    hist_fitProton6_SubAll.Reset(option);
 //    fitProton6Vertex.Reset(option);
 //    hist_fitProton6Vertex.Reset(option);
 
