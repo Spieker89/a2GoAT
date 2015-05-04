@@ -244,7 +244,7 @@ void	FitBinsSimGaus(const TH1D* data, int channel, int size, FitValues& fitValue
 	}
 	data->SetTitle(title.Data());
 	data->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");	
-	data->Fit(fit, "R0");
+	data->Fit(fit, "QR0");
 	data->SetStats(0);		
     data->SetAxisRange(850, 1050);
 	data->Draw("SAME");
@@ -286,10 +286,10 @@ void	FitBinsSimPol(const TH1D* data, int channel, int size, FitValues& fitValues
 	fit4->SetParameters(0, 0, 0, 0, 0);
 	fit5->SetParameters(0, 0, 0, 0, 0, 0);
 	
-	data->Fit(fit2, "R0");
-	data->Fit(fit3, "R0");
-	data->Fit(fit4, "R0");
-	data->Fit(fit5, "R0");
+	data->Fit(fit2, "QR0");
+	data->Fit(fit3, "QR0");
+	data->Fit(fit4, "QR0");
+	data->Fit(fit5, "QR0");
 	fit2->Draw("SAME");
 	fit3->Draw("SAME");
 	fit4->Draw("SAME");
@@ -338,9 +338,9 @@ void	FitBinsSimPol(const TH1D* data, int channel, int size, FitValues& fitValues
 void	FitBinsSim(const TH1D* dataSignal, const TH1D* dataBG, int channel, int size, FitValues& fitValues)
 {
 	cout << "channel: " << channel << endl;
+	FitBinsSimGaus(dataSignal, channel, size, fitValues, true);
 	FitBinsSimGaus(dataBG, channel, size, fitValues, false);
 	FitBinsSimPol(dataBG, channel, size, fitValues);
-	FitBinsSimGaus(dataSignal, channel, size, fitValues, true);
 }
 
 void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, std::vector<int>& ch, std::vector<int>& size, const double signalScale, FitValues* fitValues)
@@ -353,7 +353,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 	{
 		can->cd(i+1);
 		TH1D*	dataSignalProjX	= ((TH1D*)dataSignal->ProjectionX(TString("SigBin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1))->Clone();
-		dataSignalProjX.Scale(signalScale);
+		dataSignalProjX->Scale(signalScale);
 		FitBinsSim( dataSignalProjX,
 					(TH1D*)dataBG->ProjectionX(TString("BGBin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1),
 					ch[i],
@@ -485,10 +485,11 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 void	FitBins(const TH1D* data, int channel, int size, const FitValues& fitValues, FitValuesData& fitResult)
 {
 	TF1*	fit = new TF1("fitfkt", "gaus(0) + gaus(3)", 850, 1050);
-	fit->SetParameters(data->GetMaximum(), fitValues.signal.mean.value, fitValues.signal.sigma.value, 0, fitValues.bg.gaus.mean.value, fitValues.bg.gaus.sigma.value);
-	fit->SetParLimits(0, 0, data->GetMaximum());
-	fit->SetParLimits(1, 0.9*fitValues.signal.mean.value, 1.1*fitValues.signal.mean.value);
-	fit->SetParLimits(2, 0.9*fitValues.signal.sigma.value, 1.1*fitValues.signal.sigma.value);
+	fit->SetParameters(data->GetMaximum(), 957, fitValues.signal.sigma.value, 0, fitValues.bg.gaus.mean.value, fitValues.bg.gaus.sigma.value);
+	//fit->SetParameters(data->GetMaximum(), fitValues.signal.mean.value, fitValues.signal.sigma.value, 0, fitValues.bg.gaus.mean.value, fitValues.bg.gaus.sigma.value);
+	fit->SetParLimits(0, 0, 1.5*data->GetMaximum());
+	fit->SetParLimits(1, 0.99*fitValues.signal.mean.value, 1.01*fitValues.signal.mean.value);
+	fit->SetParLimits(2, 0.6*fitValues.signal.sigma.value, 1.3*fitValues.signal.sigma.value);
 	fit->SetParLimits(3, 0, data->GetMaximum());
 	fit->SetParLimits(4, 0.9*fitValues.bg.gaus.mean.value, 1.1*fitValues.bg.gaus.mean.value);
 	fit->SetParLimits(5, 0.9*fitValues.bg.gaus.sigma.value, 1.1*fitValues.bg.gaus.sigma.value);
@@ -517,10 +518,10 @@ void	FitBins(const TH1D* data, int channel, int size, const FitValues& fitValues
 	}
 	data->SetTitle(title.Data());
 	data->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");	
-	data->Fit(fit, "R0");
+	data->Fit(fit, "QR0");
 	data->SetStats(0);		
     data->SetAxisRange(850, 1050);
-	data->Draw();
+	data->Draw("SAME");
 	fit->Draw("SAME");
 	
 	TF1*	fitSignal = new TF1("fitfktSignal", "gaus(0)", 850, 1050);
@@ -533,6 +534,7 @@ void	FitBins(const TH1D* data, int channel, int size, const FitValues& fitValues
 	fitBG->Draw("SAME");
 	
 	fitResult.signal.factor.value	= fit->GetParameter(0);
+	cout << fitResult.signal.factor.value << endl;
 	fitResult.signal.factor.error	= fit->GetParError(0);
 	fitResult.signal.mean.value		= fit->GetParameter(1);
 	fitResult.signal.mean.error		= fit->GetParError(1);
@@ -545,12 +547,10 @@ void	FitBins(const TH1D* data, int channel, int size, const FitValues& fitValues
 	fitResult.bg.sigma.value	= fit->GetParameter(5);
 	fitResult.bg.sigma.error	= fit->GetParError(5);
 }
-void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vector<int>& size, const double signalScale, FitValues* fitValues)
+void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vector<int>& size, const double signalScale, FitValues* fitValues, FitValuesData* fitResult)
 {
 	TCanvas*	can = new TCanvas("canFitBins", "FitBins", 1500, 800);
     can->Divide(TMath::Ceil(TMath::Sqrt(ch.size())), TMath::Ceil(TMath::Sqrt(ch.size())));
-    
-    FitValuesData*	fitResult	= new FitValuesData[ch.size()+1];
     
 	for(int i=0; i<ch.size(); i++)
 	{
@@ -676,8 +676,42 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 	out->cd();
 	can->Write();
 	canMain->Write();
-	
-	if(fitResult)	delete fitResult;
+}
+
+void	ShowBoth(const TH2D* data, const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, std::vector<int>& ch, std::vector<int>& size, const double signalScale, FitValuesData* fitResult)
+{
+	TCanvas*	can = new TCanvas("canFitBinsBoth", "FitBinsBoth", 1500, 800);
+    can->Divide(TMath::Ceil(TMath::Sqrt(ch.size())), TMath::Ceil(TMath::Sqrt(ch.size())));
+    
+    FitValues*		fitVal	= new FitValues[ch.size()+1];
+    FitValuesData*	fitRes	= new FitValuesData[ch.size()+1];
+    
+	for(int i=0; i<ch.size(); i++)
+	{
+		can->cd(i+1);
+		TH1D*	dataSignalProjX	= ((TH1D*)dataSignal->ProjectionX(TString("SigBin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1))->Clone();
+		dataSignalProjX->Scale(signalScale);
+		FitBinsSimGaus(	dataSignalProjX,
+						ch[i],
+						size[i],
+						fitVal[i],
+						true);
+		FitBinsSimGaus(	(TH1D*)dataBG->ProjectionX(TString("BinBoth").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1),
+						ch[i],
+						size[i],
+						fitVal[i],
+						false);
+		TH1D*	hist	= (TH1D*)data->ProjectionX(TString("BinBoth").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1);
+		cout << fitVal[i].signal.factor.value << endl;
+		cout << fitResult[i].signal.factor.value << endl;
+		cout << fitVal[i].signal.factor.value/fitResult[i].signal.factor.value << endl;
+		hist->Scale(fitVal[i].signal.factor.value/fitResult[i].signal.factor.value);
+		FitBins(hist,
+				ch[i],
+				size[i],
+				fitVal[i],
+				fitRes[i]);
+	}
 }
 
 void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGFile, const TFile* scalerFile, const TFile* out, const Int_t addedChannels, const char* histName, const double signalScale)
@@ -710,16 +744,28 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 		std::cout << "starting number: " << ch.back() << "     channel count: " << size.back() << std::endl;
 	}
     
-    FitValues*	fitValues	= new FitValues[ch.size()+1];
+    FitValues*		fitValues	= new FitValues[ch.size()+1];
+    FitValuesData*	fitResult	= new FitValuesData[ch.size()+1];
 	TH2D*		dataSignal	= (TH2D*)mcSinalFile->Get(histName);
 	TH2D*		dataBG		= (TH2D*)mcBGFile->Get(histName);
+	//dataSignal->RebinX();
+	dataBG->RebinX(10);
+	dataBG->Scale(0.1);
     
+    cout << endl << "FitBinsSim" << endl;
 	FitBinsSim(dataSignal, dataBG, out, ch, size, signalScale, fitValues);
 	
 	TH2D*		data		= (TH2D*)dataFile->Get(histName);
-	FitBins(data, out, ch, size, signalScale, fitValues);
+	data->RebinX(5);
+	data->Scale(1.0/5.0);
+    cout << endl << "FitBins" << endl;
+	FitBins(data, out, ch, size, signalScale, fitValues, fitResult);
+	
+    cout << endl << "ShowBoth" << endl;
+	ShowBoth(data, dataSignal, dataBG, out, ch, size, signalScale, fitResult);
 	
 	if(fitValues)	delete fitValues;
+	if(fitResult)	delete fitResult;
 }
 
 
