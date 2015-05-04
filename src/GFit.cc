@@ -56,6 +56,13 @@ bool GFit::Solve(const double time, const int channel)
         sub1Im.Fill((FitParticle::Make(aplconPhotons[2], 0)+FitParticle::Make(aplconPhotons[3], 0)).M(), time);
         sub2Im.Fill((FitParticle::Make(aplconPhotons[4], 0)+FitParticle::Make(aplconPhotons[5], 0)).M(), time);
         theta.Fill(etap.Theta()*TMath::RadToDeg(), time);
+
+        TLorentzVector  helpCM(etap);
+        //cout << TLorentzVector(0,0,beam,beam+MASS_PROTON).BoostVector().X() << "   " << TLorentzVector(0,0,beam,beam+MASS_PROTON).BoostVector().Y() << "   " << TLorentzVector(0,0,beam,beam+MASS_PROTON).BoostVector().Z() << endl;
+        TLorentzVector  helpCM3(0,0,beam,beam+MASS_PROTON);
+        helpCM.Boost(-helpCM3.BoostVector());
+        //cout << helpCM.Theta()*TMath::RadToDeg() << endl;
+        thetaCM.Fill(helpCM.Theta()*TMath::RadToDeg(), time, channel);
         phi.Fill(etap.Phi()*TMath::RadToDeg(), time);
         chiSq.Fill(result.ChiSquare, time);
         for(int i=0; i<6; i++)
@@ -136,6 +143,7 @@ void    GFit::AddConstraintsIM()
         sub1Im.CalcResult();
         sub2Im.CalcResult();
         theta.CalcResult();
+        thetaCM.CalcResult();
         phi.CalcResult();
         chiSq.CalcResult();
         confidenceLevel.CalcResult();
@@ -153,6 +161,7 @@ void    GFit::AddConstraintsIM()
         sub1Im.PrepareWriteList(arr, "sub1Im");
         sub2Im.PrepareWriteList(arr, "sub2Im");
         theta.PrepareWriteList(arr, "theta");
+        thetaCM.PrepareWriteList(arr, "thetaCM");
         phi.PrepareWriteList(arr, "phi");
         chiSq.PrepareWriteList(arr, "chiSq");
         confidenceLevel.PrepareWriteList(arr, "confidenceLevel");
@@ -167,6 +176,7 @@ void    GFit::AddConstraintsIM()
         sub1Im.Reset(option);
         sub2Im.Reset(option);
         theta.Reset(option);
+        thetaCM.Reset(option);
         phi.Reset(option);
         chiSq.Reset(option);
         confidenceLevel.Reset(option);

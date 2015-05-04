@@ -104,6 +104,8 @@ void   GAnalysis3Mesons::CalcResult()
 void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& photons, const GTreeTagger& tagger)
 {
     Double_t    im  = meson.Particle(0).M();
+    Double_t    theta  = meson.Particle(0).Theta()*TMath::RadToDeg();
+    Double_t    phi  = meson.Particle(0).Phi()*TMath::RadToDeg();
     Double_t    mm;
     Double_t    sub_im_0    = (photons.Particle(0) + photons.Particle(1)).M();
     Double_t    sub_im_1    = (photons.Particle(2) + photons.Particle(3)).M();
@@ -112,7 +114,10 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
     for(int i=0; i<tagger.GetNTagged(); i++)
     {
         mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
-        hist_raw.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+        TLorentzVector  helpCM(meson.Particle(0));
+        helpCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
+
+        hist_raw.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
     }
 
     if((sub_im_0>cutSubIM[0] && sub_im_0<cutSubIM[1]) &&
@@ -122,11 +127,14 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
         for(int i=0; i<tagger.GetNTagged(); i++)
         {
             mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
-            hist_SubImCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+            TLorentzVector  helpCM(meson.Particle(0));
+            helpCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
+
+            hist_SubImCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
             if(mm>cutMM[0] && mm<cutMM[1])
             {
-                hist_MMCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                hist_MMCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
 //                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
 //                fit1.SetBeam(tagger.GetTaggedEnergy(i));
@@ -159,7 +167,7 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
 //                if(fit3Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
 //                    hist_fit3Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 if(fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-                    hist_fit4.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                    hist_fit4.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 //                if(fit4Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
 //                    hist_fit4Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
@@ -395,8 +403,10 @@ void   GAnalysis3MesonsProton::CalcResult()
 void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticle& photons, const GTreeParticle& proton, const GTreeTagger& tagger)
 {
     Double_t    im  = meson.Particle(0).M();
-    Double_t    theta  = meson.Particle(0).Theta();
-    Double_t    phi  = meson.Particle(0).Phi();
+    Double_t    theta  = meson.Particle(0).Theta()*TMath::RadToDeg();
+    Double_t    phi  = meson.Particle(0).Phi()*TMath::RadToDeg();
+    Double_t    protonTheta  = proton.Particle(0).Theta()*TMath::RadToDeg();
+    Double_t    protonPhi  = proton.Particle(0).Phi()*TMath::RadToDeg();
     Double_t    mm;
     Double_t    sub_im_0    = (photons.Particle(0) + photons.Particle(1)).M();
     Double_t    sub_im_1    = (photons.Particle(2) + photons.Particle(3)).M();
@@ -405,7 +415,12 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
     for(int i=0; i<tagger.GetNTagged(); i++)
     {
         mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
-        hist_raw.Fill(im, mm, theta, phi, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+        TLorentzVector  helpCM(meson.Particle(0));
+        helpCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
+        TLorentzVector  helpProtonCM(meson.Particle(0));
+        helpProtonCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
+
+        hist_raw.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
         hist_raw_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
     }
 
@@ -419,12 +434,17 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
                 continue;
 
             mm  = (tagger.GetVectorProtonTarget(i)-meson.Particle(0)).M();
-            hist_SubImCut.Fill(im, mm, theta, phi, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+            TLorentzVector  helpCM(meson.Particle(0));
+            helpCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
+            TLorentzVector  helpProtonCM(meson.Particle(0));
+            helpProtonCM.Boost(-tagger.GetVectorProtonTarget(i).BoostVector());
+
+            hist_SubImCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
             hist_SubImCut_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
 
             if(mm>cutMM[0] && mm<cutMM[1])
             {
-                hist_MMCut.Fill(im, mm, theta, phi, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                hist_MMCut.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 hist_TOF.Fill(tagger.GetTaggedTime(i)-proton.GetTime(0), proton.GetClusterEnergy(0), tagger.GetTaggedTime(i));
 
 //                fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
@@ -462,7 +482,7 @@ void    GAnalysis3MesonsProton::Fill(const GTreeMeson& meson, const GTreeParticl
 //                    hist_fitBeam4Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
                 if(fitProton6.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-                    hist_fitProton6.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                    hist_fitProton6.Fill(im, mm, theta, phi, helpCM.Theta()*TMath::RadToDeg(), proton.Particle(0).E(), protonTheta, protonPhi, helpProtonCM.Theta()*TMath::RadToDeg(), sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 //                if(fitProton6Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
 //                    hist_fitProton6Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 

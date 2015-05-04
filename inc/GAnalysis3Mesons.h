@@ -82,13 +82,13 @@ private:
 
     GCheckProton        checkProton;
 
-    GHistEvent3Mesons   hist_raw;
+    GHistEvent3MesonsProton   hist_raw;
     GHistBGSub2         hist_raw_TOF;
 
-    GHistEvent3Mesons   hist_SubImCut;
+    GHistEvent3MesonsProton   hist_SubImCut;
     GHistBGSub2         hist_SubImCut_TOF;
 
-    GHistEvent3Mesons   hist_MMCut;
+    GHistEvent3MesonsProton   hist_MMCut;
     GHistBGSub2         hist_TOF;
 
 //    GFit                fit4;
@@ -102,7 +102,7 @@ private:
 //    GHistEvent3Mesons   hist_fitBeam4Vertex;
 
     GFitProton          fitProton6;
-    GHistEvent3Mesons   hist_fitProton6;
+    GHistEvent3MesonsProton   hist_fitProton6;
 //    GFitProtonVertex    fitProton6Vertex;
 //    GHistEvent3Mesons   hist_fitProton6Vertex;
 

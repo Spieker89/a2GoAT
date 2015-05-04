@@ -14,8 +14,8 @@ private:
     double              aplconProtonThetaSigma;
     double              aplconProtonPhiSigma;
 
-    GH1                 protonEnergy;
-    GH1                 protonTheta;
+    GHistBGSub          protonEnergy;
+    GHistBGSub          protonTheta;
     GHistBGSub          protonPhi;
 
     virtual int GetNDOF()   {return 21;}

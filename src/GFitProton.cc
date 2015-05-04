@@ -12,8 +12,8 @@ using namespace std;
 
 GFitProton::GFitProton(const char* _Name, const Bool_t linkHistogram)   :
     GFit(_Name, linkHistogram),
-    protonEnergy(TString(_Name).Append("_protonEnergy"), TString(_Name).Append(" protonEnergy"), 1000, 0, 1000, 48, kFALSE),
-    protonTheta(TString(_Name).Append("_protonTheta"), TString(_Name).Append(" protonTheta"), 180, 0, 180, 48, kFALSE),
+    protonEnergy(TString(_Name).Append("_protonEnergy"), TString(_Name).Append(" protonEnergy"), 1000, 0, 1000, kFALSE),
+    protonTheta(TString(_Name).Append("_protonTheta"), TString(_Name).Append(" protonTheta"), 180, 0, 180, kFALSE),
     protonPhi(TString(_Name).Append("_protonPhi"), TString(_Name).Append(" protonPhi"), 360, -180, 180, kFALSE)
 {
     fitter.AddUnmeasuredVariable("PE", 250);
@@ -85,8 +85,8 @@ bool GFitProton::Solve(const double time, const int channel)
     if(GFit::Solve(time, channel))
     {
         const APLCON::Result_Variable_t& pe = result.Variables.at("PE");
-        protonEnergy.Fill(pe.Value.After, time, channel);
-        protonTheta.Fill(aplconProtonTheta*TMath::RadToDeg(), time, channel);
+        protonEnergy.Fill(pe.Value.After, time);
+        protonTheta.Fill(aplconProtonTheta*TMath::RadToDeg(), time);
         protonPhi.Fill(aplconProtonPhi*TMath::RadToDeg(), time);
         for(int p=0; p<2; p++)
         {
