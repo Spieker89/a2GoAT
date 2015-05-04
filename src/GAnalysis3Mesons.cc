@@ -10,29 +10,26 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
     hist_raw(TString(name).Append("raw"), TString(title).Append("raw"), kFALSE),
     hist_SubImCut(TString(name).Append("SubImCut"), TString(title).Append("SubImCut"), kFALSE),
     hist_MMCut(TString(name).Append("MMCut"), TString(title).Append("MMCut"), kFALSE),
-//    hist_fit1(TString(name).Append("_SubImCut_fit1"), TString(title).Append(" SubImCut fit1"), 24, 10, kFALSE),
-//    hist_fit3(TString(name).Append("_SubImCut_fit3"), TString(title).Append(" SubImCut fit3"), 24, 10, kFALSE),
-//    hist_fit4(TString(name).Append("_SubImCut_fit4"), TString(title).Append(" SubImCut fit4"), 24, 10, kFALSE),
-//    fit1("fit1", kFALSE),
-//    hist_fit1(TString(name).Append("hist_fit1"), TString(title).Append("hist_fit1"), kFALSE),
-//    fit1Vertex("fit1Vertex", kFALSE),
-//    hist_fit1Vertex(TString(name).Append("hist_fit1Vertex"), TString(title).Append("hist_fit1Vertex"), kFALSE),
-//    fit3("fit3", kFALSE),
-//    hist_fit3(TString(name).Append("hist_fit3"), TString(title).Append("hist_fit3"), kFALSE),
-//    fit3Vertex("fit3Vertex", kFALSE),
-//    hist_fit3Vertex(TString(name).Append("hist_fit3Vertex"), TString(title).Append("hist_fit3Vertex"), kFALSE),
+    fit1("fit1", kFALSE),
+    hist_fit1(TString(name).Append("hist_fit1"), TString(title).Append("hist_fit1"), kFALSE),
+    fit1Vertex("fit1Vertex", kFALSE),
+    hist_fit1Vertex(TString(name).Append("hist_fit1Vertex"), TString(title).Append("hist_fit1Vertex"), kFALSE),
+    fit3("fit3", kFALSE),
+    hist_fit3(TString(name).Append("hist_fit3"), TString(title).Append("hist_fit3"), kFALSE),
+    fit3Vertex("fit3Vertex", kFALSE),
+    hist_fit3Vertex(TString(name).Append("hist_fit3Vertex"), TString(title).Append("hist_fit3Vertex"), kFALSE),
     fit4("fit4", kFALSE),
     hist_fit4(TString(name).Append("hist_fit4"), TString(title).Append("hist_fit4"), kFALSE),
     fit4Vertex("fit4Vertex", kFALSE),
     hist_fit4Vertex(TString(name).Append("hist_fit4Vertex"), TString(title).Append("hist_fit4Vertex"), kFALSE),
-//    fitBeam1("fitBeam1", kFALSE),
-//    hist_fitBeam1(TString(name).Append("hist_fitBeam1"), TString(title).Append("hist_fitBeam1"), kFALSE),
-//    fitBeam1Vertex("fitBeam1Vertex", kFALSE),
-//    hist_fitBeam1Vertex(TString(name).Append("hist_fitBeam1Vertex"), TString(title).Append("hist_fitBeam1Vertex"), kFALSE),
-//    fitBeam3("fitBeam3", kFALSE),
-//    hist_fitBeam3(TString(name).Append("hist_fitBeam3"), TString(title).Append("hist_fitBeam3"), kFALSE),
-//    fitBeam3Vertex("fitBeam3Vertex", kFALSE),
-//    hist_fitBeam3Vertex(TString(name).Append("hist_fitBeam3Vertex"), TString(title).Append("hist_fitBeam3Vertex"), kFALSE),
+    fitBeam1("fitBeam1", kFALSE),
+    hist_fitBeam1(TString(name).Append("hist_fitBeam1"), TString(title).Append("hist_fitBeam1"), kFALSE),
+    fitBeam1Vertex("fitBeam1Vertex", kFALSE),
+    hist_fitBeam1Vertex(TString(name).Append("hist_fitBeam1Vertex"), TString(title).Append("hist_fitBeam1Vertex"), kFALSE),
+    fitBeam3("fitBeam3", kFALSE),
+    hist_fitBeam3(TString(name).Append("hist_fitBeam3"), TString(title).Append("hist_fitBeam3"), kFALSE),
+    fitBeam3Vertex("fitBeam3Vertex", kFALSE),
+    hist_fitBeam3Vertex(TString(name).Append("hist_fitBeam3Vertex"), TString(title).Append("hist_fitBeam3Vertex"), kFALSE),
     fitBeam4("fitBeam4", kFALSE),
     hist_fitBeam4(TString(name).Append("hist_fitBeam4"), TString(title).Append("hist_fitBeam4"), kFALSE),
     fitBeam4Vertex("fitBeam4Vertex", kFALSE),
@@ -47,19 +44,19 @@ GAnalysis3Mesons::GAnalysis3Mesons(const char* name, const char* title, const Bo
 
     SetCutMM(870, 1000);
 
-//    fit1.AddConstraintMM();
-//    fit1Vertex.AddConstraintMM();
-//    fit3.AddConstraintsIM();
-//    fit3Vertex.AddConstraintsIM();
+    fit1.AddConstraintMM();
+    fit1Vertex.AddConstraintMM();
+    fit3.AddConstraintsIM();
+    fit3Vertex.AddConstraintsIM();
     fit4.AddConstraintMM();
     fit4.AddConstraintsIM();
     fit4Vertex.AddConstraintMM();
     fit4Vertex.AddConstraintsIM();
 
-//    fitBeam1.AddConstraintMM();
-//    fitBeam1Vertex.AddConstraintMM();
-//    fitBeam3.AddConstraintsIM();
-//    fitBeam3Vertex.AddConstraintsIM();
+    fitBeam1.AddConstraintMM();
+    fitBeam1Vertex.AddConstraintMM();
+    fitBeam3.AddConstraintsIM();
+    fitBeam3Vertex.AddConstraintsIM();
     fitBeam4.AddConstraintMM();
     fitBeam4.AddConstraintsIM();
     fitBeam4Vertex.AddConstraintMM();
@@ -77,27 +74,27 @@ void   GAnalysis3Mesons::CalcResult()
     hist_SubImCut.CalcResult();
     hist_MMCut.CalcResult();
 
-//    fit1.CalcResult();
-//    hist_fit1.CalcResult();
-//    fit1Vertex.CalcResult();
-//    hist_fit1Vertex.CalcResult();
-//    fit3.CalcResult();
-//    hist_fit3.CalcResult();
-//    fit3Vertex.CalcResult();
-//    hist_fit3Vertex.CalcResult();
+    fit1.CalcResult();
+    hist_fit1.CalcResult();
+    fit1Vertex.CalcResult();
+    hist_fit1Vertex.CalcResult();
+    fit3.CalcResult();
+    hist_fit3.CalcResult();
+    fit3Vertex.CalcResult();
+    hist_fit3Vertex.CalcResult();
     fit4.CalcResult();
     hist_fit4.CalcResult();
     fit4Vertex.CalcResult();
     hist_fit4Vertex.CalcResult();
 
-//    fitBeam1.CalcResult();
-//    hist_fitBeam1.CalcResult();
-//    fitBeam1Vertex.CalcResult();
-//    hist_fitBeam1Vertex.CalcResult();
-//    fitBeam3.CalcResult();
-//    hist_fitBeam3.CalcResult();
-//    fitBeam3Vertex.CalcResult();
-//    hist_fitBeam3Vertex.CalcResult();
+    fitBeam1.CalcResult();
+    hist_fitBeam1.CalcResult();
+    fitBeam1Vertex.CalcResult();
+    hist_fitBeam1Vertex.CalcResult();
+    fitBeam3.CalcResult();
+    hist_fitBeam3.CalcResult();
+    fitBeam3Vertex.CalcResult();
+    hist_fitBeam3Vertex.CalcResult();
     fitBeam4.CalcResult();
     hist_fitBeam4.CalcResult();
     fitBeam4Vertex.CalcResult();
@@ -131,49 +128,49 @@ void    GAnalysis3Mesons::Fill(const GTreeMeson& meson, const GTreeParticle& pho
             {
                 hist_MMCut.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
-//                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fit1.SetBeam(tagger.GetTaggedEnergy(i));
-//                fit1Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fit1Vertex.SetBeam(tagger.GetTaggedEnergy(i));
-//                fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fit3Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fit1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fit1.SetBeam(tagger.GetTaggedEnergy(i));
+                fit1Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fit1Vertex.SetBeam(tagger.GetTaggedEnergy(i));
+                fit3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fit3Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fit4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fit4.SetBeam(tagger.GetTaggedEnergy(i));
                 fit4Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fit4Vertex.SetBeam(tagger.GetTaggedEnergy(i));
 
-//                fitBeam1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fitBeam1.SetBeam(tagger.GetTaggedEnergy(i));
-//                fitBeam1Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fitBeam1Vertex.SetBeam(tagger.GetTaggedEnergy(i));
-//                fitBeam3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
-//                fitBeam3Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fitBeam1.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fitBeam1.SetBeam(tagger.GetTaggedEnergy(i));
+                fitBeam1Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fitBeam1Vertex.SetBeam(tagger.GetTaggedEnergy(i));
+                fitBeam3.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
+                fitBeam3Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fitBeam4.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fitBeam4.SetBeam(tagger.GetTaggedEnergy(i));
                 fitBeam4Vertex.Set(photons.Particle(0), photons.Particle(1), photons.Particle(2), photons.Particle(3), photons.Particle(4), photons.Particle(5));
                 fitBeam4Vertex.SetBeam(tagger.GetTaggedEnergy(i));
 
-//                if(fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fit1.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                if(fit1Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fit1Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                if(fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fit3.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                if(fit3Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fit3Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fit1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fit1.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fit1Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fit1Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fit3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fit3.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fit3Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fit3Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 if(fit4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
                     hist_fit4.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 if(fit4Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
                     hist_fit4Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
 
-//                if(fitBeam1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fitBeam1.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                if(fitBeam1Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fitBeam1Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                if(fitBeam3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fitBeam3.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
-//                if(fitBeam3Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
-//                    hist_fitBeam3Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fitBeam1.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fitBeam1.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fitBeam1Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fitBeam1Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fitBeam3.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fitBeam3.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
+                if(fitBeam3Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
+                    hist_fitBeam3Vertex.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 if(fitBeam4.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
                     hist_fitBeam4.Fill(im, mm, sub_im_0, sub_im_1, sub_im_2, tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i));
                 if(fitBeam4Vertex.Solve(tagger.GetTaggedTime(i), tagger.GetTaggedChannel(i)))
@@ -199,19 +196,19 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
     folder  = h->GetDirectory("MM_Cut");
     hist_MMCut.PrepareWriteList(folder, TString(name).Append("_MMCut").Data());
 
-//    folder  = h->GetDirectory("fit1");
-//    fit1.PrepareWriteList(folder);
-//    hist_fit1.PrepareWriteList(folder, "fit1");
-//    folder  = folder->GetDirectory("Vertex");
-//    fit1Vertex.PrepareWriteList(folder);
-//    hist_fit1Vertex.PrepareWriteList(folder, "fit1Vertex");
+    folder  = h->GetDirectory("fit1");
+    fit1.PrepareWriteList(folder);
+    hist_fit1.PrepareWriteList(folder, "fit1");
+    folder  = folder->GetDirectory("Vertex");
+    fit1Vertex.PrepareWriteList(folder);
+    hist_fit1Vertex.PrepareWriteList(folder, "fit1Vertex");
 
-//    folder  = h->GetDirectory("fit3");
-//    fit3.PrepareWriteList(folder);
-//    hist_fit3.PrepareWriteList(folder, "fit3");
-//    folder  = folder->GetDirectory("Vertex");
-//    fit3Vertex.PrepareWriteList(folder);
-//    hist_fit3Vertex.PrepareWriteList(folder, "fit3Vertex");
+    folder  = h->GetDirectory("fit3");
+    fit3.PrepareWriteList(folder);
+    hist_fit3.PrepareWriteList(folder, "fit3");
+    folder  = folder->GetDirectory("Vertex");
+    fit3Vertex.PrepareWriteList(folder);
+    hist_fit3Vertex.PrepareWriteList(folder, "fit3Vertex");
 
     folder  = h->GetDirectory("fit4");
     fit4.PrepareWriteList(folder);
@@ -220,19 +217,19 @@ void    GAnalysis3Mesons::PrepareWriteList(GHistWriteList* arr, const char* name
     fit4Vertex.PrepareWriteList(folder);
     hist_fit4Vertex.PrepareWriteList(folder, "fit4Vertex");
 
-//    folder  = h->GetDirectory("fitBeam1");
-//    fitBeam1.PrepareWriteList(folder);
-//    hist_fitBeam1.PrepareWriteList(folder, "fitBeam1");
-//    folder  = folder->GetDirectory("Vertex");
-//    fitBeam1Vertex.PrepareWriteList(folder);
-//    hist_fitBeam1Vertex.PrepareWriteList(folder, "fitBeam1Vertex");
+    folder  = h->GetDirectory("fitBeam1");
+    fitBeam1.PrepareWriteList(folder);
+    hist_fitBeam1.PrepareWriteList(folder, "fitBeam1");
+    folder  = folder->GetDirectory("Vertex");
+    fitBeam1Vertex.PrepareWriteList(folder);
+    hist_fitBeam1Vertex.PrepareWriteList(folder, "fitBeam1Vertex");
 
-//    folder  = h->GetDirectory("fitBeam3");
-//    fitBeam3.PrepareWriteList(folder);
-//    hist_fitBeam3.PrepareWriteList(folder, "fitBeam3");
-//    folder  = folder->GetDirectory("Vertex");
-//    fitBeam3Vertex.PrepareWriteList(folder);
-//    hist_fitBeam3Vertex.PrepareWriteList(folder, "fitBeam3Vertex");
+    folder  = h->GetDirectory("fitBeam3");
+    fitBeam3.PrepareWriteList(folder);
+    hist_fitBeam3.PrepareWriteList(folder, "fitBeam3");
+    folder  = folder->GetDirectory("Vertex");
+    fitBeam3Vertex.PrepareWriteList(folder);
+    hist_fitBeam3Vertex.PrepareWriteList(folder, "fitBeam3Vertex");
 
     folder  = h->GetDirectory("fitBeam4");
     fitBeam4.PrepareWriteList(folder);
@@ -248,27 +245,27 @@ void    GAnalysis3Mesons::Reset(Option_t* option)
     hist_SubImCut.Reset(option);
     hist_MMCut.Reset(option);
 
-//    fit1.Reset(option);
-//    hist_fit1.Reset(option);
-//    fit1Vertex.Reset(option);
-//    hist_fit1Vertex.Reset(option);
-//    fit3.Reset(option);
-//    hist_fit3.Reset(option);
-//    fit3Vertex.Reset(option);
-//    hist_fit3Vertex.Reset(option);
+    fit1.Reset(option);
+    hist_fit1.Reset(option);
+    fit1Vertex.Reset(option);
+    hist_fit1Vertex.Reset(option);
+    fit3.Reset(option);
+    hist_fit3.Reset(option);
+    fit3Vertex.Reset(option);
+    hist_fit3Vertex.Reset(option);
     fit4.Reset(option);
     hist_fit4.Reset(option);
     fit4Vertex.Reset(option);
     hist_fit4Vertex.Reset(option);
 
-//    fitBeam1.Reset(option);
-//    hist_fitBeam1.Reset(option);
-//    fitBeam1Vertex.Reset(option);
-//    hist_fitBeam1Vertex.Reset(option);
-//    fitBeam3.Reset(option);
-//    hist_fitBeam3.Reset(option);
-//    fitBeam3Vertex.Reset(option);
-//    hist_fitBeam3Vertex.Reset(option);
+    fitBeam1.Reset(option);
+    hist_fitBeam1.Reset(option);
+    fitBeam1Vertex.Reset(option);
+    hist_fitBeam1Vertex.Reset(option);
+    fitBeam3.Reset(option);
+    hist_fitBeam3.Reset(option);
+    fitBeam3Vertex.Reset(option);
+    hist_fitBeam3Vertex.Reset(option);
     fitBeam4.Reset(option);
     hist_fitBeam4.Reset(option);
     fitBeam4Vertex.Reset(option);
