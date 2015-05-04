@@ -26,31 +26,31 @@ private:
 
     GHistEvent3Mesons   hist_MMCut;
 
-    GFit                fit1;
-    GHistEvent3Mesons   hist_fit1;
-    GFitVertex          fit1Vertex;
-    GHistEvent3Mesons   hist_fit1Vertex;
-    GFit                fit3;
-    GHistEvent3Mesons   hist_fit3;
-    GFitVertex          fit3Vertex;
-    GHistEvent3Mesons   hist_fit3Vertex;
+//    GFit                fit1;
+//    GHistEvent3Mesons   hist_fit1;
+//    GFitVertex          fit1Vertex;
+//    GHistEvent3Mesons   hist_fit1Vertex;
+//    GFit                fit3;
+//    GHistEvent3Mesons   hist_fit3;
+//    GFitVertex          fit3Vertex;
+//    GHistEvent3Mesons   hist_fit3Vertex;
     GFit                fit4;
     GHistEvent3Mesons   hist_fit4;
-    GFitVertex          fit4Vertex;
-    GHistEvent3Mesons   hist_fit4Vertex;
+//    GFitVertex          fit4Vertex;
+//    GHistEvent3Mesons   hist_fit4Vertex;
 
-    GFitBeam            fitBeam1;
-    GHistEvent3Mesons   hist_fitBeam1;
-    GFitBeamVertex      fitBeam1Vertex;
-    GHistEvent3Mesons   hist_fitBeam1Vertex;
-    GFitBeam            fitBeam3;
-    GHistEvent3Mesons   hist_fitBeam3;
-    GFitBeamVertex      fitBeam3Vertex;
-    GHistEvent3Mesons   hist_fitBeam3Vertex;
-    GFitBeam            fitBeam4;
-    GHistEvent3Mesons   hist_fitBeam4;
-    GFitBeamVertex      fitBeam4Vertex;
-    GHistEvent3Mesons   hist_fitBeam4Vertex;
+//    GFitBeam            fitBeam1;
+//    GHistEvent3Mesons   hist_fitBeam1;
+//    GFitBeamVertex      fitBeam1Vertex;
+//    GHistEvent3Mesons   hist_fitBeam1Vertex;
+//    GFitBeam            fitBeam3;
+//    GHistEvent3Mesons   hist_fitBeam3;
+//    GFitBeamVertex      fitBeam3Vertex;
+//    GHistEvent3Mesons   hist_fitBeam3Vertex;
+//    GFitBeam            fitBeam4;
+//    GHistEvent3Mesons   hist_fitBeam4;
+//    GFitBeamVertex      fitBeam4Vertex;
+//    GHistEvent3Mesons   hist_fitBeam4Vertex;
 
     Double_t            cutSubIM[6];
     Double_t            cutMM[2];
@@ -91,25 +91,25 @@ private:
     GHistEvent3Mesons   hist_MMCut;
     GHistBGSub2         hist_TOF;
 
-    GFit                fit4;
-    GHistEvent3Mesons   hist_fit4;
-    GFitVertex          fit4Vertex;
-    GHistEvent3Mesons   hist_fit4Vertex;
+//    GFit                fit4;
+//    GHistEvent3Mesons   hist_fit4;
+//    GFitVertex          fit4Vertex;
+//    GHistEvent3Mesons   hist_fit4Vertex;
 
-    GFitBeam            fitBeam4;
-    GHistEvent3Mesons   hist_fitBeam4;
-    GFitBeamVertex      fitBeam4Vertex;
-    GHistEvent3Mesons   hist_fitBeam4Vertex;
+//    GFitBeam            fitBeam4;
+//    GHistEvent3Mesons   hist_fitBeam4;
+//    GFitBeamVertex      fitBeam4Vertex;
+//    GHistEvent3Mesons   hist_fitBeam4Vertex;
 
     GFitProton          fitProton6;
     GHistEvent3Mesons   hist_fitProton6;
-    GFitProtonVertex    fitProton6Vertex;
-    GHistEvent3Mesons   hist_fitProton6Vertex;
+//    GFitProtonVertex    fitProton6Vertex;
+//    GHistEvent3Mesons   hist_fitProton6Vertex;
 
-    GFitBeamProton          fitBeamProton6;
-    GHistEvent3Mesons       hist_fitBeamProton6;
-    GFitBeamProtonVertex    fitBeamProton6Vertex;
-    GHistEvent3Mesons       hist_fitBeamProton6Vertex;
+//    GFitBeamProton          fitBeamProton6;
+//    GHistEvent3Mesons       hist_fitBeamProton6;
+//    GFitBeamProtonVertex    fitBeamProton6Vertex;
+//    GHistEvent3Mesons       hist_fitBeamProton6Vertex;
 
     Double_t            cutSubIM[6];
     Double_t            cutMM[2];
