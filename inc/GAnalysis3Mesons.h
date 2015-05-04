@@ -21,6 +21,8 @@ class   GAnalysis3Mesons  : public GHistLinked
 private:
     Bool_t              isEtap;
 
+    GHistBGSub          hist_count;
+
     GHistEvent3Mesons   hist_raw;
     GHistBGSub          hist_raw_SubAll;
     GHistEvent3Mesons   hist_SubImCut;
@@ -83,6 +85,8 @@ class   GAnalysis3MesonsProton  : public GHistLinked
 {
 private:
     Bool_t              isEtap;
+
+    GHistBGSub          hist_count;
 
     GCheckProton        checkProton;
 
