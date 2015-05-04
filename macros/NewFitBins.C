@@ -1,4 +1,7 @@
-int	TaggE[48] = {
+#include "macros/NewBestFit.C"
+
+
+double	TaggE[48] = {
 1577.31,
 1573.83,
 1570.43,
@@ -111,6 +114,65 @@ void ReconstructStart(Double_t* array)
 	for(int i=39; i<48; i++)
 		array[i]	= 0.0;
 }
+
+struct	Value
+{
+	Double_t	value;
+	Double_t	error;
+};
+struct	FitValuesSignal
+{
+	Value	factor;
+	Value	mean;
+	Value	sigma;
+	Double_t	count;
+};
+struct	FitValuesData
+{
+	FitValuesSignal	signal;
+	FitValuesSignal	bg;
+};
+struct	FitValuesBG
+{
+	FitValuesSignal	gaus;
+	struct
+	{
+		Value	a0;
+		Value	a1;
+		Value	a2;
+	}pol2;
+	struct
+	{
+		Value	a0;
+		Value	a1;
+		Value	a2;
+		Value	a3;
+	}pol3;
+	struct
+	{
+		Value	a0;
+		Value	a1;
+		Value	a2;
+		Value	a3;
+		Value	a4;
+	}pol4;
+	struct
+	{
+		Value	a0;
+		Value	a1;
+		Value	a2;
+		Value	a3;
+		Value	a4;
+		Value	a5;
+	}pol5;
+	Double_t	count;
+};
+struct	FitValues
+{
+	FitValuesSignal	signal;
+	FitValuesBG		bg;
+};
+
 void ReconstructEff(const TH2D* h, Double_t* array, Double_t* darray)
 {
 	Double_t	help[48];
@@ -136,406 +198,549 @@ void ReconstructEff(const TH2D* h, Double_t* array, Double_t* darray)
 		}
 	}
 }
-void	FitBinsFitAll(const TH1D* hist, Double_t* par)
-{
-	TH1D* h	= hist->Clone();
-	TF1*	fit = new TF1("fitfkt", "gaus(0)+gaus(3)", 850, 1050);
-	fit->SetParameters(h->GetMaximum(), 957, 10, h->GetMaximum()/20, 950, 50);
-	fit->SetParLimits(0, h->GetMaximum()/10, h->GetMaximum());
-	fit->SetParLimits(1, 940, 990);
-	fit->SetParLimits(2, 5, 25);
-	fit->SetParLimits(3, 0, h->GetMaximum()/2);
-	fit->SetParLimits(4, 700, 1200);
-	fit->SetParLimits(5, 25, 100);
 
-	h->Fit(fit, "R");
-    h->SetAxisRange(850, 1050);
-    h->SetStats(0);
-    h->GetXaxis()->SetTitle("inv. Mass (#eta#pi^{0}#pi^{0}) [MeV/c]");
-    h->SetTitle("");
-	h->Draw();
+void	FitBinsSimGaus(const TH1D* data, int channel, int size, FitValues& fitValues, const bool signal)
+{
+	TF1*	fit = new TF1("fitfktSignal", "gaus(0)", 850, 1050);
+	if(signal)
+	{
+		data->SetLineColor(kRed);
+		fit->SetLineColor(kMagenta);
+		fit->SetParameters(data->GetMaximum(), 957, 10);
+		fit->SetParLimits(1, 950, 965);
+		fit->SetParLimits(2, 5, 20);
+	}
+	else
+	{
+		data->SetLineColor(kBlue);
+		fit->SetLineColor(kBlue);
+		fit->SetParameters(data->GetMaximum(), 930, 50);
+		fit->SetParLimits(1, 850, 1050);
+		fit->SetParLimits(2, 25, 250);
+	}
+	fit->SetParLimits(0, 0, data->GetMaximum()*1.5);
 	
-	par[0] = fit->GetParameter(0);
-	par[1] = fit->GetParameter(1);
-	par[2] = fit->GetParameter(2);
-	par[3] = fit->GetParameter(3);
-	par[4] = fit->GetParameter(4);
-	par[5] = fit->GetParameter(5);
+	TString	title("E_{#gamma} (");
+	if(channel==0)
+	{
+		title.Append(TString().Itoa(int(TaggE[size]-((TaggE[size]-TaggE[size+1])/2)), 10));
+		title.Append(" MeV - ");
+		title.Append(TString().Itoa(int(TaggE[0]+((TaggE[0]-TaggE[1])/2)), 10));
+		title.Append(" MeV) ");
+	}
+	else if(channel+size>=47)
+	{
+		title.Append(TString().Itoa(int(TaggE[47]-((TaggE[46]-TaggE[47])/2)), 10));
+		title.Append(" MeV - ");
+		title.Append(TString().Itoa(int(TaggE[channel]+((TaggE[channel-1]-TaggE[channel])/2)), 10));
+		title.Append(" MeV) ");
+	}
+	else
+	{
+		title.Append(TString().Itoa(int(TaggE[channel+size]-((TaggE[channel+size]-TaggE[channel+size+1])/2)), 10));
+		title.Append(" MeV - ");
+		title.Append(TString().Itoa(int(TaggE[channel]+((TaggE[channel-1]-TaggE[channel])/2)), 10));
+		title.Append(" MeV) ");
+	}
+	data->SetTitle(title.Data());
+	data->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");	
+	data->Fit(fit, "R0");
+	data->SetStats(0);		
+    data->SetAxisRange(850, 1050);
+	data->Draw("SAME");
+	fit->Draw("SAME");
 	
-	TF1*	fit2 = new TF1("fitfktfg", "gaus(0)", 850, 1050);
-	fit2->SetParameters(fit->GetParameter(0), fit->GetParameter(1), fit->GetParameter(2));
-    fit2->SetLineColor(kMagenta);
-	fit2->Draw("SAMES");
-	TF1*	fit3 = new TF1("fitfktbg", "gaus(0)", 850, 1050);
-	fit3->SetParameters(fit->GetParameter(3), fit->GetParameter(4), fit->GetParameter(5));
-    fit3->SetLineColor(kGreen);
-	fit3->Draw("SAMES");
+	if(signal)
+	{
+		fitValues.signal.factor.value	= fit->GetParameter(0);
+		fitValues.signal.factor.error	= fit->GetParError(0);
+		fitValues.signal.mean.value		= fit->GetParameter(1);
+		fitValues.signal.mean.error		= fit->GetParError(1);
+		fitValues.signal.sigma.value	= fit->GetParameter(2);
+		fitValues.signal.sigma.error	= fit->GetParError(2);
+		fitValues.signal.count			= data->Integral();
+	}
+	else
+	{
+		fitValues.bg.gaus.factor.value	= fit->GetParameter(0);
+		fitValues.bg.gaus.factor.error	= fit->GetParError(0);
+		fitValues.bg.gaus.mean.value	= fit->GetParameter(1);
+		fitValues.bg.gaus.mean.error	= fit->GetParError(1);
+		fitValues.bg.gaus.sigma.value	= fit->GetParameter(2);
+		fitValues.bg.gaus.sigma.error	= fit->GetParError(2);
+		fitValues.bg.count				= data->Integral();
+	}
+}
+void	FitBinsSimPol(const TH1D* data, int channel, int size, FitValues& fitValues)
+{
+	TF1*	fit2 = new TF1("fitfktBG2", "pol2(0)", 850, 1050);
+	TF1*	fit3 = new TF1("fitfktBG3", "pol3(0)", 850, 1050);
+	TF1*	fit4 = new TF1("fitfktBG4", "pol4(0)", 850, 1050);
+	TF1*	fit5 = new TF1("fitfktBG5", "pol5(0)", 850, 1050);
+	fit2->SetLineColor(kGreen);
+	fit3->SetLineColor(kOrange);
+	fit4->SetLineColor(kYellow);
+	fit5->SetLineColor(kCyan);
+	fit2->SetParameters(0, 0, 0);
+	fit3->SetParameters(0, 0, 0, 0);
+	fit4->SetParameters(0, 0, 0, 0, 0);
+	fit5->SetParameters(0, 0, 0, 0, 0, 0);
+	
+	data->Fit(fit2, "R0");
+	data->Fit(fit3, "R0");
+	data->Fit(fit4, "R0");
+	data->Fit(fit5, "R0");
+	fit2->Draw("SAME");
+	fit3->Draw("SAME");
+	fit4->Draw("SAME");
+	fit5->Draw("SAME");
+	
+	fitValues.bg.pol2.a0.value	= fit2->GetParameter(0);
+	fitValues.bg.pol2.a0.error	= fit2->GetParError(0);
+	fitValues.bg.pol2.a1.value	= fit2->GetParameter(1);
+	fitValues.bg.pol2.a1.error	= fit2->GetParError(1);
+	fitValues.bg.pol2.a2.value	= fit2->GetParameter(2);
+	fitValues.bg.pol2.a2.error	= fit2->GetParError(2);
+	
+	fitValues.bg.pol3.a0.value	= fit3->GetParameter(0);
+	fitValues.bg.pol3.a0.error	= fit3->GetParError(0);
+	fitValues.bg.pol3.a1.value	= fit3->GetParameter(1);
+	fitValues.bg.pol3.a1.error	= fit3->GetParError(1);
+	fitValues.bg.pol3.a2.value	= fit3->GetParameter(2);
+	fitValues.bg.pol3.a2.error	= fit3->GetParError(2);
+	fitValues.bg.pol3.a3.value	= fit3->GetParameter(3);
+	fitValues.bg.pol3.a3.error	= fit3->GetParError(3);
+	
+	fitValues.bg.pol4.a0.value	= fit4->GetParameter(0);
+	fitValues.bg.pol4.a0.error	= fit4->GetParError(0);
+	fitValues.bg.pol4.a1.value	= fit4->GetParameter(1);
+	fitValues.bg.pol4.a1.error	= fit4->GetParError(1);
+	fitValues.bg.pol4.a2.value	= fit4->GetParameter(2);
+	fitValues.bg.pol4.a2.error	= fit4->GetParError(2);
+	fitValues.bg.pol4.a3.value	= fit4->GetParameter(3);
+	fitValues.bg.pol4.a3.error	= fit4->GetParError(3);
+	fitValues.bg.pol4.a4.value	= fit4->GetParameter(4);
+	fitValues.bg.pol4.a4.error	= fit4->GetParError(4);
+	
+	fitValues.bg.pol5.a0.value	= fit5->GetParameter(0);
+	fitValues.bg.pol5.a0.error	= fit5->GetParError(0);
+	fitValues.bg.pol5.a1.value	= fit5->GetParameter(1);
+	fitValues.bg.pol5.a1.error	= fit5->GetParError(1);
+	fitValues.bg.pol5.a2.value	= fit5->GetParameter(2);
+	fitValues.bg.pol5.a2.error	= fit5->GetParError(2);
+	fitValues.bg.pol5.a3.value	= fit5->GetParameter(3);
+	fitValues.bg.pol5.a3.error	= fit5->GetParError(3);
+	fitValues.bg.pol5.a4.value	= fit5->GetParameter(4);
+	fitValues.bg.pol5.a4.error	= fit5->GetParError(4);
+	fitValues.bg.pol5.a5.value	= fit5->GetParameter(5);
+	fitValues.bg.pol5.a5.error	= fit5->GetParError(5);
+}
+void	FitBinsSim(const TH1D* dataSignal, const TH1D* dataBG, int channel, int size, FitValues& fitValues)
+{
+	cout << "channel: " << channel << endl;
+	FitBinsSimGaus(dataBG, channel, size, fitValues, false);
+	FitBinsSimPol(dataBG, channel, size, fitValues);
+	FitBinsSimGaus(dataSignal, channel, size, fitValues, true);
 }
 
-void	FitBinsFit(const TH1D* hist, const Double_t TaggEMin, const Double_t TaggEMax, const Double_t* par, Double_t* parResult, Double_t* parResultError)
+void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, std::vector<int>& ch, std::vector<int>& size, const double signalScale, FitValues* fitValues)
 {
-	TH1D* h = hist->Clone();
-	TF1*	fit = new TF1("fitfkt", "gaus(0)+gaus(3)", 850, 1050);
-	fit->SetParameters(h->GetMaximum(), par[1], par[2], h->GetMaximum()/20, par[4], par[5]);
-	fit->SetParLimits(0, 0, h->GetMaximum());
-	fit->SetParLimits(1, par[1]-10, par[1]+10);
-	fit->SetParLimits(2, par[2]/2, par[2]*2);
-	fit->SetParLimits(3, 0, h->GetMaximum()/2);
-	fit->SetParLimits(4, par[4]-25, par[4]+50);
-	fit->SetParLimits(5, par[5], par[5]*2);
-
-	h->Fit(fit, "R");
-	h->SetStats(0);
-	h->SetTitle(TString("E_{#gamma} (").Append(TString().Itoa(TaggEMin, 10)).Append(" MeV - ").Append(TString().Itoa(TaggEMax, 10)).Append(" MeV) ").Data());
-    h->SetAxisRange(850, 1050);
-	h->Draw();
-	
-	parResult[0] = fit->GetParameter(0);
-	parResult[1] = fit->GetParameter(1);
-	parResult[2] = fit->GetParameter(2);
-	parResult[3] = fit->GetParameter(3);
-	parResult[4] = fit->GetParameter(4);
-	parResult[5] = fit->GetParameter(5);
-	
-	parResultError[0] = fit->GetParError(0);
-	parResultError[1] = fit->GetParError(1);
-	parResultError[2] = fit->GetParError(2);
-	parResultError[3] = fit->GetParError(3);
-	parResultError[4] = fit->GetParError(4);
-	parResultError[5] = fit->GetParError(5);
-	
-	TF1*	fit2 = new TF1("fitfktfg", "gaus(0)", 850, 1050);
-	fit2->SetParameters(fit->GetParameter(0), fit->GetParameter(1), fit->GetParameter(2));
-    fit2->SetLineColor(kMagenta);
-	fit2->Draw("SAMES");
-	TF1*	fit3 = new TF1("fitfktbg", "gaus(0)", 850, 1050);
-	fit3->SetParameters(fit->GetParameter(3), fit->GetParameter(4), fit->GetParameter(5));
-    fit3->SetLineColor(kGreen);
-	fit3->Draw("SAMES");
-}
-
-void	FitBins(const TFile* dataFile, const TFile* scalerFile, const TFile* out, const Int_t addedChannels, const char* histName)
-{
-	std::vector<int>	ch;
-	std::vector<int>	size;
-	while(addedChannels*ch.size()<48)
-	{
-		if(48-(addedChannels*ch.size())>=addedChannels)
-			size.push_back(addedChannels);
-		else
-			size.push_back(48-(addedChannels*ch.size()));
-		ch.push_back(addedChannels*ch.size());
-		std::cout << "starting number: " << ch.back() << "     channel count: " << size.back() << std::endl;
-	}
-	
-	Double_t	par[6];
-	Double_t**	parResult 		= new Double_t*[ch.size()];
-	Double_t**	parResultError 	= new Double_t*[ch.size()];
-	TH2D*		data = (TH2D*)dataFile->Get(histName);
-		
-	maincan	= new TCanvas("FitBinsMain", "FitBinsMain", 1500, 800);
-	maincan->Divide(3, 4);
-	maincan->cd(1);
-	FitBinsFitAll((TH1D*)data->ProjectionX(TString("BinUpTo35").Data(), 0, -1), par);
-	scan	= new TCanvas("FitBinsSCan", "FitBinsSCan", 1500, 800);
-	scan->Divide(1, 1);
-	scan->cd(1);
-	FitBinsFitAll((TH1D*)data->ProjectionX(TString("BinUpTo35").Data(), 0, -1), par);
-	
-	can	= new TCanvas("FitBins", "FitBins", 1500, 800);
-	can->Divide(4,TMath::Ceil(double(ch.size())/4));
-	
-	
-	Double_t	x9[48];
-	Double_t	dx9[48];
-	for(int i=0; i<ch.size(); i++)
-	{
-		x9[i]	= 0;
-		for(int k=ch[i]; k<(ch[i]+size[i]); k++)
-			x9[i]	+= TaggE[k];
-		x9[i]	/= size[i];
-		x9[i]	/= 1000;
-		dx9[i]	= 0;//2.5 * addedChannels/1000;
-	}
-	
+	TCanvas*	can = new TCanvas("canFitBinsSim", "FitBinsSim", 1500, 800);
+	std::cout << "can size: " << TMath::Ceil(TMath::Sqrt(ch.size())) << std::endl;
+    can->Divide(TMath::Ceil(TMath::Sqrt(ch.size())), TMath::Ceil(TMath::Sqrt(ch.size())));
+    
 	for(int i=0; i<ch.size(); i++)
 	{
 		can->cd(i+1);
-		parResult[i] 		= new Double_t[6];
-		parResultError[i] 	= new Double_t[6];
-		FitBinsFit((TH1D*)data->ProjectionX(TString("Bin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1), TaggE[ch[i]], TaggE[ch[i]+size[i]], par, parResult[i], parResultError[i]);
+		TH1D*	dataSignalProjX	= ((TH1D*)dataSignal->ProjectionX(TString("SigBin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1))->Clone();
+		dataSignalProjX.Scale(signalScale);
+		FitBinsSim( dataSignalProjX,
+					(TH1D*)dataBG->ProjectionX(TString("BGBin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1),
+					ch[i],
+					size[i],
+					fitValues[i]);
 	}
 	
-	Double_t	x1[48];
-	Double_t	dx1[48];
-	Double_t	y1[48];
-	Double_t	dy1[48];
-	for(int i=0; i<ch.size(); i++)
+	TCanvas*	canMain = new TCanvas("canFitBinsSimMain", "FitBinsSimMain", 1500, 800);
+    canMain->Divide(3,3);
+    
+	canMain->cd(1);
+	FitBinsSimGaus((TH1D*)dataSignal->ProjectionX(TString("SignalBinSimMain").Data(), 1, 47), 0, 46, fitValues[ch.size()], true);
+	canMain->cd(2);
+	FitBinsSimGaus((TH1D*)dataBG->ProjectionX(TString("BGBinGausSimMain").Data(), 1, 47), 0, 46, fitValues[ch.size()], false);
+	canMain->cd(3);
+	FitBinsSimGaus((TH1D*)dataBG->ProjectionX(TString("BGBinGausSimMain2").Data(), 1, 47), 0, 46, fitValues[ch.size()], false);
+	FitBinsSimPol((TH1D*)dataBG->ProjectionX(TString("BGBinPolSimMain").Data(), 1, 47), 0, 46, fitValues[ch.size()]);
+	
+	double*	x = new double[ch.size()];
+	double*	dx = new double[ch.size()];
+	canMain->cd(4);
 	{
-		x1[i]	= i+1;
-		dx1[i]	= 0;
-		y1[i]	= parResult[i][0] * parResult[i][2] * TMath::Sqrt(TMath::Pi());
-		dy1[i]	= TMath::Sqrt(((parResultError[i][0] * parResult[i][2])*(parResultError[i][0] * parResult[i][2])) + ((parResult[i][0] * parResultError[i][2])*(parResult[i][0] * parResultError[i][2])));
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			x[i]	= 0;
+			for(int k=0; k<size[i]; k++)
+				x[i]	+=	TaggE[ch[i]+k];
+			x[i]	/= size[i];
+			dx[i]	= 0;
+			
+			y[i]	= fitValues[i].signal.count;
+			dy[i]	= TMath::Sqrt(fitValues[i].signal.count);
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("Entries Signal");
+		graph->Draw();
 	}
-	maincan->cd(2);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x1, y1, dx1, dy1);
-	graph->Draw();
 	
-	
-	Double_t	x2[48];
-	Double_t	dx2[48];
-	Double_t	y2[48];
-	Double_t	dy2[48];
-	Double_t	taggEff[48];
-	Double_t	dTaggEff[48];
-	TaggEff(taggEff, dTaggEff);
-	for(int i=0; i<ch.size(); i++)
+	canMain->cd(5);
 	{
-		x2[i]	= i+1;
-		dx2[i]	= 0;
-		y2[i]	= 0;
-		for(int k=ch[i]; k<(ch[i]+size[i]); k++)
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
 		{
-			y2[i]	+= taggEff[k];
+			y[i]	= fitValues[i].bg.count;
+			dy[i]	= TMath::Sqrt(fitValues[i].bg.count);
 		}
-		y2[i]	/= size[i];
-		dy2[i]	= 2.0/100.0;
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("Entries BG");
+		graph->Draw();
 	}
-	maincan->cd(3);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x2, y2, dx2, dy2);
-	graph->Draw();
 	
-	
-	Double_t	x3[48];
-	Double_t	dx3[48];
-	Double_t	y3[48];
-	Double_t	dy3[48];
-	for(int i=0; i<ch.size(); i++)
+	canMain->cd(6);
 	{
-		x3[i]	= i+1;
-		dx3[i]	= 0;
-		if(y2[i]==0)
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
 		{
-			y3[i]	= 0;
-			dy3[i]	= 0;
+			y[i]	= fitValues[i].signal.count/fitValues[i].bg.count;
+			dy[i]	= y[i]*TMath::Sqrt((1/fitValues[i].signal.count) + (1/fitValues[i].bg.count));
 		}
-		else
-		{
-			y3[i]		= y1[i]/y2[i];
-			Double_t	buf;
-			buf			= dy1[i]/y2[i];
-			dy3[i]		= dy2[i]*y1[i]/(y2[i]*y2[i]);
-			dy3[i]		*= dy3[i];
-			dy3[i]		+= buf*buf;
-			dy3[i]	 	 = TMath::Sqrt(dy3[i]);
-		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("Entries relation (signal/bg)");
+		graph->Draw();
 	}
-	maincan->cd(4);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x3, y3, dx3, dy3);
-	graph->Draw();
 	
-	
-	Double_t	x4[48];
-	Double_t	dx4[48];
-	Double_t	y4[48];
-	Double_t	dy4[48];
-	Double_t	recStart[48];
-	ReconstructStart(recStart);	
-	for(int i=0; i<ch.size(); i++)
+	canMain->cd(7);
 	{
-		x4[i]	= i+1;
-		dx4[i]	= 0;
-		y4[i]	= 0;
-		for(int k=ch[i]; k<(ch[i]+size[i]); k++)
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
 		{
-			y4[i]	+= recStart[k];
+			y[i]	= fitValues[i].signal.factor.value;
+			dy[i]	= fitValues[i].signal.factor.error;
 		}
-		//y4[i]	/= size[i];
-		dy4[i]	= TMath::Sqrt(y4[i]);
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("signal factor");
+		graph->Draw();
 	}
-	maincan->cd(5);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x4, y4, dx4, dy4);
-	graph->Draw();
 	
-	Double_t	x5[48];
-	Double_t	dx5[48];
-	Double_t	y5[48];
-	Double_t	dy5[48];
-	Double_t	recEff[48];
-	Double_t	dRecEff[48];
-	ReconstructEff(data, recEff, dRecEff);
-	for(int i=0; i<ch.size(); i++)
+	canMain->cd(8);
 	{
-		x5[i]	= i+1;
-		dx5[i]	= 0;
-		y5[i]	= 0;
-		dy5[i]	= 0;
-		for(int k=ch[i]; k<(ch[i]+size[i]); k++)
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
 		{
-			y5[i]	+= recEff[k];
-			dy5[i]	+= dRecEff[k]*dRecEff[k];
+			y[i]	= fitValues[i].signal.mean.value;
+			dy[i]	= fitValues[i].signal.mean.error;
 		}
-		y5[i]	/= size[i];
-		dy5[i]	 = TMath::Sqrt(dy5[i]);
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("signal mean");
+		graph->Draw();
 	}
-	maincan->cd(6);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x5, y5, dx5, dy5);
-	graph->Draw();
 	
-	
-	
-	
-	Double_t	x6[48];
-	Double_t	dx6[48];
-	Double_t	y6[48];
-	Double_t	dy6[48];
-	for(int i=0; i<ch.size(); i++)
+	canMain->cd(9);
 	{
-		x6[i]	= i+1;
-		dx6[i]	= 0;
-		if(y5[i]==0)
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
 		{
-			y6[i]	= 0.01;
-			dy6[i]	= 0.01;
+			y[i]	= fitValues[i].signal.sigma.value;
+			dy[i]	= fitValues[i].signal.sigma.error;
 		}
-		else
-		{
-			y6[i]		= y3[i]/y5[i];
-			Double_t	buf;
-			buf			= dy3[i]/y5[i];
-			dy6[i]		= dy5[i]*y3[i]/(y5[i]*y5[i]);
-			dy6[i]		*= dy6[i];
-			dy6[i]		+= buf*buf;
-			dy6[i]	 	 = TMath::Sqrt(dy6[i]);
-		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("signal sigma");
+		graph->Draw();
 	}
-	maincan->cd(7);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x6, y6, dx6, dy6);
-	graph->Draw();
 	
 	out->cd();
-	maincan->Write();
-	can->Write();
-	
-	
-	TH1D*	scaler		= (TH1D*)scalerFile->Get("EPT_ScalerCorT");
-	if(!scaler)
-	{
-		std::cout << "Can not open scaler hist " << std::endl;
-		return;
-	}
-	Double_t	x7[48];
-	Double_t	dx7[48];
-	Double_t	sc[48];
-	Double_t	dsc[48];
-	for(int i=0; i<ch.size(); i++)
-	{
-		x7[i]	= i+1;
-		dx7[i]	= 0;
-		sc[i] 	= 0;
-		for(int k=ch[i]; k<(ch[i]+size[i]); k++)
-			sc[i] 	+= scaler->GetBinContent(k+1);
-		dsc[i]	= TMath::Sqrt(sc[i]);
-	}
-	maincan->cd(8);
-    scaler->Draw();
-	maincan->cd(9);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x7, sc, dx7, dsc);
-	graph->Draw();
-	
-	Double_t	x8[48];
-	Double_t	dx8[48];
-	Double_t	y8[48];
-	Double_t	dy8[48];
-	for(int i=0; i<ch.size(); i++)
-	{
-		x8[i]	= i+1;
-		dx8[i]	= 0;
-		y8[i]	= (4.2/0.08491)*y6[i]/sc[i];
-		Double_t	buf;
-		buf			= dy6[i]/sc[i];
-		dy8[i]		= dsc[i]*y6[i]/(sc[i]*sc[i]);
-		dy8[i]		*= dy8[i];
-		dy8[i]		+= buf*buf;
-		dy8[i]	 	 = (4.2/0.08491)*TMath::Sqrt(dy8[i]);
-	}
-	maincan->cd(10);
-    TGraphErrors*	graph = new TGraphErrors(ch.size(), x8, y8, dx8, dy8);
-	graph->Draw();
-	
-	Double_t	y9[48];
-	Double_t	dy9[48];
-	for(int i=0; i<ch.size(); i++)
-	{
-		y9[i]	= y8[i]*1000000;
-		dy9[i]	= dy8[i]*1000000;
-	}
-	endResultCan	= new TCanvas("FitBinsEndResult", "FitBinsEndResult", 1500, 800);
-	endResultCan->Divide(1, 1);
-	endResultCan->cd(1);
-    TGraphErrors*	graph = new TGraphErrors(ch.size()-2, x9, y9, dx9, dy9);
-    graph->GetXaxis()->SetTitle("E_{#gamma} [MeV]");
-    graph->GetYaxis()->SetTitle("[#mub]");
-    graph->SetTitle("");
-	graph->Draw();
-	
-	Double_t	x10[7];
-	Double_t	dx10[7];
-	Double_t	y10[7];
-	Double_t	dy10[7];
-	x10[0]	= 1450;
-	dx10[0]	= 0;
-	y10[0]	= 0.308;
-	dy10[0]	= 0.013;
-	
-	x10[1]	= 1470;
-	dx10[1]	= 0;
-	y10[1]	= 0.516;
-	dy10[1]	= 0.013;
-	
-	x10[2]	= 1490;
-	dx10[2]	= 0;
-	y10[2]	= 0.555;
-	dy10[2]	= 0.015;
-	
-	x10[3]	= 1510;
-	dx10[3]	= 0;
-	y10[3]	= 0.637;
-	dy10[3]	= 0.016;
-	
-	x10[4]	= 1530;
-	dx10[4]	= 0;
-	y10[4]	= 0.669;
-	dy10[4]	= 0.015;
-	
-	x10[5]	= 1550;
-	dx10[5]	= 0;
-	y10[5]	= 0.758;
-	dy10[5]	= 0.019;
-	
-	x10[6]	= 1570;
-	dx10[6]	= 0;
-	y10[6]	= 0.818;
-	dy10[6]	= 0.023;
-
-    TGraphErrors*	sergeyGraph = new TGraphErrors(7, x10, y10, dx10, dy10);
-    sergeyGraph->GetXaxis()->SetTitle("E_{#gamma} [MeV]");
-    sergeyGraph->GetYaxis()->SetTitle("[#mub]");
-    sergeyGraph->SetTitle("");
-	sergeyGraph->SetLineColor(kRed);
-	//sergeyGraph->Draw("SAME");
-	
-	out->cd();
-	maincan->Write();
+	canMain->Write();
 	can->Write();
 }
 
-void	FitBins(const char* dataFileName, const char* scalerFileName, const Int_t addedChannels, const char* histName)
+
+void	FitBins(const TH1D* data, int channel, int size, const FitValues& fitValues, FitValuesData& fitResult)
+{
+	TF1*	fit = new TF1("fitfkt", "gaus(0) + gaus(3)", 850, 1050);
+	fit->SetParameters(data->GetMaximum(), fitValues.signal.mean.value, fitValues.signal.sigma.value, 0, fitValues.bg.gaus.mean.value, fitValues.bg.gaus.sigma.value);
+	fit->SetParLimits(0, 0, data->GetMaximum());
+	fit->SetParLimits(1, 0.9*fitValues.signal.mean.value, 1.1*fitValues.signal.mean.value);
+	fit->SetParLimits(2, 0.9*fitValues.signal.sigma.value, 1.1*fitValues.signal.sigma.value);
+	fit->SetParLimits(3, 0, data->GetMaximum());
+	fit->SetParLimits(4, 0.9*fitValues.bg.gaus.mean.value, 1.1*fitValues.bg.gaus.mean.value);
+	fit->SetParLimits(5, 0.9*fitValues.bg.gaus.sigma.value, 1.1*fitValues.bg.gaus.sigma.value);
+	
+	TString	title("E_{#gamma} (");
+	if(channel==0)
+	{
+		title.Append(TString().Itoa(int(TaggE[size]-((TaggE[size]-TaggE[size+1])/2)), 10));
+		title.Append(" MeV - ");
+		title.Append(TString().Itoa(int(TaggE[0]+((TaggE[0]-TaggE[1])/2)), 10));
+		title.Append(" MeV) ");
+	}
+	else if(channel+size>=47)
+	{
+		title.Append(TString().Itoa(int(TaggE[47]-((TaggE[46]-TaggE[47])/2)), 10));
+		title.Append(" MeV - ");
+		title.Append(TString().Itoa(int(TaggE[channel]+((TaggE[channel-1]-TaggE[channel])/2)), 10));
+		title.Append(" MeV) ");
+	}
+	else
+	{
+		title.Append(TString().Itoa(int(TaggE[channel+size]-((TaggE[channel+size]-TaggE[channel+size+1])/2)), 10));
+		title.Append(" MeV - ");
+		title.Append(TString().Itoa(int(TaggE[channel]+((TaggE[channel-1]-TaggE[channel])/2)), 10));
+		title.Append(" MeV) ");
+	}
+	data->SetTitle(title.Data());
+	data->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");	
+	data->Fit(fit, "R0");
+	data->SetStats(0);		
+    data->SetAxisRange(850, 1050);
+	data->Draw();
+	fit->Draw("SAME");
+	
+	TF1*	fitSignal = new TF1("fitfktSignal", "gaus(0)", 850, 1050);
+	TF1*	fitBG = new TF1("fitfktBG", "gaus(0)", 850, 1050);
+	fitSignal->SetLineColor(kRed);
+	fitBG->SetLineColor(kGreen);
+	fitSignal->SetParameters(fit->GetParameter(0), fit->GetParameter(1), fit->GetParameter(2));
+	fitBG->SetParameters(fit->GetParameter(3), fit->GetParameter(4), fit->GetParameter(5));
+	fitSignal->Draw("SAME");
+	fitBG->Draw("SAME");
+	
+	fitResult.signal.factor.value	= fit->GetParameter(0);
+	fitResult.signal.factor.error	= fit->GetParError(0);
+	fitResult.signal.mean.value		= fit->GetParameter(1);
+	fitResult.signal.mean.error		= fit->GetParError(1);
+	fitResult.signal.sigma.value	= fit->GetParameter(2);
+	fitResult.signal.sigma.error	= fit->GetParError(2);
+	fitResult.bg.factor.value	= fit->GetParameter(3);
+	fitResult.bg.factor.error	= fit->GetParError(3);
+	fitResult.bg.mean.value		= fit->GetParameter(4);
+	fitResult.bg.mean.error		= fit->GetParError(4);
+	fitResult.bg.sigma.value	= fit->GetParameter(5);
+	fitResult.bg.sigma.error	= fit->GetParError(5);
+}
+void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vector<int>& size, const double signalScale, FitValues* fitValues)
+{
+	TCanvas*	can = new TCanvas("canFitBins", "FitBins", 1500, 800);
+    can->Divide(TMath::Ceil(TMath::Sqrt(ch.size())), TMath::Ceil(TMath::Sqrt(ch.size())));
+    
+    FitValuesData*	fitResult	= new FitValuesData[ch.size()+1];
+    
+	for(int i=0; i<ch.size(); i++)
+	{
+		can->cd(i+1);
+		FitBins((TH1D*)data->ProjectionX(TString("Bin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1),
+				ch[i],
+				size[i],
+				fitValues[i],
+				fitResult[i]);
+	}
+	
+	
+	TCanvas*	canMain = new TCanvas("canFitBinsMain", "FitBinsMain", 1500, 800);
+    canMain->Divide(3,3);
+    
+	canMain->cd(1);
+	FitBins((TH1D*)data->ProjectionX(TString("SignalBinMain").Data(), 1, 38), 0, 37, fitValues[ch.size()], fitResult[ch.size()]);
+	
+	double*	x = new double[ch.size()];
+	double*	dx = new double[ch.size()];
+	canMain->cd(4);
+	{
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			x[i]	= 0;
+			for(int k=0; k<size[i]; k++)
+				x[i]	+=	TaggE[ch[i]+k];
+			x[i]	/= size[i];
+			dx[i]	= 0;
+			
+			y[i]	= fitResult[i].signal.factor.value;
+			dy[i]	= fitResult[i].signal.factor.error;
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("factor Signal");
+		graph->Draw();
+	}
+	
+	canMain->cd(5);
+	{
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			y[i]	= fitResult[i].signal.mean.value;
+			dy[i]	= fitResult[i].signal.mean.error;
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("mean Signal");
+		graph->Draw();
+	}
+	
+	canMain->cd(6);
+	{
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			y[i]	= fitResult[i].signal.sigma.value;
+			dy[i]	= fitResult[i].signal.sigma.error;
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("sigma Signal");
+		graph->Draw();
+	}
+	
+	canMain->cd(7);
+	{
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			y[i]	= fitResult[i].bg.factor.value;
+			dy[i]	= fitResult[i].bg.factor.error;
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("factor bg");
+		graph->Draw();
+	}
+	
+	canMain->cd(8);
+	{
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			y[i]	= fitResult[i].bg.mean.value;
+			dy[i]	= fitResult[i].bg.mean.error;
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("mean bg");
+		graph->Draw();
+	}
+	
+	canMain->cd(9);
+	{
+		double*	y = new double[ch.size()];
+		double*	dy = new double[ch.size()];
+		
+		for(int i=0; i<ch.size(); i++)
+		{
+			y[i]	= fitResult[i].bg.sigma.value;
+			dy[i]	= fitResult[i].bg.sigma.error;
+		}
+		
+        TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
+        graph->SetTitle("sigma bg");
+		graph->Draw();
+	}
+	
+	out->cd();
+	can->Write();
+	canMain->Write();
+	
+	if(fitResult)	delete fitResult;
+}
+
+void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGFile, const TFile* scalerFile, const TFile* out, const Int_t addedChannels, const char* histName, const double signalScale)
+{
+	std::vector<int>	ch;
+	std::vector<int>	size;
+	while(addedChannels*ch.size()<47)
+	{
+		if(47-(addedChannels*ch.size())>=addedChannels)
+			size.push_back(addedChannels);
+		else
+			size.push_back(47-(addedChannels*ch.size()));
+		ch.push_back(addedChannels*ch.size());
+		/*if(ch.back()==0)
+		{
+			std::cout << "taggedEnergyMin: " << TaggE[0]<< std::endl;
+			std::cout << "taggedEnergyMin: " << TaggE[1]<< std::endl;
+			std::cout << "taggedEnergyMin: " << (TaggE[1]-TaggE[0])/2 << std::endl;
+			std::cout << "taggedEnergyMin: " << TaggE[0]-((TaggE[1]-TaggE[0])/2) << std::endl;
+			taggedEnergyMin.puch_back(TaggE[0]-((TaggE[1]-TaggE[0])/2));
+		}
+		else
+			taggedEnergyMin.puch_back(TaggE[ch.back()]-((TaggE[ch.back()]-TaggE[ch.back()-1])/2));
+			
+		if(47-(addedChannels*ch.size())>=addedChannels)
+			taggedEnergyMax.puch_back(TaggE[ch.back()]+((TaggE[ch.back()+1]-TaggE[ch.back()])/2));
+		else
+			taggedEnergyMax.puch_back(TaggE[46]+((TaggE[46]-TaggE[45])/2));*/
+			
+		std::cout << "starting number: " << ch.back() << "     channel count: " << size.back() << std::endl;
+	}
+    
+    FitValues*	fitValues	= new FitValues[ch.size()+1];
+	TH2D*		dataSignal	= (TH2D*)mcSinalFile->Get(histName);
+	TH2D*		dataBG		= (TH2D*)mcBGFile->Get(histName);
+    
+	FitBinsSim(dataSignal, dataBG, out, ch, size, signalScale, fitValues);
+	
+	TH2D*		data		= (TH2D*)dataFile->Get(histName);
+	FitBins(data, out, ch, size, signalScale, fitValues);
+	
+	if(fitValues)	delete fitValues;
+}
+
+
+void	FitBins(const char* dataFileName, const char* mcSignalFileName, const char* mcBGFileName, const char* scalerFileName, const Int_t addedChannels, const char* histName, const double	signalScale)
 {
 	TFile*	dataFile		= TFile::Open(dataFileName);
 	if(!dataFile)
 	{
 		std::cout << "Can not open dataFile " << dataFileName << std::endl;
+		return;
+	}
+	TFile*	mcSignalFile		= TFile::Open(mcSignalFileName);
+	if(!mcSignalFile)
+	{
+		std::cout << "Can not open mcSignalFile " << mcSignalFileName << std::endl;
+		return;
+	}
+	TFile*	mcBGFile			= TFile::Open(mcBGFileName);
+	if(!mcBGFile)
+	{
+		std::cout << "Can not open mcBGFile " << mcBGFileName << std::endl;
 		return;
 	}
 	TFile*	scalerFile			= TFile::Open(scalerFileName);
@@ -551,5 +756,42 @@ void	FitBins(const char* dataFileName, const char* scalerFileName, const Int_t a
 		return;
 	}	
 	
-	FitBins(dataFile, scalerFile, out, addedChannels, histName);
+	FitBins(dataFile, mcSignalFile, mcBGFile, scalerFile, out, addedChannels, histName, signalScale);
+}
+
+void	FitBins(const char* dir = ".", const Int_t addedChannels = 3, const char* histName = "WithProton/fitProton6/TaggerBinning/IM_Bins")
+{
+	std::strstream	acquSignalFileName;
+	std::strstream	acquBGFileName;
+	
+	acquSignalFileName << dir << "/Acqu_g4_sim_etap_pi0pi0eta_00.root";
+	acquBGFileName << dir << "/Acqu_g4_sim_pi0pi0pi0_6g_00.root";
+	TFile*	mcSignalFile	= TFile::Open(acquSignalFileName.str().c_str());
+	if(!mcSignalFile)
+	{
+		std::cout << "Can not open mcSignalFile " << acquSignalFileName << std::endl;
+		return;
+	}
+	TFile*	mcBGFile		= TFile::Open(acquBGFileName.str().c_str());
+	if(!mcBGFile)
+	{
+		std::cout << "Can not open mcBGFile " << acquBGFileName << std::endl;
+		return;
+	}
+	double	signalScale	= BestFitSignalScale(mcSignalFile, mcBGFile);
+	cout << "signalScale:   " << signalScale << endl;
+	
+	
+	std::strstream	dataFileName;
+	std::strstream	mcSignalFileName;
+	std::strstream	mcBGFileName;
+	std::strstream	scalerFileName;
+	
+	dataFileName << dir << "/Result_CB.root";
+	mcSignalFileName << dir << "/Phys_g4_sim_etap_pi0pi0eta_00.root";
+	mcBGFileName << dir << "/Phys_g4_sim_pi0pi0pi0_6g_00.root";
+	scalerFileName << dir << "/ScalerPhysics_CB.root";
+	
+	cout << "FitBins:" << endl;
+	FitBins(dataFileName.str().c_str(), mcSignalFileName.str().c_str(), mcBGFileName.str().c_str(), scalerFileName.str().c_str(), addedChannels, histName, signalScale);
 }

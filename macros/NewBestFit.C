@@ -3,10 +3,11 @@
 #include "macros/ShowPhysics.C"
 
 
-void	BestFitFit(const TH1D* hist1, const TH1D* hist2, Double_t* width, Double_t* count)
+void	BestFitFit(const TH1D* hist1, const TH1D* hist2, Double_t* width, Double_t* count, const double signalScale)
 {
 	//TH1D*	h = (TH1D*)hist1->Clone();
 	TH1D*	h1 = (TH1D*)hist1->Clone();
+	h1->Scale(signalScale);
 	TH1D*	h2 = (TH1D*)hist2->Clone();
 	//h->Add(hist2);
 	
@@ -26,11 +27,13 @@ void	BestFitFit(const TH1D* hist1, const TH1D* hist2, Double_t* width, Double_t*
 	h1->Fit(fit1, "R0");
     h1->SetAxisRange(750, 1100);
     h1->SetLineColor(kMagenta);
+    h1->SetStats(0);
 	h1->Draw();
 	fit1->Draw("SAME");
 	h2->Fit(fit2, "R0");
     h2->SetAxisRange(750, 1100);
     h2->SetLineColor(kGreen);
+    h2->SetStats(0);
 	h2->Draw("SAME");
 	fit2->Draw("SAME");
     //h->SetAxisRange(750, 1100);
@@ -50,20 +53,8 @@ void	BestFitFit(const TH1D* hist1, const TH1D* hist2, Double_t* width, Double_t*
 							(fit2->GetParameter(0)*fit2->GetParameter(0)*fit2->GetParError(2)*fit2->GetParError(2)*TMath::Pi()));
 }
 
-void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
-{	
-        /*TH1D*	help1		= (TH1D*)mcSignalFile->Get("WithProton/fit4/IM");
-        TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fit4/IM");
-        help1->SetLineColor(kMagenta); 
-		help1->SetAxisRange(850, 1050);       
-		help1->SetStats(0);
-		help1->GetXaxis()->SetTitle("inv. Mass (#eta#pi^{0}#pi^{0}) [MeV/c]");
-		help1->SetTitle("");
-        help1->Draw();    
-		help2->SetStats(0);
-        help2->SetLineColor(kGreen);
-        help2->Draw("SAME");*/
-        
+void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out, const double signalScale)
+{        
 	can	= new TCanvas("BestFit", "BestFit", 1500, 800);
     can->Divide(4,3);
 	Double_t*	BestFitWidth[8];
@@ -76,7 +67,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[0][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fit4/IM");
         BestCounts[0][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[0], BestCounts[0]);
+        BestFitFit(help1, help2, BestFitWidth[0], BestCounts[0], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -90,7 +81,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[1][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fitBeam4/IM");
         BestCounts[1][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[1], BestCounts[1]);
+        BestFitFit(help1, help2, BestFitWidth[1], BestCounts[1], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -104,7 +95,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[2][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fitProton6/IM");
         BestCounts[2][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[2], BestCounts[2]);
+        BestFitFit(help1, help2, BestFitWidth[2], BestCounts[2], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw();
         //help1->Draw("SAME");
@@ -119,7 +110,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[3][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fitBeamProton6/IM");
         BestCounts[3][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[3], BestCounts[3]);
+        BestFitFit(help1, help2, BestFitWidth[3], BestCounts[3], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -134,7 +125,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[4][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fit4/Vertex/IM");
         BestCounts[4][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[4], BestCounts[4]);
+        BestFitFit(help1, help2, BestFitWidth[4], BestCounts[4], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -148,7 +139,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[5][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fitBeam4/Vertex/IM");
         BestCounts[5][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[5], BestCounts[5]);
+        BestFitFit(help1, help2, BestFitWidth[5], BestCounts[5], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -162,7 +153,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[6][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fitProton6/Vertex/IM");
         BestCounts[6][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[6], BestCounts[6]);
+        BestFitFit(help1, help2, BestFitWidth[6], BestCounts[6], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -176,7 +167,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
         BestCounts[7][0]	= help1->Integral("width");
         TH1D*	help2		= (TH1D*)mcBGFile->Get("WithProton/fitBeamProton6/Vertex/IM");
         BestCounts[7][1]	= help2->Integral("width");
-        BestFitFit(help1, help2, BestFitWidth[7], BestCounts[7]);
+        BestFitFit(help1, help2, BestFitWidth[7], BestCounts[7], signalScale);
         /*help1->SetLineColor(kMagenta);
         help1->Draw("SAME");
         help2->SetLineColor(kGreen);
@@ -196,6 +187,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
 			dy[i]	= BestCounts[i][1];
 		}
         TGraphErrors*	bestFit = new TGraphErrors(8, x, y, dx, dy);
+        bestFit->SetTitle("Entries Signal");
 		bestFit->Draw();
 	}
 	can->cd(10);
@@ -208,6 +200,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
 			dy[i]	= BestCounts[i][3];
 		}
         TGraphErrors*	bestFit = new TGraphErrors(8, x, y, dx, dy);
+        bestFit->SetTitle("Entries BG");
 		bestFit->Draw();
 	}
     can->cd(11);
@@ -228,6 +221,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
 			}
 		}
         TGraphErrors*	bestFit = new TGraphErrors(8, x, y, dx, dy);
+        bestFit->SetTitle("Width relation (Signal/BG)");
 		bestFit->Draw();
 	}
 	can->cd(12);
@@ -249,6 +243,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
 			}
 		}
         TGraphErrors*	bestFit = new TGraphErrors(8, x, y, dx, dy);
+        bestFit->SetTitle("count relation (Signal/BG)");
 		bestFit->Draw();
 	}
 	
@@ -256,7 +251,7 @@ void	BestFit(const TFile* mcSignalFile, const TFile* mcBGFile, const TFile* out)
 	can->Write();
 }
 
-void	BestFit(const char* mcSignalFileName, const char* mcBGFileName)
+void	BestFit(const char* mcSignalFileName, const char* mcBGFileName, const double signalScale)
 {
 	TFile*	mcSignalFile	= TFile::Open(mcSignalFileName);
 	if(!mcSignalFile)
@@ -277,5 +272,55 @@ void	BestFit(const char* mcSignalFileName, const char* mcBGFileName)
 		return;
 	}	
 	
-	BestFit(mcSignalFile, mcBGFile, out);
+	BestFit(mcSignalFile, mcBGFile, out, signalScale);
+}
+
+double	BestFitSignalScale(const TFile* mcSignalFile, const TFile* mcBGFile)
+{
+	TTree*	treeSignal	= (TTree*)mcSignalFile->Get("tagger");
+	TTree*	treeBG		= (TTree*)mcBGFile->Get("tagger");
+	
+	treeSignal->Draw("taggedChannel>>hSignal");
+	TH1D*	hSignal = (TH1D*)gDirectory->Get("hSignal");
+	cout << hSignal->GetBinContent(1) << endl;
+	
+	treeBG->Draw("taggedChannel>>hBG");
+	TH1D*	hBG = (TH1D*)gDirectory->Get("hBG");
+	cout << hBG->GetBinContent(1) << endl;
+	
+	cout << (0.082*hBG->GetBinContent(1))/(3*hSignal->GetBinContent(1)) << endl;
+	return (0.082*hBG->GetBinContent(1))/(3*hSignal->GetBinContent(1));
+}
+
+void	BestFit(const char* dir = ".")
+{
+	std::strstream	acquSignalFileName;
+	std::strstream	acquBGFileName;
+	
+	acquSignalFileName << dir << "/Acqu_g4_sim_etap_pi0pi0eta_00.root";
+	acquBGFileName << dir << "/Acqu_g4_sim_pi0pi0pi0_6g_00.root";
+	TFile*	mcSignalFile	= TFile::Open(acquSignalFileName.str().c_str());
+	if(!mcSignalFile)
+	{
+		std::cout << "Can not open mcSignalFile " << acquSignalFileName << std::endl;
+		return;
+	}
+	TFile*	mcBGFile		= TFile::Open(acquBGFileName.str().c_str());
+	if(!mcBGFile)
+	{
+		std::cout << "Can not open mcBGFile " << acquBGFileName << std::endl;
+		return;
+	}
+	double	signalScale	= BestFitSignalScale(mcSignalFile, mcBGFile);
+	cout << "signalScale:   " << signalScale << endl;
+	
+	
+	std::strstream	mcSignalFileName;
+	std::strstream	mcBGFileName;
+	
+	mcSignalFileName << dir << "/Phys_g4_sim_etap_pi0pi0eta_00.root";
+	mcBGFileName << dir << "/Phys_g4_sim_pi0pi0pi0_6g_00.root";
+	
+	cout << "BestFit:" << endl;
+	BestFit(mcSignalFileName.str().c_str(), mcBGFileName.str().c_str(), signalScale);
 }

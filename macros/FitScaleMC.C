@@ -14,16 +14,15 @@ void	FitScaleMC(const char* fileName)
 		return;
 	}	    
     
-    TCanvas* can	= new TCanvas("BestFitCL", "BestFitCL", 1500, 800);
-    can->Divide(2,1);
-    can->Draw();
-    
+    TCanvas*	can	= new TCanvas("FitBinsMain", "FitBinsMain", 1500, 800);
+	can->Divide(2, 1);
+	
 	TH2D*	hist2	= (TH2D*)file->Get("CalibCBCorr");
-	TH1D*	hist	= (TH1D*)hist2->ProjectionX()->Clone();
-	TH1D*	histEta	= (TH1D*)hist2->ProjectionX()->Clone();
+	TH1D*	hist	= hist2->ProjectionX()->Clone();
+	TH1D*	histEta	= hist2->ProjectionX()->Clone();
 	TH2D*	hist2uc		= (TH2D*)file->Get("CalibCB");
-	TH1D*	histuc		= (TH1D*)hist2uc->ProjectionX()->Clone();
-	TH1D*	histEtauc	= (TH1D*)hist2uc->ProjectionX()->Clone();
+	TH1D*	histuc		= hist2uc->ProjectionX()->Clone();
+	TH1D*	histEtauc	= hist2uc->ProjectionX()->Clone();
 	if(!hist)
 	{
 		std::cout << "Can not open hist CalibCBCorr." << std::endl;
@@ -42,12 +41,14 @@ void	FitScaleMC(const char* fileName)
 	hist->Fit(fit, "R0");
     hist->SetAxisRange(100, 170);
     can->cd(1);
+	hist->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");
 	hist->Draw();
 	fit->Draw("SAME");
     histuc->SetAxisRange(100, 170);
     histuc->SetLineColor(kMagenta); 
 	histuc->Draw("SAME");
-	
+    histEta->SetAxisRange(500, 600);
+    
 	TF1*	fitEta = new TF1("fitfktEta", "gaus(0)+pol1(3)", 500, 600);
 	fitEta->SetParameters(histEta->GetMaximum(), 547, 10, histEta->GetMaximum()/3, 0);
 	fitEta->SetParLimits(0, histEta->GetMaximum()/10, histEta->GetMaximum()*2);
@@ -56,13 +57,13 @@ void	FitScaleMC(const char* fileName)
 	fitEta->SetParLimits(3, 0, histEta->GetMaximum());
 	fitEta->SetParLimits(4, -100, 100);
 
-	histEta->Fit(fitEta, "R0");
     histEta->SetAxisRange(500, 600);
+	histEta->Fit(fitEta, "R0");
     can->cd(2);
+	histEta->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");
 	histEta->Draw();
 	fitEta->Draw("SAME");
-    histEtauc->SetAxisRange(500, 600);
-    histEtauc->SetLineColor(kMagenta); 
+    histEtauc->SetLineColor(kMagenta);
 	histEtauc->Draw("SAME");
 }
 
