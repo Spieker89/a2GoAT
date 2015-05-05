@@ -52,9 +52,10 @@ void	MyPhysics::ProcessEvent()
 //    }
     if(GetEtaPrimes()->GetNParticles()>0)
     {
-        hist_etap.Fill(*GetEtaPrimes(), *GetPhotons(), *GetTagger());
         if(GetProtons()->GetNParticles()>0)
             hist_etap_proton.Fill(*GetEtaPrimes(), *GetPhotons(), *GetProtons(), *GetTagger());
+        else
+            hist_etap.Fill(*GetEtaPrimes(), *GetPhotons(), *GetTagger());
     }
 }
 

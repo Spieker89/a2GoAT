@@ -75,7 +75,7 @@ void	ScaleMC::ProcessEvent()
         }
     }
 
-    if(tagger->GetNTagged()!=1) return;
+    if(GetTagger()->GetNTagged()!=1) return;
 
     GetTracks()->Fill();
     GetTagger()->Fill();
