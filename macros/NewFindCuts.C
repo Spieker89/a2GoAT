@@ -1,21 +1,24 @@
 
-void	FindCuts(const TH1D* data, const double sigmaCount, double& min, double& max, double mean = 135)
+void	FindCuts(const TH1D* data, const double sigmaCount, double& min, double& max, const char* title, double mean = 135)
 {
 	TF1*	fit = new TF1("fitfkt", "gaus(0)", mean -100, mean+100);
 	fit->SetParameters(data->GetMaximum(), mean, 10);
 	
+	data->SetTitle(title);
 	data->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");	
 	data->Fit(fit, "QR0");
 	data->SetStats(0);	
     data->SetAxisRange(mean -100, mean+100);	
 	data->Draw("SAME");
-	fit->Draw("SAME");
+	//fit->Draw("SAME");
 	
 	min	= fit->GetParameter(1) - (sigmaCount*fit->GetParameter(2));
 	max	= fit->GetParameter(1) + (sigmaCount*fit->GetParameter(2));
 	
 	TLine*	minLine	= new TLine(min, 0, min, data->GetMaximum());
 	TLine*	maxLine	= new TLine(max, 0, max, data->GetMaximum());
+	minLine->SetLineColor(kRed);
+	maxLine->SetLineColor(kRed);
 	
 	minLine->Draw("SAME");
 	maxLine->Draw("SAME");
@@ -29,20 +32,20 @@ void	FindCuts(const TFile* mcSignalFile, const FILE* out, const double sigmaCoun
     double	min[4], max[4];
     
     can->cd(1);
-    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/Raw/_Raw_sub0IM"), sigmaCount, min[0], max[0], 547);
+    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/Raw/_Raw_sub0IM"), sigmaCount, min[0], max[0], "inv. mass #eta (6#gamma)", 547);
     cout << "SubIm Eta: " << min << " - " << max << endl;
     
     can->cd(2);
-    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/Raw/_Raw_sub1IM"), sigmaCount, min[1], max[1]);
+    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/Raw/_Raw_sub1IM"), sigmaCount, min[1], max[1], "inv. mass #pi0a (6#gamma)");
     cout << "SubIm Pi0a: " << min << " - " << max << endl;
     
     can->cd(3);
-    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/Raw/_Raw_sub2IM"), sigmaCount, min[2], max[2]);
+    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/Raw/_Raw_sub2IM"), sigmaCount, min[2], max[2], "inv. mass #pi0b (6#gamma)");
     cout << "SubIm Pi0b: " << min << " - " << max << endl;
     
     
     can->cd(4);
-    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/SubIM_Cut/_subIMCut_MM"), sigmaCount, min[3], max[3], 938);
+    FindCuts((TH1D*)mcSignalFile->Get("WithoutProton/SubIM_Cut/_subIMCut_MM"), sigmaCount, min[3], max[3], "mis. mass (6#gamma)", 938);
     cout << "MM: " << min << " - " << max << endl;
     
     fprintf(out, "Cut-Etap-SubIM:                 %lf %lf %lf %lf %lf %lf\n", min[0], max[0], min[1], max[1], min[2], max[2]);
@@ -51,20 +54,20 @@ void	FindCuts(const TFile* mcSignalFile, const FILE* out, const double sigmaCoun
     
     
     can->cd(5);
-    FindCuts((TH1D*)mcSignalFile->Get("WithProton/Raw/_Raw_sub0IM"), sigmaCount, min[0], max[0], 547);
+    FindCuts((TH1D*)mcSignalFile->Get("WithProton/Raw/_Raw_sub0IM"), sigmaCount, min[0], max[0], "inv. mass #eta (6#gamma p)", 547);
     cout << "SubIm Eta: " << min << " - " << max << endl;
     
     can->cd(6);
-    FindCuts((TH1D*)mcSignalFile->Get("WithProton/Raw/_Raw_sub1IM"), sigmaCount, min[1], max[1]);
+    FindCuts((TH1D*)mcSignalFile->Get("WithProton/Raw/_Raw_sub1IM"), sigmaCount, min[1], max[1], "inv. mass #pi0a (6#gamma p)");
     cout << "SubIm Pi0a: " << min << " - " << max << endl;
     
     can->cd(7);
-    FindCuts((TH1D*)mcSignalFile->Get("WithProton/Raw/_Raw_sub2IM"), sigmaCount, min[2], max[2]);
+    FindCuts((TH1D*)mcSignalFile->Get("WithProton/Raw/_Raw_sub2IM"), sigmaCount, min[2], max[2], "inv. mass #pi0b (6#gamma p)");
     cout << "SubIm Pi0b: " << min << " - " << max << endl;
     
     
     can->cd(8);
-    FindCuts((TH1D*)mcSignalFile->Get("WithProton/SubIM_Cut/_subIMCut_MM"), sigmaCount, min[3], max[3], 938);
+    FindCuts((TH1D*)mcSignalFile->Get("WithProton/SubIM_Cut/_subIMCut_MM"), sigmaCount, min[3], max[3], "mis. mass (6#gamma p)", 938);
     cout << "MM: " << min << " - " << max << endl;
     
     fprintf(out, "Cut-Etap-Proton-SubIM:          %lf %lf %lf %lf %lf %lf\n", min[0], max[0], min[1], max[1], min[2], max[2]);
