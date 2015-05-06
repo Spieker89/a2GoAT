@@ -212,8 +212,8 @@ void	FitBinsSimGaus(const TH1D* data, int channel, int size, FitValues& fitValue
 	}
 	else
 	{
-		data->SetLineColor(kBlue);
-		fit->SetLineColor(kBlue);
+		data->SetLineColor(kGreen);
+		fit->SetLineColor(kGreen);
 		fit->SetParameters(data->GetMaximum(), 930, 50);
 		fit->SetParLimits(1, 850, 1050);
 		fit->SetParLimits(2, 25, 250);
@@ -689,14 +689,14 @@ void	ShowBoth(const TH2D* data, const TH2D* dataSignal, const TH2D* dataBG, cons
 	for(int i=0; i<ch.size(); i++)
 	{
 		can->cd(i+1);
-		TH1D*	dataSignalProjX	= ((TH1D*)dataSignal->ProjectionX(TString("SigBin").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1))->Clone();
+		TH1D*	dataSignalProjX	= ((TH1D*)dataSignal->ProjectionX(TString("SigBinBoth").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1))->Clone();
 		dataSignalProjX->Scale(signalScale);
 		FitBinsSimGaus(	dataSignalProjX,
 						ch[i],
 						size[i],
 						fitVal[i],
 						true);
-		FitBinsSimGaus(	(TH1D*)dataBG->ProjectionX(TString("BinBoth").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1),
+		FitBinsSimGaus(	(TH1D*)dataBG->ProjectionX(TString("BGBinBoth").Append(TString().Itoa(i,10)).Data(), ch[i]+1, ch[i]+size[i]+1),
 						ch[i],
 						size[i],
 						fitVal[i],
