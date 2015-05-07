@@ -211,7 +211,7 @@ void	FitBinsSimGaus(const TH1D* data, int channel, int size, FitValues& fitValue
 		title.Append(" MeV) ");
 	}
 	data->SetTitle(title.Data());
-	data->GetXaxis()->SetTitle("IM #gamma#gamma [MeV]");	
+	data->GetXaxis()->SetTitle("IM 6#gamma [MeV]");	
 	data->Fit(fit, "QR0");
 	data->SetStats(0);		
     data->SetAxisRange(850, 1050);
@@ -361,6 +361,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("Entries Signal");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -377,6 +378,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("Entries BG");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -393,6 +395,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("Entries relation (signal/bg)");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -409,6 +412,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("signal factor");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -425,6 +429,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("signal mean");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -441,6 +446,7 @@ void	FitBinsSim(const TH2D* dataSignal, const TH2D* dataBG, const TFile* out, st
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("signal sigma");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -558,6 +564,7 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("factor Signal");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -574,6 +581,7 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("mean Signal");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -590,6 +598,7 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("sigma Signal");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -606,6 +615,7 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("factor bg");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -622,6 +632,7 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("mean bg");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -638,6 +649,7 @@ void	FitBins(const TH2D* data, const TFile* out, std::vector<int>& ch, std::vect
 		
         TGraphErrors*	graph	= new TGraphErrors(ch.size(), x, y, dx, dy);
         graph->SetTitle("sigma bg");
+        graph->GetXaxis()->SetTitle("photon energy E_{#gamma} [MeV]");
 		graph->Draw();
 	}
 	
@@ -720,49 +732,76 @@ void ReconstructEff(const TFile* dataSignal, const TFile* acquSignalFile, const 
     can->cd(2);
     count6->Sumw2();
     count6->Scale(1);
+    count6->SetTitle("all simulated #eta' events 6 Hits");
+	count6->GetXaxis()->SetTitle("tagger channel");
+	count6->SetStats(0);
     count6->Draw();
     can->cd(3);
     count7->Sumw2();
     count7->Scale(1);
+    count7->SetTitle("all simulated #eta' events 7 Hits");
+	count7->GetXaxis()->SetTitle("tagger channel");
+	count7->SetStats(0);
     count7->Draw();
     
     can->cd(5);
     TH2D*	data	= (TH2D*)dataSignal->Get("WithoutProton/fit4/TaggerBinning/IM_Bins");
     slice6	= (TH1D*)((TH1D*)data->ProjectionY("SigRecEff6"))->Clone();
+    slice6->SetTitle("accepted simulated #eta' events 6 Hits");
+	slice6->GetXaxis()->SetTitle("tagger channel");
+	slice6->SetStats(0);
 	slice6->Draw();
 	
     can->cd(6);
     data	= (TH2D*)dataSignal->Get("WithProton/fitProton6/TaggerBinning/IM_Bins");
     slice7	= (TH1D*)((TH1D*)data->ProjectionY("SigRecEff7"))->Clone();
+    slice7->SetTitle("accepted simulated #eta' events 7 Hits");
+	slice7->GetXaxis()->SetTitle("tagger channel");
+	slice7->SetStats(0);
 	slice7->Draw();
 	
 	can->cd(8);
     TH1D*	RecEff6	= slice6->Clone();
     RecEff6->Divide(count6);
     RecEff6->SetTitle("Rec Eff 6 Hits");
+	RecEff6->GetXaxis()->SetTitle("tagger channel");
+	RecEff6->SetStats(0);
     RecEff6->Draw();
     
     can->cd(9);
     TH1D*	RecEff7	= slice7->Clone();
     RecEff7->Divide(count7);
     RecEff7->SetTitle("Rec Eff 7 Hits");
+	RecEff7->GetXaxis()->SetTitle("tagger channel");
+	RecEff7->SetStats(0);
 	RecEff7->Draw();
+	
+	can->cd(7);
+    TTree*	tt	= (TTree*)acquSignalFile->Get("tracks");
+    tt->Draw("nTracks");
 	
     can->cd(10);
     count->Sumw2();
     count->Scale(1);
+    count->SetTitle("all simulated #eta' events all Hits");
+	count->GetXaxis()->SetTitle("tagger channel");
+	count->SetStats(0);
     count->Draw();
     
     can->cd(11);
     RecEffTot6	= (TH1D*)slice6->Clone();
     RecEffTot6->Divide(count);
     RecEffTot6->SetTitle("Rec Eff total 6 Hits");
+	RecEffTot6->GetXaxis()->SetTitle("tagger channel");
+	RecEffTot6->SetStats(0);
     RecEffTot6->Draw();
     
     can->cd(12);
     RecEffTot7	= (TH1D*)slice7->Clone();
     RecEffTot7->Divide(count);
     RecEffTot7->SetTitle("Rec Eff total 7 Hits");
+	RecEffTot7->GetXaxis()->SetTitle("tagger channel");
+	RecEffTot7->SetStats(0);
 	RecEffTot7->Draw();
 	
 	out->cd();
@@ -864,6 +903,7 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 	}
 	count7->SetLineColor(kBlack);
 	count7->GetXaxis()->SetTitle("tagger channel");
+	count7->SetTitle("count #eta'");
 	count7->Draw();
 	TH1D*	simCount7Rebin	= simCount7->Clone();
 	//simCount7Rebin->Rebin(3, "width");
@@ -875,12 +915,14 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 	can->cd(3);
 	TH1D*	recEff7rebin	= recEff7->Clone();
 	recEff7rebin->Rebin(3, "width");
+	recEff7rebin->SetTitle("reconstruction efficiency");
 	recEff7rebin->GetXaxis()->SetTitle("tagger channel");
 	recEff7rebin->Draw();
 	
 	can->cd(4);
 	TH1D*	count7recEff	= count7->Clone();
 	count7recEff->Divide(recEff7rebin);
+	count7recEff->SetTitle("count #eta' reconstruct eff corrected");
 	count7recEff->GetXaxis()->SetTitle("tagger channel");
 	count7recEff->Draw();
 	
@@ -895,6 +937,7 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 		hte->SetBinError(i+1, dtE[i]);
 	}
 	hte->Rebin(3, "width");
+	hte->SetTitle("tagging efficiency");
 	hte->GetXaxis()->SetTitle("tagger channel");
 	hte->GetXaxis()->SetRangeUser(0,47);
 	hte->Draw();
@@ -903,6 +946,7 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 	TH1D*	count7recEfftaggEff	= count7recEff->Clone();
 	count7recEfftaggEff->Divide(hte);
 	count7recEfftaggEff->GetXaxis()->SetTitle("tagger channel");
+	count7recEfftaggEff->SetTitle("count #eta' tagg eff corrected");
 	count7recEfftaggEff->Draw();
 	TH1D*	simCount7RebintaggEff	= simCount7Rebin->Clone();
 	simCount7RebintaggEff->Scale(count7recEfftaggEff->GetMaximum()/simCount7RebintaggEff->GetMaximum());
@@ -910,6 +954,7 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 	
 	
 	can->cd(7);
+	scaler->SetTitle("scaler corrected");
 	scaler->GetXaxis()->SetTitle("tagger channel");
 	scaler->Draw();
 	can->cd(8);
@@ -917,7 +962,9 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 	result->Scale(1000000.0*4.2/0.08491);
 	result->Scale(1.0/addedChannels);		//addedChannels
 	result->Divide(scaler);
+	result->SetTitle("cross section #eta'");
 	result->GetXaxis()->SetTitle("tagger channel");
+	result->GetYaxis()->SetTitle("cross-section #eta' [#mu b]");
 	result->Draw();
 	
 	out->cd();
