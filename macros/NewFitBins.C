@@ -106,14 +106,6 @@ void TaggEff(Double_t* array, Double_t* darray)
 	for(int i=0; i<48; i++)
 		darray[i]	= 2.0/100.0;
 }
-void ReconstructStart(Double_t* array)
-{
-	for(int i=0; i<38; i++)
-		array[i]	= (84910.0-550.0)/(2*38);
-	array[38]	= 550.0/2.0;
-	for(int i=39; i<48; i++)
-		array[i]	= 0.0;
-}
 
 struct	Value
 {
@@ -173,31 +165,7 @@ struct	FitValues
 	FitValuesBG		bg;
 };
 
-void ReconstructEff(const TH2D* h, Double_t* array, Double_t* darray)
-{
-	Double_t	help[48];
-	ReconstructStart(help);
-	TH1D*	slice = 0;
-	for(int i=0; i<48; i++)
-	{
-		slice	= (TH1D*)h->ProjectionX(TString("Bin").Append(TString().Itoa(i,10)).Data(), i+1, i+1);
-		if(help[i]==0)
-		{
-			array[i]	= 0.015;
-			darray[i]	= 0.015;
-		}
-		else
-		{
-			array[i]	= slice->GetEntries()/help[i];
-			Double_t	buf;
-			buf			= TMath::Sqrt(slice->GetEntries())/help[i];
-			darray[i]	= slice->GetEntries()*TMath::Sqrt(help[i])/(help[i]*help[i]);
-			darray[i]	*= darray[i];
-			darray[i]	+= buf*buf;
-			darray[i]	= TMath::Sqrt(darray[i]);
-		}
-	}
-}
+
 
 void	FitBinsSimGaus(const TH1D* data, int channel, int size, FitValues& fitValues, const bool signal)
 {
@@ -714,7 +682,111 @@ void	ShowBoth(const TH2D* data, const TH2D* dataSignal, const TH2D* dataBG, cons
 	}
 }
 
-void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGFile, const TFile* scalerFile, const TFile* out, const Int_t addedChannels, const char* histName, const double signalScale)
+void ReconstructEff(const TFile* dataSignal, const TFile* acquSignalFile, const TFile* out, TH1D*& slice6, TH1D*& slice7, TH1D*& RecEffTot6, TH1D*& RecEffTot7)
+{
+	TTree*	tagger	= (TTree*)acquSignalFile->Get("tagger");
+	TTree*	tracks	= (TTree*)acquSignalFile->Get("tracks");
+	
+    Int_t   nTagged;
+	Int_t	taggedChannel[128];
+	Int_t	nTracks;
+	
+	tagger->SetBranchAddress("nTagged", &nTagged);
+	tagger->SetBranchAddress("taggedChannel", taggedChannel);
+	tracks->SetBranchAddress("nTracks",&nTracks);
+	
+	TH1D*	count	= new TH1D("count", "count", 48, 0, 48);
+	TH1D*	count6	= new TH1D("count6", "count6", 48, 0, 48);
+	TH1D*	count7	= new TH1D("count7", "count7", 48, 0, 48);
+	
+	for(int i=0; i<tracks->GetEntriesFast(); i++)
+	{
+		tagger->GetEntry(i);
+		tracks->GetEntry(i);
+		
+		for(int t=0; t<nTagged; t++)
+		{
+			count->Fill(taggedChannel[t]);
+			if(nTracks==6)
+				count6->Fill(taggedChannel[t]);
+			else if(nTracks==7)
+				count7->Fill(taggedChannel[t]);
+		}
+	}
+	
+	TCanvas*	can = new TCanvas("canReconstructionEfficiency", "ReconstructionEfficiency", 1500, 800);
+    can->Divide(3, 4);
+    
+    can->cd(2);
+    count6->Sumw2();
+    count6->Scale(1);
+    count6->Draw();
+    can->cd(3);
+    count7->Sumw2();
+    count7->Scale(1);
+    count7->Draw();
+    
+    can->cd(5);
+    TH2D*	data	= (TH2D*)dataSignal->Get("WithoutProton/fit4/TaggerBinning/IM_Bins");
+    slice6	= (TH1D*)((TH1D*)data->ProjectionY("SigRecEff6"))->Clone();
+	slice6->Draw();
+	
+    can->cd(6);
+    data	= (TH2D*)dataSignal->Get("WithProton/fitProton6/TaggerBinning/IM_Bins");
+    slice7	= (TH1D*)((TH1D*)data->ProjectionY("SigRecEff7"))->Clone();
+	slice7->Draw();
+	
+	can->cd(8);
+    TH1D*	RecEff6	= slice6->Clone();
+    RecEff6->Divide(count6);
+    RecEff6->SetTitle("Rec Eff 6 Hits");
+    RecEff6->Draw();
+    
+    can->cd(9);
+    TH1D*	RecEff7	= slice7->Clone();
+    RecEff7->Divide(count7);
+    RecEff7->SetTitle("Rec Eff 7 Hits");
+	RecEff7->Draw();
+	
+    can->cd(10);
+    count->Sumw2();
+    count->Scale(1);
+    count->Draw();
+    
+    can->cd(11);
+    RecEffTot6	= (TH1D*)slice6->Clone();
+    RecEffTot6->Divide(count);
+    RecEffTot6->SetTitle("Rec Eff total 6 Hits");
+    RecEffTot6->Draw();
+    
+    can->cd(12);
+    RecEffTot7	= (TH1D*)slice7->Clone();
+    RecEffTot7->Divide(count);
+    RecEffTot7->SetTitle("Rec Eff total 7 Hits");
+	RecEffTot7->Draw();
+	
+	out->cd();
+	can->Write();
+}
+
+
+void ScalerCorrection(const TFile* data, const TFile* out, TH1D*& scaler)
+{
+	TCanvas*	can = new TCanvas("canScaler", "Scaler", 1500, 800);
+    can->Divide(1, 2);
+    
+	can->cd(1);
+	TH1D*	scalerUC	= (TH1D*)data->Get("EPT_ScalerT");
+	scalerUC->Draw();
+	can->cd(2);
+	scaler	= (TH1D*)data->Get("EPT_ScalerCorT");
+	scaler->Draw();	
+	
+	out->cd();
+	can->Write();
+}
+
+void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGFile, const TFile* acquSignalFile, const TFile* out, const Int_t addedChannels, const char* histName, const double signalScale)
 {
 	std::vector<int>	ch;
 	std::vector<int>	size;
@@ -750,7 +822,7 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
 	TH2D*		dataBG		= (TH2D*)mcBGFile->Get(histName);
 	//dataSignal->RebinX();
 	dataBG->RebinX(10);
-	dataBG->Scale(0.1);
+	dataBG->Scale(1.0/10.0);
     
     cout << endl << "FitBinsSim" << endl;
 	FitBinsSim(dataSignal, dataBG, out, ch, size, signalScale, fitValues);
@@ -761,15 +833,103 @@ void	FitBins(const TFile* dataFile, const TFile* mcSinalFile, const TFile* mcBGF
     cout << endl << "FitBins" << endl;
 	FitBins(data, out, ch, size, signalScale, fitValues, fitResult);
 	
+	
     cout << endl << "ShowBoth" << endl;
 	ShowBoth(data, dataSignal, dataBG, out, ch, size, signalScale, fitResult);
 	
-	if(fitValues)	delete fitValues;
-	if(fitResult)	delete fitResult;
+	
+	TH1D*	simCount6;
+	TH1D*	simCount7;
+	TH1D*	recEff7;
+	TH1D*	recEff6;
+	TH1D*	recEff7;
+	ReconstructEff(mcSinalFile, acquSignalFile, out, simCount6, simCount7, recEff6, recEff7);
+	
+	TH1D*	scaler;
+	ScalerCorrection(dataFile, out, scaler);
+	
+	TCanvas*	can = new TCanvas("canResult7", "Result7", 1500, 800);
+    can->Divide(2, 4);
+	
+	
+	can->cd(2);
+	TH1D*	count7	= new TH1D("resultCount7", "resultCount7", 48, 0, 48);
+	count7->Sumw2();
+	for(int i=0; i<ch.size(); i++)
+	{
+		count7->SetBinContent((addedChannels*i)+1, fitResult[i].signal.factor.value * fitResult[i].signal.sigma.value * TMath::Sqrt(TMath::Pi()));
+		double	help1 = fitResult[i].signal.factor.error * fitResult[i].signal.sigma.value * TMath::Sqrt(TMath::Pi());
+		double	help2 = fitResult[i].signal.factor.value * fitResult[i].signal.sigma.error * TMath::Sqrt(TMath::Pi());
+		count7->SetBinError((addedChannels*i)+1, TMath::Sqrt((help1*help1)+(help2*help2)));
+	}
+	count7->SetLineColor(kBlack);
+	count7->GetXaxis()->SetTitle("tagger channel");
+	count7->Draw();
+	TH1D*	simCount7Rebin	= simCount7->Clone();
+	//simCount7Rebin->Rebin(3, "width");
+	//simCount7Rebin->GetXaxis()->Scale(1.0/3.0);
+	simCount7Rebin->SetLineColor(kMagenta);
+	simCount7Rebin->Scale(count7->GetMaximum()/simCount7Rebin->GetMaximum());
+	simCount7Rebin->Draw("SAME");
+	
+	can->cd(3);
+	TH1D*	recEff7rebin	= recEff7->Clone();
+	recEff7rebin->Rebin(3, "width");
+	recEff7rebin->GetXaxis()->SetTitle("tagger channel");
+	recEff7rebin->Draw();
+	
+	can->cd(4);
+	TH1D*	count7recEff	= count7->Clone();
+	count7recEff->Divide(recEff7rebin);
+	count7recEff->GetXaxis()->SetTitle("tagger channel");
+	count7recEff->Draw();
+	
+	can->cd(5);
+	double	tE[48];
+	double	dtE[48];
+	TaggEff(tE, dtE);
+	TH1D*	hte	= new TH1D("TaggEFF", "TaggEFF", 48, 0, 48);
+	for(int i=0; i<48; i++)
+	{
+		hte->SetBinContent(i+1, tE[i]);
+		hte->SetBinError(i+1, dtE[i]);
+	}
+	hte->Rebin(3, "width");
+	hte->GetXaxis()->SetTitle("tagger channel");
+	hte->GetXaxis()->SetRangeUser(0,47);
+	hte->Draw();
+	
+	can->cd(6);
+	TH1D*	count7recEfftaggEff	= count7recEff->Clone();
+	count7recEfftaggEff->Divide(hte);
+	count7recEfftaggEff->GetXaxis()->SetTitle("tagger channel");
+	count7recEfftaggEff->Draw();
+	TH1D*	simCount7RebintaggEff	= simCount7Rebin->Clone();
+	simCount7RebintaggEff->Scale(count7recEfftaggEff->GetMaximum()/simCount7RebintaggEff->GetMaximum());
+	simCount7RebintaggEff->Draw("SAME");
+	
+	
+	can->cd(7);
+	scaler->GetXaxis()->SetTitle("tagger channel");
+	scaler->Draw();
+	can->cd(8);
+	TH1D*	result	= count7recEfftaggEff->Clone();
+	result->Scale(1000000.0*4.2/0.08491);
+	result->Scale(1.0/addedChannels);		//addedChannels
+	result->Divide(scaler);
+	result->GetXaxis()->SetTitle("tagger channel");
+	result->Draw();
+	
+	out->cd();
+	can->Write();
+	
+	
+	if(fitValues)		delete fitValues;
+	if(fitResult)		delete fitResult;
 }
 
 
-void	FitBins(const char* dataFileName, const char* mcSignalFileName, const char* mcBGFileName, const char* scalerFileName, const Int_t addedChannels, const char* histName, const double	signalScale)
+void	FitBins(const char* dataFileName, const char* mcSignalFileName, const char* mcBGFileName, const char* acquSignalFileName, const Int_t addedChannels, const char* histName, const double	signalScale)
 {
 	TFile*	dataFile		= TFile::Open(dataFileName);
 	if(!dataFile)
@@ -789,10 +949,10 @@ void	FitBins(const char* dataFileName, const char* mcSignalFileName, const char*
 		std::cout << "Can not open mcBGFile " << mcBGFileName << std::endl;
 		return;
 	}
-	TFile*	scalerFile			= TFile::Open(scalerFileName);
-	if(!scalerFile)
+	TFile*	acquSignalFile			= TFile::Open(acquSignalFileName);
+	if(!acquSignalFile)
 	{
-		std::cout << "Can not open scalerFile " << scalerFileName << std::endl;
+		std::cout << "Can not open scalerFile " << acquSignalFileName << std::endl;
 		return;
 	}
 	TFile*	out				= TFile::Open("result.root", "RECREATE");
@@ -802,7 +962,7 @@ void	FitBins(const char* dataFileName, const char* mcSignalFileName, const char*
 		return;
 	}	
 	
-	FitBins(dataFile, mcSignalFile, mcBGFile, scalerFile, out, addedChannels, histName, signalScale);
+	FitBins(dataFile, mcSignalFile, mcBGFile, acquSignalFile, out, addedChannels, histName, signalScale);
 }
 
 void	FitBins(const char* dir = ".", const Int_t addedChannels = 3, const char* histName = "WithProton/fitProton6/TaggerBinning/IM_Bins")
@@ -836,8 +996,7 @@ void	FitBins(const char* dir = ".", const Int_t addedChannels = 3, const char* h
 	dataFileName << dir << "/Result_CB.root";
 	mcSignalFileName << dir << "/Phys_g4_sim_etap_pi0pi0eta_00.root";
 	mcBGFileName << dir << "/Phys_g4_sim_pi0pi0pi0_6g_00.root";
-	scalerFileName << dir << "/ScalerPhysics_CB.root";
 	
 	cout << "FitBins:" << endl;
-	FitBins(dataFileName.str().c_str(), mcSignalFileName.str().c_str(), mcBGFileName.str().c_str(), scalerFileName.str().c_str(), addedChannels, histName, signalScale);
+	FitBins(dataFileName.str().c_str(), mcSignalFileName.str().c_str(), mcBGFileName.str().c_str(), acquSignalFileName.str().c_str(), addedChannels, histName, signalScale);
 }
