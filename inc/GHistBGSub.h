@@ -53,9 +53,12 @@ public:
     virtual Bool_t	Add(const GHistScaCor* _result, const GHistScaCor* _prompt, const GHistScaCor* _randSum, const TObjArray& _rand, const Double_t c = 1);
     static  void    AddRandCut(const Double_t RandMin, const Double_t RandMax);
     virtual void    CalcResult();
-    virtual Int_t   Fill(const Double_t value)                                                                      {return result->Fill(value);}
+    virtual Int_t   Fill(const Double_t value){return result->Fill(value);}
+   virtual Int_t   Fillweighted(const Double_t value, Double_t weight)  {return result->Fillweighted(value,weight);}
     virtual Int_t   Fill(const Double_t value, const Double_t taggerTime);
     virtual Int_t   Fill(const Double_t value, const GTreeTagger& tagger);
+virtual Int_t   Fillweighted(const Double_t value, const Double_t taggerTime, const Double_t weight);
+
     static  Int_t   GetNRandCuts()   {return cutRandMin.size();}
     static  void    InitCuts(const Double_t PromptMin, const Double_t PromptMax, const Double_t RandMin, const Double_t RandMax);
     virtual Bool_t  IsEmpty();

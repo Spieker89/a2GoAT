@@ -38,8 +38,8 @@ public:
             Int_t 		GetMultiplicity()       const {return multiplicity;}
             Double_t	GetEnergySum()          const {return energySum;}
             Int_t		GetNTriggerPattern()    const {return nTriggerPattern;}
-   const   Int_t*		GetTriggerPattern()     const {return triggerPattern;}
-   // const   Int_t		GetTriggerPattern(Int_t channel)     const{return	TriggerPattern[channel];}
+   //const   Int_t*		GetTriggerPattern()     const {return triggerPattern;}
+    const Int_t		GetTriggerPattern(Int_t channel)     const{return	triggerPattern[channel];}
             Int_t		GetNErrors()            const {return nErrors;}
     const   Int_t*		GetErrorModuleID()      const {return errorModuleID;}
     const   Int_t*		GetErrorModuleIndex()   const {return errorModuleIndex;}

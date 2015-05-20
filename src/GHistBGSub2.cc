@@ -72,6 +72,21 @@ Int_t   GHistBGSub2::Fill(const Double_t x, const Double_t y, const Double_t tag
     return 0;
 }
 
+Int_t   GHistBGSub2::Fillweighted(const Double_t x,const Double_t y, const Double_t taggerTime, const Double_t weight)
+{
+    if(taggerTime>=cutPromptMin && taggerTime<=cutPromptMax)
+        return ((GHistScaCor2*)prompt)->Fillweighted(x,y,weight);
+    for(Int_t i=0; i<GetNRandCuts(); i++)
+    {
+        if(i>=rand.GetEntriesFast())
+            ExpandRandBins(i+1);
+        if(taggerTime>=cutRandMin[i] && taggerTime<=cutRandMax[i])
+            return ((GHistScaCor2*)rand.At(i))->Fillweighted(x,y,weight);
+    }
+    return 0;
+}
+
+
 Int_t   GHistBGSub2::Fill(const Double_t x, const Double_t y, const GTreeTagger& tagger)
 {
     for(Int_t i=0; i<tagger.GetNTagged(); i++)

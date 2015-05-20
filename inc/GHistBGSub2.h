@@ -24,8 +24,12 @@ public:
     GHistBGSub2(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup, const Int_t nbinsy, const Double_t ylow, const Double_t yup, Bool_t linkHistogram = kTRUE);
     virtual ~GHistBGSub2();
 
+
     virtual Int_t   Fill(const Double_t x);
     virtual Int_t   Fill(const Double_t x, const Double_t y)                            {return ((GHistScaCor2*)result)->Fill(x, y);}
+   virtual Int_t   Fillweighted(const Double_t x, const Double_t y, Double_t weight)  {return ((GHistScaCor2*)result)->Fillweighted(x, y, weight);}
+
+    virtual Int_t   Fillweighted(const Double_t x,const Double_t y, const Double_t taggerTime, const Double_t weight);
     virtual Int_t   Fill(const Double_t x, const Double_t y, const Double_t taggerTime);
     virtual Int_t   Fill(const Double_t x, const Double_t y, const GTreeTagger& tagger);
 

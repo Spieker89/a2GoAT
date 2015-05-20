@@ -23,7 +23,9 @@ find_package(ROOT "5.30" REQUIRED)
 
 # since all subprojects need ROOT, set that up here
 include_directories(${ROOT_INCLUDES})
+include_directories(${ROOT_INCLUDES} /disk/nobackup/001/spieker/Mainz1/APLCON/src)
 link_directories(${ROOT_LIBRARY_DIR})
+link_directories(${ROOT_LIBRARY_DIR} /disk/nobackup/001/spieker/Mainz1/APLCON/build)
 
 include_directories(inc)
 set(ROOT_LIBRARIES "${ROOT_LIBRARIES} -lEG")
@@ -149,13 +151,15 @@ target_link_libraries(pi0-analyse ${ROOT_LIBRARIES})
 add_executable(pi0pi0-analyse
     ${GOAT_BASE}
    ${GOAT_GHIST}
+   inc/HistoManu.h
+src/HistoManu.cc
    inc/PPhysics.h
-   inc/PPi0Analyse.h
    src/PPhysics.cc
    src/P2Pi0Analyse.cc
+   src/GFit.cc
    src/pi0pi0_analyse_main.cc
    )
-target_link_libraries(pi0pi0-analyse ${ROOT_LIBRARIES})
+target_link_libraries(pi0pi0-analyse ${ROOT_LIBRARIES}  aplcon++)
 
 # install some scripts to the bin directory
 # by creating symlinks

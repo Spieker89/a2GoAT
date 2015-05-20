@@ -179,6 +179,20 @@ Int_t   GHistBGSub::Fill(const Double_t value, const Double_t taggerTime)
     return 0;
 }
 
+Int_t   GHistBGSub::Fillweighted(const Double_t value, const Double_t taggerTime, const Double_t weight)
+{
+    if(taggerTime>=cutPromptMin && taggerTime<=cutPromptMax)
+        return prompt->Fillweighted(value,weight);
+    for(Int_t i=0; i<GetNRandCuts(); i++)
+    {
+        if(i>=rand.GetEntriesFast())
+            ExpandRandBins(i+1);
+        if(taggerTime>=cutRandMin[i] && taggerTime<=cutRandMax[i])
+            return ((GHistScaCor*)rand.At(i))->Fillweighted(value,weight);
+    }
+    return 0;
+}
+
 Int_t   GHistBGSub::Fill(const Double_t value, const GTreeTagger& tagger)
 {
     for(Int_t i=0; i<tagger.GetNTagged(); i++)

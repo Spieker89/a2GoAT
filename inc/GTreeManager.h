@@ -49,20 +49,16 @@ private:
             Bool_t      TraverseValidEvents_AcquTreeFile();
             Bool_t      TraverseValidEvents_GoATTreeFile();
 
+
+    GTreeTrack*         tracks;
+    GTreeTagger*        tagger;
+    GTreeLinPol*        linpol;
+    GTreeTrigger*       trigger;
+    GTreeScaler*        scalers;
+
     GTreeSetupParameters* setupParameters;
     GTreeEventParameters* eventParameters;
     GTreeDetectorHits*  detectorHits;
-
-#ifdef hasPluto
-    GTreePluto*         pluto;
-#endif
-    GTreeA2Geant*       geant;
-
-protected:
-    TFile*      inputFile;
-    TFile*      outputFile;
-
-
     GTreeParticle*      rootinos;
     GTreeParticle*      photons;
     GTreeParticle*      electrons;
@@ -73,12 +69,15 @@ protected:
     GTreeMeson*         etas;
     GTreeMeson*         etaPrimes;
 
-    GTreeTrack*         tracks;
-    GTreeTagger*        tagger;
-    GTreeLinPol*        linpol;
-    GTreeTrigger*       trigger;
-    GTreeScaler*        scalers;
+#ifdef hasPluto
+    GTreePluto*         pluto;
+#endif
+    GTreeA2Geant*       geant;
 
+
+protected:
+    TFile*      inputFile;
+    TFile*      outputFile;
 
     //protected tree variables Getters
     GTreeTrack*   GetTracks()                 {return tracks;}

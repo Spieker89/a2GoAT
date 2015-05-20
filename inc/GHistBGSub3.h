@@ -31,7 +31,10 @@ public:
 
     virtual Int_t   Fill(const Double_t x);
     virtual Int_t   Fill(const Double_t x, const Double_t y);
-    virtual Int_t   Fill(const Double_t x, const Double_t y, const Double_t z)          {return ((GHistScaCor2*)result)->Fill(x, y);}
+    virtual Int_t   Fill(const Double_t x, const Double_t y, const Double_t z)          {return ((GHistScaCor3*)result)->Fill(x, y,z);}
+   virtual Int_t   Fillweighted(const Double_t x, const Double_t y, Double_t weight)  {return ((GHistScaCor2*)result)->Fillweighted(x, y, weight);}
+
+
     virtual Int_t   Fill(const Double_t x, const Double_t y, const Double_t z, const Double_t taggerTime);
     virtual Int_t   Fill(const Double_t x, const Double_t y, const Double_t z, const GTreeTagger& tagger);
 
