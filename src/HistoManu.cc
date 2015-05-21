@@ -1,127 +1,52 @@
-#include <HistoManu.h>
+#include "HistoManu.h"
+#include "GTreeTagger.h"
 
 using namespace std;
 
 
-HistoManu::HistoManu()//constructor
-{
-}
 
-
-HistoManu::~HistoManu()//destructor
-{
-}
-
-double HistoManu::cutPromptMin=1000;
-double HistoManu::cutPromptMax=1000;
-double HistoManu::cutSideMax=10000;
-double HistoManu::cutSideMin=1000;
-double HistoManu::backgroundSubstractionFactor=1000;
+Double_t HistoManu::cutPromptMin=1000;
+Double_t HistoManu::cutPromptMax=1000;
+Double_t HistoManu::cutSideMax=10000;
+Double_t HistoManu::cutSideMin=1000;
+Double_t HistoManu::backgroundSubstractionFactor=1000;
 
 
 
-void HistoManu::InitCutss(double PromptMin, double PromptMax, double RandMin, double RandMax){
+void HistoManu::InitCuts(Double_t PromptMin, Double_t PromptMax, Double_t RandMin, Double_t RandMax){
 	    cutPromptMin    = PromptMin;
 	    cutPromptMax    = PromptMax;
     	    cutSideMin    = RandMin;
 	    cutSideMax    = RandMax;
 	    backgroundSubstractionFactor = (PromptMax - PromptMin)/(2*(cutSideMax - cutSideMin));
-		cout << backgroundSubstractionFactor << endl;
 }
 
 
-bool HistoManu::IsPromptt(double value)
+Bool_t    HistoManu::IsPrompt(const Double_t value)
 {
-   if ((value >= cutPromptMin) && (value <= cutPromptMax)){
-       return 1;}else{
-	   return 0;}
-	
+   if ((value >= cutPromptMin) && (value <= cutPromptMax))
+       return kTRUE;
+   return kFALSE;
 }
-	
-bool HistoManu::IsRandomm(double value)
+
+Bool_t    HistoManu::IsRandom(const Double_t value)
 {
 
 	if((value > (-cutSideMax) && value < (-cutSideMin)) ||(value > cutSideMin && value < cutSideMax)){	
-            return 1;}else{
-		    return 0;}
+            return kTRUE;}else{
+		    return kFALSE;}
 }
 
-void HistoManu::FillTH1_timeweighted(TH1F *h1, double fillvalue,double timing)
+
+HistoManu::HistoManu(const char* name, const char* title, Int_t nbinsx, Double_t xlow, Double_t xup) :
+    TH1D(name, title, nbinsx, xlow, xup)
 {
-	if(IsRandomm(timing)){
-		h1->Fill(fillvalue,backgroundSubstractionFactor);
-	}
-
-	if(IsPromptt(timing)){
-		h1->Fill(fillvalue);
-	}
-
-
 }
 
-void HistoManu::FillTH1_timeandvalueweighted(TH1F *h1, double fillvalue,double timing, double weight)
+HistoManu::~HistoManu()
 {
-	if(IsRandomm(timing)){
-		h1->Fill(fillvalue,weight*backgroundSubstractionFactor);
-	}
-
-	if(IsPromptt(timing)){
-		h1->Fill(fillvalue,weight);
-	}
-
-
 }
 
-void HistoManu::FillTH2_timeweighted(TH2F *h1, double fillvalue,double fillvalue2,double timing)
-{
-	if(IsRandomm(timing)){
-		h1->Fill(fillvalue,fillvalue2,backgroundSubstractionFactor);
-	}
 
-	if(IsPromptt(timing)){
-		h1->Fill(fillvalue,fillvalue2);
-	}
-
-
-}
-
-void HistoManu::FillTH2_timeandvalueweighted(TH2F *h1, double fillvalue,double fillvalue2, double timing, double weight)
-{
-	if(IsRandomm(timing)){
-		h1->Fill(fillvalue,fillvalue2,weight*backgroundSubstractionFactor);
-	}
-
-	if(IsPromptt(timing)){
-		h1->Fill(fillvalue,fillvalue2,weight);
-	}
-
-
-}
-
-void HistoManu::FillTH3_timeweighted(TH3F *h1, double fillvalue,double fillvalue2, double fillvalue3,double timing)
-{
-	if(IsRandomm(timing)){
-		h1->Fill(fillvalue,fillvalue2,fillvalue3,backgroundSubstractionFactor);
-	}
-
-	if(IsPromptt(timing)){
-		h1->Fill(fillvalue,fillvalue2,fillvalue3);
-	}
-
-
-}
-
-void HistoManu::FillTH3_timeandvalueweighted(TH3F *h1, double fillvalue,double fillvalue2,double fillvalue3,double timing, double weight)
-{
-	if(IsRandomm(timing)){
-		h1->Fill(fillvalue,fillvalue2,fillvalue3,weight*backgroundSubstractionFactor);
-	}
-
-	if(IsPromptt(timing)){
-		h1->Fill(fillvalue,fillvalue2,fillvalue3,weight);
-	}
-
-
-}
 
 								
