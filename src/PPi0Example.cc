@@ -2,15 +2,21 @@
 
 PPi0Example::PPi0Example()
 { 
-    IM 		= new GH1("IM", 	"IM", 		400,   0, 400);
-    MM		= new GH1("MM", 	"MM", 	 	400,   800, 1200);
+    IM 		= new HistoManu("IM", 	"IM", 		400,   0, 400);
+
+    MM		= new HistoManu("MM", 	"MM", 	 	400,   800, 1200);
+    MM_energy		= new HistoManu2("MM_energy", 	"MM_energy", 400,   800, 1200,30,200,800);
+
+    MM_energy_inv	= new HistoManu3("MM_energy_inv", "MM_energy_inv", 400,   800, 1200,30,200,800,400,0,400);
     IM1 		= new TH1F("IM1", 	"IM1", 		400,   0, 400);
+    MM1_energy		= new TH2F("MM1_energy", 	"MM_energy", 	 	400,   800, 1200,30,200,800);
+ MM1_energy->Sumw2();
+    MM1_energy_inv	= new TH3F("MM1_energy_inv", 	"MM1_energy_inv", 	 	400,   800, 1200,30,200,800,400,0,400);
     IM1_side 		= new TH1F("IM1_side", 	"IM1_side", 		400,   0, 400);
 
     MM1		= new TH1F("MM1", 	"MM1", 	 	400,   800, 1200);
 
-GHistBGSub::InitCuts(-8,8,-300,-100);
-GHistBGSub::AddRandCut(100,300);
+HistoManu::InitCuts(-8, 8,100, 300);
 
 }
 
@@ -34,6 +40,8 @@ Bool_t	PPi0Example::Init()
 
 Bool_t	PPi0Example::Start()
 {
+
+
 
     if(!IsGoATFile())
     {
@@ -77,16 +85,23 @@ void	PPi0Example::ProcessEvent()
 			//Missing Mass
 			Double_t missingmass=missingp_4vect.M();
 			if(time > -8 && time < 8){
-				IM1->Fill(inv,0.5);
+				IM1->Fill(inv);
+				MM1_energy->Fill(missingmass,beamphoton1E);
+				MM1_energy_inv->Fill(missingmass,beamphoton1E,inv);
 
 			}
 
-			if((time > -300 && time < -100) ||(time > 100 && time < 300)){	
-				IM1->Fill(inv,-0.5*0.04);
-
-				IM1_side->Fill(inv,0.04*0.5);
+			if(HistoManu::IsRandom(time)){	
+				IM1->Fill(inv,-0.04);
+				MM1_energy->Fill(missingmass,beamphoton1E,-0.04);
+				MM1_energy_inv->Fill(missingmass,beamphoton1E,inv,-0.04);
+				IM1_side->Fill(inv,0.04);
 			}
-			IM->Fillweighted(inv,time,0.5); //WIE MACHE ICH MIT GH1 WICHTUNGEN?????
+
+
+			IM->Fill(inv,time); //WIE MACHE ICH MIT GH1 WICHTUNGEN?????
+			MM_energy->Fill(missingmass,beamphoton1E,time); //WIE MACHE ICH MIT GH1 WICHTUNGEN?????
+			MM_energy_inv->Fill(missingmass,beamphoton1E,inv,time); //WIE MACHE ICH MIT GH1 WICHTUNGEN?????		
 		}
 	}
 
@@ -103,6 +118,11 @@ Bool_t	PPi0Example::Write()
 {
 
 	IM1->Write();
+	IM->Write();
+	MM_energy->Write();
+	MM1_energy->Write();
+	MM_energy_inv->Write();
+	MM1_energy_inv->Write();
     // Write all GH1's and TObjects defined in this class
-    return GTreeManager::Write();
+   // return GTreeManager::Write();
 }

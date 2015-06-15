@@ -10,11 +10,9 @@
 #include "GTreeLinPol.h"
 #include "GTreeTrigger.h"
 #include "PPhysics.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
-
-
+#include "HistoManu.h"
+#include "HistoManu2.h"
+#include "HistoManu3.h"
 #include "GFit.h"
 #include "HistoManu.h"
 
@@ -30,8 +28,8 @@ GFit	fitter;
 
 TH3F *events_all;
 TH3F *events_witherror;
-TH2F *Check_CBdE_E;
-TH2F *Check_TAPSdE_E;
+HistoManu2 *Check_CBdE_E;
+HistoManu2 *Check_TAPSdE_E;
 Double_t unten_mass, oben_mass, unten_copl, oben_copl, oben_inv, unten_inv, oben_theta, unten_theta;
 Double_t timebackground;
 Double_t pionmasse;
@@ -42,206 +40,212 @@ string planesetting;
 Double_t pt;
 TH1F* test;
 
-TH2F *thetaverteilung_collerated;
-TH2F *thetaverteilung_collerated_taps;
-TH2F *coplanarityverteilung_collerated;
-TH2F *missingmassverteilung_collerated;
+HistoManu2 *thetaverteilung_collerated;
+HistoManu2 *thetaverteilung_collerated_taps;
+HistoManu2 *coplanarityverteilung_collerated;
+HistoManu2 *missingmassverteilung_collerated;
 
-TH1F *coplanarity_collerated;
-TH1F *coplanarity_mass_theta_collerated;
-TH1F *coplanarity_mass_theta_inv_collerated;
-TH1F *coplanarity_mass_collerated;
-TH1F* coplanarity_theta_collerated;
-TH1F *coplanarity_inv_collerated;
+HistoManu *coplanarity_collerated;
+HistoManu *coplanarity_mass_theta_collerated;
+HistoManu *coplanarity_mass_theta_inv_collerated;
+HistoManu *coplanarity_mass_collerated;
+HistoManu* coplanarity_theta_collerated;
+HistoManu *coplanarity_inv_collerated;
+HistoManu *coplanarity_fit_vs_rek;
 
-TH1F *thetaproton_collerated;
-TH1F *thetaproton_mass_copl_collerated;
-TH1F *thetaproton_mass_copl_inv_collerated;
-TH1F *thetaproton_mass_copl_inv1_collerated;
-TH1F *thetaproton_mass_collerated;
-TH1F *thetaproton_copl_collerated;
-TH1F *thetaproton_inv_collerated;
-TH1F *thetaproton_taps_collerated;
-TH1F *thetaproton_mass_copl_taps_collerated;
-TH1F *thetaproton_mass_copl_inv_taps_collerated;
-TH1F *thetaproton_mass_taps_collerated;
-TH1F *thetaproton_copl_taps_collerated;
-TH1F *thetaproton_inv_taps_collerated;
+HistoManu *thetaproton_collerated;
+HistoManu *thetaproton_mass_copl_collerated;
+HistoManu *thetaproton_mass_copl_inv_collerated;
+HistoManu *thetaproton_mass_copl_inv1_collerated;
+HistoManu *thetaproton_mass_collerated;
+HistoManu *thetaproton_copl_collerated;
+HistoManu *thetaproton_inv_collerated;
+HistoManu *thetaproton_taps_collerated;
+HistoManu *thetaproton_mass_copl_taps_collerated;
+HistoManu *thetaproton_mass_copl_inv_taps_collerated;
+HistoManu *thetaproton_mass_taps_collerated;
+HistoManu *thetaproton_copl_taps_collerated;
+HistoManu *thetaproton_inv_taps_collerated;
+HistoManu *thetaproton_fit_vs_rek;
 
-TH1F *missingmass_collerated;
-TH1F *missingmass_collerated_proton;
-TH1F *missingmass_theta_copl_collerated;
-TH1F *missingmass_theta_copl_inv_collerated;
-TH1F *missingmass_theta_collerated;
-TH1F *missingmass_copl_collerated;
-TH1F *missingmass_inv_collerated;
-TH1F *missingmass_inv_collerated_proton;
-
-
-TH2F *massesumme_mass_theta_copl_inv_beam_collerated;
-TH1F *massesumme_collerated;
-TH1F *massesumme_collerated_proton;
-TH1F *massesumme_mass_theta_copl_collerated;
-TH1F *massesumme_mass_theta_copl_inv1_collerated;
-TH1F *massesumme_mass_theta_copl_inv_collerated;
-TH1F *massesumme_mass_copl_collerated;
-TH1F *massesumme_mass_collerated;
-TH1F *massesumme_mass_collerated_proton;
-TH1F *massesumme_copl_collerated;
-TH1F *massesumme_theta_collerated;
-TH2F *massegegenmasse_collerated;
-TH2F *massegegenmasse_collerated_proton;
-TH2F *massegegenmasse_mass_copl_collerated;
-TH2F *massegegenmasse_mass_theta_copl_collerated;
-TH2F *massegegenmasse_copl_collerated;
-TH2F *massegegenmasse_theta_collerated;
-TH2F *massegegenmasse_mass_collerated;
-TH2F *massegegenmasse_mass_collerated_proton;
+HistoManu *missingmass_collerated;
+HistoManu *missingmass_collerated_proton;
+HistoManu *missingmass_theta_copl_collerated;
+HistoManu *missingmass_theta_copl_inv_collerated;
+HistoManu *missingmass_theta_collerated;
+HistoManu *missingmass_copl_collerated;
+HistoManu *missingmass_inv_collerated;
+HistoManu *missingmass_inv_collerated_proton;
 
 
-TH2F *cosverteilung_collerated;
-TH2F *cosppi0verteilung_collerated; 
-TH2F *invverteilung_collerated;
-TH2F *invppi0verteilung_collerated;
-TH2F *cosverteilung_thetaproton_collerated;
-TH3F *kristallminus_targetplus_collerated;
-TH3F *kristallminus_targetminus_collerated;
-TH3F *kristallplus_targetplus_collerated;
-TH3F *kristallplus_targetminus_collerated;
+HistoManu2 *massesumme_mass_theta_copl_inv_beam_collerated;
+HistoManu *massesumme_collerated;
+HistoManu *massesumme_collerated_proton;
+HistoManu *massesumme_mass_theta_copl_collerated;
+HistoManu *massesumme_mass_theta_copl_inv1_collerated;
+HistoManu *massesumme_mass_theta_copl_inv_collerated;
+HistoManu *massesumme_mass_copl_collerated;
+HistoManu *massesumme_mass_collerated;
+HistoManu *massesumme_mass_collerated_proton;
+HistoManu *massesumme_copl_collerated;
+HistoManu *massesumme_theta_collerated;
+HistoManu2 *massegegenmasse_collerated;
+HistoManu2 *massegegenmasse_collerated_proton;
+HistoManu2 *massegegenmasse_mass_copl_collerated;
+HistoManu2 *massegegenmasse_mass_theta_copl_collerated;
+HistoManu2 *massegegenmasse_copl_collerated;
+HistoManu2 *massegegenmasse_theta_collerated;
+HistoManu2 *massegegenmasse_mass_collerated;
+HistoManu2 *massegegenmasse_mass_collerated_proton;
 
-TH3F *kristallminus_targetplus_collerated_pb;
-TH3F *kristallminus_targetminus_collerated_pb;
-TH3F *kristallplus_targetplus_collerated_pb;
-TH3F *kristallplus_targetminus_collerated_pb;
 
-TH3F *kristallminus_targetplus_collerated_pt;
-TH3F *kristallminus_targetminus_collerated_pt;
-TH3F *kristallplus_targetplus_collerated_pt;
-TH3F *kristallplus_targetminus_collerated_pt;
+HistoManu2 *cosverteilung_collerated;
+HistoManu2 *cosppi0verteilung_collerated; 
+HistoManu2 *invverteilung_collerated;
+HistoManu2 *invppi0verteilung_collerated;
+HistoManu2 *cosverteilung_thetaproton_collerated;
+HistoManu3 *kristallminus_targetplus_collerated;
+HistoManu3 *kristallminus_targetminus_collerated;
+HistoManu3 *kristallplus_targetplus_collerated;
+HistoManu3 *kristallplus_targetminus_collerated;
 
-TH3F *kristallminus_targetplus_ppi0_collerated;
-TH3F *kristallminus_targetminus_ppi0_collerated;
-TH3F *kristallplus_targetplus_ppi0_collerated;
-TH3F *kristallplus_targetminus_ppi0_collerated;
+HistoManu3 *kristallminus_targetplus_collerated_pb;
+HistoManu3 *kristallminus_targetminus_collerated_pb;
+HistoManu3 *kristallplus_targetplus_collerated_pb;
+HistoManu3 *kristallplus_targetminus_collerated_pb;
 
-TH3F *kristallminus_targetplus_ppi0_collerated_pb;
-TH3F *kristallminus_targetminus_ppi0_collerated_pb;
-TH3F *kristallplus_targetplus_ppi0_collerated_pb;
-TH3F *kristallplus_targetminus_ppi0_collerated_pb;
+HistoManu3 *kristallminus_targetplus_collerated_pt;
+HistoManu3 *kristallminus_targetminus_collerated_pt;
+HistoManu3 *kristallplus_targetplus_collerated_pt;
+HistoManu3 *kristallplus_targetminus_collerated_pt;
 
-TH3F *kristallminus_targetplus_ppi0_collerated_pt;
-TH3F *kristallminus_targetminus_ppi0_collerated_pt;
-TH3F *kristallplus_targetplus_ppi0_collerated_pt;
-TH3F *kristallplus_targetminus_ppi0_collerated_pt;
+HistoManu3 *kristallminus_targetplus_ppi0_collerated;
+HistoManu3 *kristallminus_targetminus_ppi0_collerated;
+HistoManu3 *kristallplus_targetplus_ppi0_collerated;
+HistoManu3 *kristallplus_targetminus_ppi0_collerated;
 
-TH3F *kristallminus_targetplus_im_collerated;
-TH3F *kristallminus_targetminus_im_collerated;
-TH3F *kristallplus_targetplus_im_collerated;
-TH3F *kristallplus_targetminus_im_collerated;
+HistoManu3 *kristallminus_targetplus_ppi0_collerated_pb;
+HistoManu3 *kristallminus_targetminus_ppi0_collerated_pb;
+HistoManu3 *kristallplus_targetplus_ppi0_collerated_pb;
+HistoManu3 *kristallplus_targetminus_ppi0_collerated_pb;
 
-TH3F *kristallminus_targetplus_im_collerated_pb;
-TH3F *kristallminus_targetminus_im_collerated_pb;
-TH3F *kristallplus_targetplus_im_collerated_pb;
-TH3F *kristallplus_targetminus_im_collerated_pb;
+HistoManu3 *kristallminus_targetplus_ppi0_collerated_pt;
+HistoManu3 *kristallminus_targetminus_ppi0_collerated_pt;
+HistoManu3 *kristallplus_targetplus_ppi0_collerated_pt;
+HistoManu3 *kristallplus_targetminus_ppi0_collerated_pt;
 
-TH3F *kristallminus_targetplus_im_collerated_pt;
-TH3F *kristallminus_targetminus_im_collerated_pt;
-TH3F *kristallplus_targetplus_im_collerated_pt;
-TH3F *kristallplus_targetminus_im_collerated_pt;
+HistoManu3 *kristallminus_targetplus_im_collerated;
+HistoManu3 *kristallminus_targetminus_im_collerated;
+HistoManu3 *kristallplus_targetplus_im_collerated;
+HistoManu3 *kristallplus_targetminus_im_collerated;
 
-TH3F *kristallminus_targetplus_im_ppi0_collerated;
-TH3F *kristallminus_targetminus_im_ppi0_collerated;
-TH3F *kristallplus_targetplus_im_ppi0_collerated;
-TH3F *kristallplus_targetminus_im_ppi0_collerated;
+HistoManu3 *kristallminus_targetplus_im_collerated_pb;
+HistoManu3 *kristallminus_targetminus_im_collerated_pb;
+HistoManu3 *kristallplus_targetplus_im_collerated_pb;
+HistoManu3 *kristallplus_targetminus_im_collerated_pb;
 
-TH3F *kristallminus_targetplus_im_ppi0_collerated_pb;
-TH3F *kristallminus_targetminus_im_ppi0_collerated_pb;
-TH3F *kristallplus_targetplus_im_ppi0_collerated_pb;
-TH3F *kristallplus_targetminus_im_ppi0_collerated_pb;
+HistoManu3 *kristallminus_targetplus_im_collerated_pt;
+HistoManu3 *kristallminus_targetminus_im_collerated_pt;
+HistoManu3 *kristallplus_targetplus_im_collerated_pt;
+HistoManu3 *kristallplus_targetminus_im_collerated_pt;
 
-TH3F *kristallminus_targetplus_im_ppi0_collerated_pt;
-TH3F *kristallminus_targetminus_im_ppi0_collerated_pt;
-TH3F *kristallplus_targetplus_im_ppi0_collerated_pt;
-TH3F *kristallplus_targetminus_im_ppi0_collerated_pt;
+HistoManu3 *kristallminus_targetplus_im_ppi0_collerated;
+HistoManu3 *kristallminus_targetminus_im_ppi0_collerated;
+HistoManu3 *kristallplus_targetplus_im_ppi0_collerated;
+HistoManu3 *kristallplus_targetminus_im_ppi0_collerated;
+
+HistoManu3 *kristallminus_targetplus_im_ppi0_collerated_pb;
+HistoManu3 *kristallminus_targetminus_im_ppi0_collerated_pb;
+HistoManu3 *kristallplus_targetplus_im_ppi0_collerated_pb;
+HistoManu3 *kristallplus_targetminus_im_ppi0_collerated_pb;
+
+HistoManu3 *kristallminus_targetplus_im_ppi0_collerated_pt;
+HistoManu3 *kristallminus_targetminus_im_ppi0_collerated_pt;
+HistoManu3 *kristallplus_targetplus_im_ppi0_collerated_pt;
+HistoManu3 *kristallplus_targetminus_im_ppi0_collerated_pt;
 
 
 //PROTON IDENTIFIED
-TH2F *cosverteilung_collerated_proton;
-TH2F *cosppi0verteilung_collerated_proton; 
-TH2F *invverteilung_collerated_proton;
-TH2F *invppi0verteilung_collerated_proton;
-TH2F *cosverteilung_thetaproton_collerated_proton;
-TH2F *missingmassverteilung_collerated_proton;
+HistoManu2 *cosverteilung_collerated_proton;
+HistoManu2 *cosppi0verteilung_collerated_proton; 
+HistoManu2 *invverteilung_collerated_proton;
+HistoManu2 *invppi0verteilung_collerated_proton;
+HistoManu2 *cosverteilung_thetaproton_collerated_proton;
+HistoManu2 *missingmassverteilung_collerated_proton;
 
-TH3F *kristallminus_targetplus_collerated_proton;
-TH3F *kristallminus_targetminus_collerated_proton;
-TH3F *kristallplus_targetplus_collerated_proton;
-TH3F *kristallplus_targetminus_collerated_proton;
+HistoManu3 *kristallminus_targetplus_collerated_proton;
+HistoManu3 *kristallminus_targetminus_collerated_proton;
+HistoManu3 *kristallplus_targetplus_collerated_proton;
+HistoManu3 *kristallplus_targetminus_collerated_proton;
 
-TH3F *kristallminus_targetplus_collerated_pb_proton;
-TH3F *kristallminus_targetminus_collerated_pb_proton;
-TH3F *kristallplus_targetplus_collerated_pb_proton;
-TH3F *kristallplus_targetminus_collerated_pb_proton;
+HistoManu3 *kristallminus_targetplus_collerated_pb_proton;
+HistoManu3 *kristallminus_targetminus_collerated_pb_proton;
+HistoManu3 *kristallplus_targetplus_collerated_pb_proton;
+HistoManu3 *kristallplus_targetminus_collerated_pb_proton;
 
-TH3F *kristallminus_targetplus_collerated_pt_proton;
-TH3F *kristallminus_targetminus_collerated_pt_proton;
-TH3F *kristallplus_targetplus_collerated_pt_proton;
-TH3F *kristallplus_targetminus_collerated_pt_proton;
+HistoManu3 *kristallminus_targetplus_collerated_pt_proton;
+HistoManu3 *kristallminus_targetminus_collerated_pt_proton;
+HistoManu3 *kristallplus_targetplus_collerated_pt_proton;
+HistoManu3 *kristallplus_targetminus_collerated_pt_proton;
 
-TH3F *kristallminus_targetplus_ppi0_collerated_proton;
-TH3F *kristallminus_targetminus_ppi0_collerated_proton;
-TH3F *kristallplus_targetplus_ppi0_collerated_proton;
-TH3F *kristallplus_targetminus_ppi0_collerated_proton;
+HistoManu3 *kristallminus_targetplus_ppi0_collerated_proton;
+HistoManu3 *kristallminus_targetminus_ppi0_collerated_proton;
+HistoManu3 *kristallplus_targetplus_ppi0_collerated_proton;
+HistoManu3 *kristallplus_targetminus_ppi0_collerated_proton;
 
-TH3F *kristallminus_targetplus_ppi0_collerated_pb_proton;
-TH3F *kristallminus_targetminus_ppi0_collerated_pb_proton;
-TH3F *kristallplus_targetplus_ppi0_collerated_pb_proton;
-TH3F *kristallplus_targetminus_ppi0_collerated_pb_proton;
+HistoManu3 *kristallminus_targetplus_ppi0_collerated_pb_proton;
+HistoManu3 *kristallminus_targetminus_ppi0_collerated_pb_proton;
+HistoManu3 *kristallplus_targetplus_ppi0_collerated_pb_proton;
+HistoManu3 *kristallplus_targetminus_ppi0_collerated_pb_proton;
 
-TH3F *kristallminus_targetplus_ppi0_collerated_pt_proton;
-TH3F *kristallminus_targetminus_ppi0_collerated_pt_proton;
-TH3F *kristallplus_targetplus_ppi0_collerated_pt_proton;
-TH3F *kristallplus_targetminus_ppi0_collerated_pt_proton;
+HistoManu3 *kristallminus_targetplus_ppi0_collerated_pt_proton;
+HistoManu3 *kristallminus_targetminus_ppi0_collerated_pt_proton;
+HistoManu3 *kristallplus_targetplus_ppi0_collerated_pt_proton;
+HistoManu3 *kristallplus_targetminus_ppi0_collerated_pt_proton;
 
-TH3F *kristallminus_targetplus_im_collerated_proton;
-TH3F *kristallminus_targetminus_im_collerated_proton;
-TH3F *kristallplus_targetplus_im_collerated_proton;
-TH3F *kristallplus_targetminus_im_collerated_proton;
+HistoManu3 *kristallminus_targetplus_im_collerated_proton;
+HistoManu3 *kristallminus_targetminus_im_collerated_proton;
+HistoManu3 *kristallplus_targetplus_im_collerated_proton;
+HistoManu3 *kristallplus_targetminus_im_collerated_proton;
 
-TH3F *kristallminus_targetplus_im_collerated_pb_proton;
-TH3F *kristallminus_targetminus_im_collerated_pb_proton;
-TH3F *kristallplus_targetplus_im_collerated_pb_proton;
-TH3F *kristallplus_targetminus_im_collerated_pb_proton;
+HistoManu3 *kristallminus_targetplus_im_collerated_pb_proton;
+HistoManu3 *kristallminus_targetminus_im_collerated_pb_proton;
+HistoManu3 *kristallplus_targetplus_im_collerated_pb_proton;
+HistoManu3 *kristallplus_targetminus_im_collerated_pb_proton;
 
-TH3F *kristallminus_targetplus_im_collerated_pt_proton;
-TH3F *kristallminus_targetminus_im_collerated_pt_proton;
-TH3F *kristallplus_targetplus_im_collerated_pt_proton;
-TH3F *kristallplus_targetminus_im_collerated_pt_proton;
+HistoManu3 *kristallminus_targetplus_im_collerated_pt_proton;
+HistoManu3 *kristallminus_targetminus_im_collerated_pt_proton;
+HistoManu3 *kristallplus_targetplus_im_collerated_pt_proton;
+HistoManu3 *kristallplus_targetminus_im_collerated_pt_proton;
 
-TH3F *kristallminus_targetplus_im_ppi0_collerated_proton;
-TH3F *kristallminus_targetminus_im_ppi0_collerated_proton;
-TH3F *kristallplus_targetplus_im_ppi0_collerated_proton;
-TH3F *kristallplus_targetminus_im_ppi0_collerated_proton;
+HistoManu3 *kristallminus_targetplus_im_ppi0_collerated_proton;
+HistoManu3 *kristallminus_targetminus_im_ppi0_collerated_proton;
+HistoManu3 *kristallplus_targetplus_im_ppi0_collerated_proton;
+HistoManu3 *kristallplus_targetminus_im_ppi0_collerated_proton;
 
-TH3F *kristallminus_targetplus_im_ppi0_collerated_pb_proton;
-TH3F *kristallminus_targetminus_im_ppi0_collerated_pb_proton;
-TH3F *kristallplus_targetplus_im_ppi0_collerated_pb_proton;
-TH3F *kristallplus_targetminus_im_ppi0_collerated_pb_proton;
+HistoManu3 *kristallminus_targetplus_im_ppi0_collerated_pb_proton;
+HistoManu3 *kristallminus_targetminus_im_ppi0_collerated_pb_proton;
+HistoManu3 *kristallplus_targetplus_im_ppi0_collerated_pb_proton;
+HistoManu3 *kristallplus_targetminus_im_ppi0_collerated_pb_proton;
 
-TH3F *kristallminus_targetplus_im_ppi0_collerated_pt_proton;
-TH3F *kristallminus_targetminus_im_ppi0_collerated_pt_proton;
-TH3F *kristallplus_targetplus_im_ppi0_collerated_pt_proton;
-TH3F *kristallplus_targetminus_im_ppi0_collerated_pt_proton;
+HistoManu3 *kristallminus_targetplus_im_ppi0_collerated_pt_proton;
+HistoManu3 *kristallminus_targetminus_im_ppi0_collerated_pt_proton;
+HistoManu3 *kristallplus_targetplus_im_ppi0_collerated_pt_proton;
+HistoManu3 *kristallplus_targetminus_im_ppi0_collerated_pt_proton;
 
 TH1F *poltable_energy;
 TH1F *poltable_energy_weight;
 
-TH1F *h_energy_sum_2pi0_5ped;
-TH2F *h_energy_taps_2pi0_5ped;
-TH1F *h_energy_sum_2pi0_5ped_weightcos2pi0;
-TH1F *h_energy_sum_2pi0_5ped_weightcosppi0;
+HistoManu *h_energy_sum_2pi0_5ped;
+HistoManu2 *h_energy_taps_2pi0_5ped;
+HistoManu *h_energy_sum_2pi0_5ped_weightcos2pi0;
+HistoManu *h_energy_sum_2pi0_5ped_weightcosppi0;
 
 TH1F *triggertest;
+TH1F *CL;
+HistoManu2 *pulls_4g;
+HistoManu2 *pulls_beam;
+HistoManu2 *pulls_proton;
 
 //generated
 TH3F *cos2pi0_beamphoton_energysum_monte;
@@ -251,11 +255,11 @@ TH3F *m2pi0_beamphoton_energysum_monte;
 TH3F *mppi0_beamphoton_energysum_monte;
 
 //reconstructed
-TH3F *cos2pi0_beamphoton_energysum_rek;;
-TH3F *cosppi0_beamphoton_energysum_rek;
+HistoManu3 *cos2pi0_beamphoton_energysum_rek;;
+HistoManu3 *cosppi0_beamphoton_energysum_rek;
 
-TH3F *m2pi0_beamphoton_energysum_rek;
-TH3F *mppi0_beamphoton_energysum_rek;
+HistoManu3 *m2pi0_beamphoton_energysum_rek;
+HistoManu3 *mppi0_beamphoton_energysum_rek;
 
 TH1F *h_bph_e_gen;
 // 	Double_t test1;
@@ -527,8 +531,8 @@ Double_t targetpol(TFile *f){
 	string poledge;
 
 	ifstream in2;
- 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
-//	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
 
 
@@ -564,8 +568,8 @@ string poledge(TFile *f){
 	ss >> runnumber1;
 	ifstream in2;
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
- 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
-//	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
 
 
 
@@ -601,8 +605,8 @@ string polplane(TFile *f){
 	ss >> runnumber1;
 	ifstream in2;
 // 	in2.open("/hadron/spieker/Mainz_Analyse/Carbon_Diamond_Apr14_linpol.txt");
- 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
-//	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
+// 	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Carbon_2013_linpol_neu.txt");
+	in2.open("/hadron/spieker/Mainz_Analyse/Butanol_Diamond_May14_linpol.txt");
 
 
 	Double_t runnumber;

@@ -63,6 +63,12 @@ set(GOAT_BASE
    src/GHistManager.cc
    src/GTreeManager.cc
    src/GConfigFile.cc
+   inc/HistoManu.h
+src/HistoManu.cc
+   inc/HistoManu2.h
+src/HistoManu2.cc
+   inc/HistoManu3.h
+src/HistoManu3.cc
 )
 
 set(GOAT_GHIST
@@ -151,8 +157,6 @@ target_link_libraries(pi0-analyse ${ROOT_LIBRARIES})
 add_executable(pi0pi0-analyse
     ${GOAT_BASE}
    ${GOAT_GHIST}
-   inc/HistoManu.h
-src/HistoManu.cc
    inc/PPhysics.h
    src/PPhysics.cc
    src/P2Pi0Analyse.cc

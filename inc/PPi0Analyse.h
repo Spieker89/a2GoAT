@@ -10,12 +10,14 @@
 #include "GTreeLinPol.h"
 #include "GTreeTrigger.h"
 #include "PPhysics.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
+#include "HistoManu.h"
+#include "HistoManu2.h"
+#include "HistoManu3.h"
 #include "TCutG.h"
 #include <sstream>
-
+#include "HistoManu.h"
+#include "HistoManu2.h"
+#include "HistoManu3.h"
 
 class	PPi0Analyse  : public PPhysics
 {
@@ -24,20 +26,20 @@ protected:
     TH1F*	time_prompt;
     TH1F*	time_side;
 
-    TH1F*        IM_all;
-    TH1F*        MM_all;  
-    TH1F*        IM;
-    TH1F*        MM;
+    HistoManu*        IM_all;
+    HistoManu*        MM_all;  
+    HistoManu*        IM;
+    HistoManu*        MM;
 
-    TH1F*        theta_all_proton;
-    TH1F*        coplanarity_all_proton;
-    TH1F*        IM_all_proton;
-    TH1F*        MM_all_proton;  
+    HistoManu*        theta_all_proton;
+    HistoManu*        coplanarity_all_proton;
+    HistoManu*        IM_all_proton;
+    HistoManu*        MM_all_proton;  
 
-    TH1F*        IM_proton;
-    TH1F*        MM_proton;
-     TH1F*        theta_proton;
-     TH1F*        coplanarity_proton;
+    HistoManu*        IM_proton;
+    HistoManu*        MM_proton;
+     HistoManu*        theta_proton;
+     HistoManu*        coplanarity_proton;
    TCutG *cuttaps = new TCutG("CUT_TAPS_dE_E",10);
    TCutG *cutcb = new TCutG("CUT_CB_dE_E",12);
 
@@ -54,143 +56,161 @@ TNamed filenumber;
 TString* path11;
 
 //kinematic variables in dependence of energy
-TH3F *IM_energy_kplustplus;
-TH3F *IM_energy_kplustminus;
-TH3F *IM_energy_kminustplus;
-TH3F *IM_energy_kminustminus;
+HistoManu3 *IM_energy_kplustplus;
+HistoManu3 *IM_energy_kplustminus;
+HistoManu3 *IM_energy_kminustplus;
+HistoManu3 *IM_energy_kminustminus;
 
-TH3F *MM_energy_kplustplus;
-TH3F *MM_energy_kplustminus;
-TH3F *MM_energy_kminustplus;
-TH3F *MM_energy_kminustminus;
+HistoManu3 *MM_energy_kplustplus;
+HistoManu3 *MM_energy_kplustminus;
+HistoManu3 *MM_energy_kminustplus;
+HistoManu3 *MM_energy_kminustminus;
 
-TH2F *invmassverteilung_collerated;
-TH2F *invmassverteilung_collerated_proton;
+HistoManu2 *invmassverteilung_collerated;
+HistoManu2 *invmassverteilung_collerated_proton;
 
 // //kinematic variables in dependence of energy
-TH3F *IM_energy_kplustplus_proton;
-TH3F *IM_energy_kplustminus_proton;
-TH3F *IM_energy_kminustplus_proton;
-TH3F *IM_energy_kminustminus_proton;
+HistoManu3 *IM_energy_kplustplus_proton;
+HistoManu3 *IM_energy_kplustminus_proton;
+HistoManu3 *IM_energy_kminustplus_proton;
+HistoManu3 *IM_energy_kminustminus_proton;
 
-TH3F *MM_energy_kplustplus_proton;
-TH3F *MM_energy_kplustminus_proton;
-TH3F *MM_energy_kminustplus_proton;
-TH3F *MM_energy_kminustminus_proton;
+HistoManu3 *MM_energy_kplustplus_proton;
+HistoManu3 *MM_energy_kplustminus_proton;
+HistoManu3 *MM_energy_kminustplus_proton;
+HistoManu3 *MM_energy_kminustminus_proton;
 
 TH3F *events_all;
 TH3F *events_witherror;
-TH2F *Check_CBdE_E;
-TH2F *Check_CBdE_E_nocuts;
-TH2F *Check_TAPSdE_E;
-TH2F *Check_TAPSdE_E_nocuts;
-TH2F *Check_TAPS_TOF_proton;
-TH2F *Check_TAPS_TOF_photon_3ped;
-TH2F *Check_TAPS_TOF_photon_2_3ped;
+HistoManu2 *Check_CBdE_E;
+HistoManu2 *Check_CBdE_E_nocuts;
+HistoManu2 *Check_TAPSdE_E;
+HistoManu2 *Check_TAPSdE_E_nocuts;
+HistoManu2 *Check_TAPS_TOF_proton;
+HistoManu2 *Check_TAPS_TOF_photon_3ped;
+HistoManu2 *Check_TAPS_TOF_photon_2_3ped;
 
 
 string polsetting;
 string planesetting;
 TH1F* test;
 
-TH2F *cosverteilung_collerated;
+HistoManu2 *cosverteilung_collerated;
+HistoManu2 *cosverteilung_forE_collerated;
+HistoManu2 *coplanarityverteilung_collerated;
+HistoManu2 *thetaverteilung_collerated;
+HistoManu2 *missingmassverteilung_collerated;
+HistoManu2 *missingmassverteilung_forE_collerated;
+HistoManu2 *missingmassverteilung_collerated_proton;
+HistoManu2 *missingmassverteilung_forE_collerated_proton;
+HistoManu3 *kristallminus_targetplus_collerated;
+HistoManu3 *kristallminus_targetminus_collerated;
+HistoManu3 *kristallplus_targetplus_collerated;
+HistoManu3 *kristallplus_targetminus_collerated;
 
-TH2F *coplanarityverteilung_collerated;
-TH2F *thetaverteilung_collerated;
-TH2F *missingmassverteilung_collerated;
-TH2F *missingmassverteilung_collerated_proton;
-TH3F *kristallminus_targetplus_collerated;
-TH3F *kristallminus_targetminus_collerated;
-TH3F *kristallplus_targetplus_collerated;
-TH3F *kristallplus_targetminus_collerated;
+HistoManu3 *kristallminus_targetplus_collerated_pb;
+HistoManu3 *kristallminus_targetminus_collerated_pb;
+HistoManu3 *kristallplus_targetplus_collerated_pb;
+HistoManu3 *kristallplus_targetminus_collerated_pb;
 
-TH3F *kristallminus_targetplus_collerated_pb;
-TH3F *kristallminus_targetminus_collerated_pb;
-TH3F *kristallplus_targetplus_collerated_pb;
-TH3F *kristallplus_targetminus_collerated_pb;
+HistoManu3 *kristallminus_targetplus_collerated_pt;
+HistoManu3 *kristallminus_targetminus_collerated_pt;
+HistoManu3 *kristallplus_targetplus_collerated_pt;
+HistoManu3 *kristallplus_targetminus_collerated_pt;
 
-TH3F *kristallminus_targetplus_collerated_pt;
-TH3F *kristallminus_targetminus_collerated_pt;
-TH3F *kristallplus_targetplus_collerated_pt;
-TH3F *kristallplus_targetminus_collerated_pt;
+HistoManu2 *cosverteilung_collerated_proton;
+HistoManu2 *cosverteilung_forE_collerated_proton;
+HistoManu3 *kristallminus_targetplus_collerated_proton;
+HistoManu3 *kristallminus_targetminus_collerated_proton;
+HistoManu3 *kristallplus_targetplus_collerated_proton;
+HistoManu3 *kristallplus_targetminus_collerated_proton;
 
-TH2F *cosverteilung_collerated_proton;
+HistoManu3 *kristallminus_targetplus_collerated_pb_proton;
+HistoManu3 *kristallminus_targetminus_collerated_pb_proton;
+HistoManu3 *kristallplus_targetplus_collerated_pb_proton;
+HistoManu3 *kristallplus_targetminus_collerated_pb_proton;
 
-TH3F *kristallminus_targetplus_collerated_proton;
-TH3F *kristallminus_targetminus_collerated_proton;
-TH3F *kristallplus_targetplus_collerated_proton;
-TH3F *kristallplus_targetminus_collerated_proton;
+HistoManu3 *kristallminus_targetplus_collerated_pt_proton;
+HistoManu3 *kristallminus_targetminus_collerated_pt_proton;
+HistoManu3 *kristallplus_targetplus_collerated_pt_proton;
+HistoManu3 *kristallplus_targetminus_collerated_pt_proton;
 
-TH3F *kristallminus_targetplus_collerated_pb_proton;
-TH3F *kristallminus_targetminus_collerated_pb_proton;
-TH3F *kristallplus_targetplus_collerated_pb_proton;
-TH3F *kristallplus_targetminus_collerated_pb_proton;
+HistoManu2 *cos_beam_hel1_targetplus;
+HistoManu2 *cos_beam_hel0_targetplus;
+HistoManu2 *cos_beam_hel1_targetminus;
+HistoManu2 *cos_beam_hel0_targetminus;
 
-TH3F *kristallminus_targetplus_collerated_pt_proton;
-TH3F *kristallminus_targetminus_collerated_pt_proton;
-TH3F *kristallplus_targetplus_collerated_pt_proton;
-TH3F *kristallplus_targetminus_collerated_pt_proton;
+HistoManu2 *cos_beam_hel1_targetplus_pc;
+HistoManu2 *cos_beam_hel0_targetplus_pc;
+HistoManu2 *cos_beam_hel1_targetminus_pc;
+HistoManu2 *cos_beam_hel0_targetminus_pc;
 
-TH2F *cos_beam_hel1_targetplus;
-TH2F *cos_beam_hel0_targetplus;
-TH2F *cos_beam_hel1_targetminus;
-TH2F *cos_beam_hel0_targetminus;
+HistoManu2 *cos_beam_hel1_targetplus_pt;
+HistoManu2 *cos_beam_hel0_targetplus_pt;
+HistoManu2 *cos_beam_hel1_targetminus_pt;
+HistoManu2 *cos_beam_hel0_targetminus_pt;
 
-TH2F *cos_beam_hel1_targetplus_pc;
-TH2F *cos_beam_hel0_targetplus_pc;
-TH2F *cos_beam_hel1_targetminus_pc;
-TH2F *cos_beam_hel0_targetminus_pc;
+HistoManu2 *cos_beam_hel1_targetplus_proton;
+HistoManu2 *cos_beam_hel0_targetplus_proton;
+HistoManu2 *cos_beam_hel1_targetminus_proton;
+HistoManu2 *cos_beam_hel0_targetminus_proton;
 
-TH2F *cos_beam_hel1_targetplus_pt;
-TH2F *cos_beam_hel0_targetplus_pt;
-TH2F *cos_beam_hel1_targetminus_pt;
-TH2F *cos_beam_hel0_targetminus_pt;
+HistoManu2 *cos_beam_hel1_targetplus_proton_pc;
+HistoManu2 *cos_beam_hel0_targetplus_proton_pc;
+HistoManu2 *cos_beam_hel1_targetminus_proton_pc;
+HistoManu2 *cos_beam_hel0_targetminus_proton_pc;
 
-TH2F *cos_beam_hel1_targetplus_proton;
-TH2F *cos_beam_hel0_targetplus_proton;
-TH2F *cos_beam_hel1_targetminus_proton;
-TH2F *cos_beam_hel0_targetminus_proton;
-
-TH2F *cos_beam_hel1_targetplus_proton_pc;
-TH2F *cos_beam_hel0_targetplus_proton_pc;
-TH2F *cos_beam_hel1_targetminus_proton_pc;
-TH2F *cos_beam_hel0_targetminus_proton_pc;
-
-TH2F *cos_beam_hel1_targetplus_proton_pt;
-TH2F *cos_beam_hel0_targetplus_proton_pt;
-TH2F *cos_beam_hel1_targetminus_proton_pt;
-TH2F *cos_beam_hel0_targetminus_proton_pt;
+HistoManu2 *cos_beam_hel1_targetplus_proton_pt;
+HistoManu2 *cos_beam_hel0_targetplus_proton_pt;
+HistoManu2 *cos_beam_hel1_targetminus_proton_pt;
+HistoManu2 *cos_beam_hel0_targetminus_proton_pt;
 
 TH1F *triggertest;
 TH1F *poltable_energy;
 TH1F *poltable_energy_weight;
 
-TH2F *openingangle_ptopi0_energy_allcuts;
-TH2F *openingangle_gammatogamma_energy_allcuts;
-TH2F *openingangle_gammatogamma_energy_allcuts_proton;
-TH2F *openingangle_ptopi0_energy_nocuts;
-TH2F *openingangle_gammatogamma_energy_nocuts;
+HistoManu2 *openingangle_ptopi0_energy_allcuts;
+HistoManu2 *openingangle_gammatogamma_energy_allcuts;
+HistoManu2 *openingangle_gammatogamma_energy_allcuts_proton;
+HistoManu2 *openingangle_ptopi0_energy_nocuts;
+HistoManu2 *openingangle_gammatogamma_energy_nocuts;
 
-TH3F *coplanarityverteilung_cospi0_collerated;
-TH3F *thetaverteilung_cospi0_collerated;
-TH3F *missingmassverteilung_cospi0_collerated;
-TH3F *missingmassverteilung_cospi0_collerated_proton;
-TH3F *invmassverteilung_cospi0_collerated;
-TH3F *invmassverteilung_cospi0_collerated_proton;
-TH1F *h_energy_sum_pi0_3ped;
-TH1F *h_energy_sum_pi0_2_3ped;
-TH1F *beamenergy_gen;
-TH2F *cosmeson_beamenergy_monte;
-TH2F *cosmeson_beamenergy_rek_3ped;
-TH2F *cosmeson_beamenergy_rek_2_3ped;
+HistoManu3 *coplanarityverteilung_cospi0_collerated;
+HistoManu3 *thetaverteilung_cospi0_collerated;
+HistoManu3 *missingmassverteilung_cospi0_collerated;
+HistoManu3 *missingmassverteilung_cospi0_collerated_proton;
+HistoManu3 *invmassverteilung_cospi0_collerated;
+HistoManu3 *invmassverteilung_cospi0_collerated_proton;
+HistoManu *h_energy_sum_pi0_3ped;
+HistoManu *h_energy_sum_pi0_2_3ped;
+HistoManu *beamenergy_gen;
+HistoManu2 *cosmeson_beamenergy_monte;
+HistoManu2 *cosmeson_beamenergy_rek_3ped;
+HistoManu2 *cosmeson_beamenergy_rek_2_3ped;
 
-TH3F *cosmeson_beamenergy_energysum_rek;
-TH3F *cosmeson_beamenergy_energysum_rek_proton;
-TH3F *cosmeson_beamenergy_energysum_monte;
+HistoManu3 *cosmeson_beamenergy_energysum_rek;
+HistoManu3 *cosmeson_beamenergy_energysum_rek_proton;
+HistoManu3 *cosmeson_beamenergy_energysum_monte;
 
-TH3F *clustersize_cospi0_energy_collerated;
-TH3F *clustersize_cospi0_energy_collerated_proton;
-TH3F *thetaproton_cospi0_energy_collerated;
+HistoManu3 *clustersize_cospi0_energy_collerated;
+HistoManu3 *clustersize_cospi0_energy_collerated_proton;
+HistoManu3 *thetaproton_cospi0_energy_collerated;
+
+//Copl
+TH2F* cut_copldown;
+TH2F* cut_coplup;
+
+//Theta
+TH2F* cut_thetadown;
+TH2F* cut_thetaup;
+
+//Missing Mass
+TH2F* cut_mmdown;
+TH2F* cut_mmup;
+
+//inv mass
+TH2F* cut_invdown;
+TH2F* cut_invup;
 
 // 	Double_t test1;
     virtual Bool_t  Start();
@@ -198,7 +218,7 @@ TH3F *thetaproton_cospi0_energy_collerated;
     virtual void    ProcessEvent();
     virtual void	ProcessScalerRead();
     virtual void fOnEndProcessing();
-    virtual void fOnBeforeEventProcessing();
+
     virtual Bool_t    Write();
 //     virtual Double_t targetpol(TFile *f);
 

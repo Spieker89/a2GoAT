@@ -3,7 +3,11 @@
 
 
 using namespace std;
-
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <string> 
+#include <sstream>
 
 
 
@@ -18,10 +22,13 @@ GFit::GFit()	:
         	fitter.LinkVariable(s.str(), gamma[i].Link(), gamma[i].LinkSigma());
     	}
 
-	fitter.LinkVariable("Pr", proton.Link(), proton.LinkSigma());
 	fitter.LinkVariable("Be", beam.Link(), beam.LinkSigma());
+  	fitter.AddUnmeasuredVariable("PE",250);
+	fitter.LinkVariable("PA", proton.LinkProton(), proton.LinkSigmaProton());
+
+
     	APLCON::Fit_Settings_t settings = fitter.GetSettings();
-    	settings.MaxIterations = 100;
+ //   	settings.MaxIterations = 100;
     	fitter.SetSettings(settings);
 }
 
@@ -35,43 +42,45 @@ GFit::~GFit()
 
 void    GFit::AddConstraintsTotMomentum()
 {
-    fitter.AddConstraint("px", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "Pr"},
-                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pr) {
+    fitter.AddConstraint("px", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "PA","PE"},
+                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pa,vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
         TLorentzVector v2 = FitParticle::Make(p2, 0);
         TLorentzVector v3 = FitParticle::Make(p3, 0);
-        TLorentzVector vp = FitParticle::Make(pr, 938);
-
+	TLorentzVector vp = FitParticle::Make(pe[0], pa, 938.272046);
+	//TLorentzVector vp = FitParticle::Make(pa, 938.272046);
         return vb.Px()-v0.Px()-v1.Px()-v2.Px()-v3.Px()-vp.Px();
         }
     );
 
 
 
-    fitter.AddConstraint("py", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "Pr"},
-                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pr) {
+    fitter.AddConstraint("py", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "PA","PE"},
+                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pa,vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
         TLorentzVector v2 = FitParticle::Make(p2, 0);
         TLorentzVector v3 = FitParticle::Make(p3, 0);
-        TLorentzVector vp = FitParticle::Make(pr, 938);
+	TLorentzVector vp = FitParticle::Make(pe[0], pa, 938.272046);
+	//TLorentzVector vp = FitParticle::Make(pa, 938.272046);
 
         return vb.Py()-v0.Py()-v1.Py()-v2.Py()-v3.Py()-vp.Py();
         }
     );
 
 
-    fitter.AddConstraint("pz", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "Pr"},
-                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pr) {
+    fitter.AddConstraint("pz", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "PA","PE"},
+                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pa,vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
         TLorentzVector v2 = FitParticle::Make(p2, 0);
         TLorentzVector v3 = FitParticle::Make(p3, 0);
-        TLorentzVector vp = FitParticle::Make(pr, 938);
+	TLorentzVector vp = FitParticle::Make(pe[0], pa,938.272046);
+	//TLorentzVector vp = FitParticle::Make(pa, 938.272046);
 
         return vb.Pz()-v0.Pz()-v1.Pz()-v2.Pz()-v3.Pz()-vp.Pz();
         }
@@ -80,14 +89,15 @@ void    GFit::AddConstraintsTotMomentum()
 
 void    GFit::AddConstraintsTotEnergy()
 {
-    fitter.AddConstraint("e", {"Be","Ph0", "Ph1", "Ph2", "Ph3", "Pr"},
-                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pr) {
+    fitter.AddConstraint("e",{"Be","Ph0", "Ph1", "Ph2", "Ph3", "PA","PE"},
+                        [&] (vector<double>& be,vector<double>& p0, vector<double>& p1, vector<double>& p2, vector<double>& p3, vector<double>& pa,vector<double>& pe) {
         TLorentzVector vb = FitParticle::Make(be, 0);
         TLorentzVector v0 = FitParticle::Make(p0, 0);
         TLorentzVector v1 = FitParticle::Make(p1, 0);
         TLorentzVector v2 = FitParticle::Make(p2, 0);
         TLorentzVector v3 = FitParticle::Make(p3, 0);
-        TLorentzVector vp = FitParticle::Make(pr, 938);
+	TLorentzVector vp = FitParticle::Make(pe[0], pa,938.272046);
+	//TLorentzVector vp = FitParticle::Make(pa, 938.272046);
 
         return vb.E()+938.272046-v0.E()-v1.E()-v2.E()-v3.E()-vp.E();
         }
@@ -142,7 +152,7 @@ bool GFit::Solve()
     result = fitter.DoFit();
     if(result.Status == APLCON::Result_Status_t::Success)
     {
-        Double_t    cl  = TMath::Prob(result.ChiSquare, 15-result.NDoF);
+
 	
         return true;
     }
