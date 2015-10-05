@@ -2,7 +2,10 @@
 
 GTreeTrack::GTreeTrack(GTreeManager *Manager, const TString& _Name)    :
     GTree(Manager,_Name),
-    nTracks(0)
+    nTracks(0),
+    targetShift(0),
+    TAPSDistance(0),
+    CBDistance(45.411)
 {
     for(Int_t i=0; i<GTreeTrack_MAX; i++)
     {
@@ -14,10 +17,13 @@ GTreeTrack::GTreeTrack(GTreeManager *Manager, const TString& _Name)    :
         centralCrystal[i] = -1;
         centralVeto[i] = -1;
         detectors[i] = 0;
-        //Charged detector energies
         vetoEnergy[i] = 0;
         MWPC0Energy[i] = 0;
         MWPC1Energy[i] = 0;
+        shortEnergy[i] = 0;
+        pseudoVertexX[i] = 0;
+        pseudoVertexY[i] = 0;
+        pseudoVertexZ[i] = 0;
     }
 }
 
@@ -40,6 +46,7 @@ void    GTreeTrack::SetBranchAdresses()
     inputTree->SetBranchAddress("vetoEnergy", vetoEnergy);
     inputTree->SetBranchAddress("MWPC0Energy", MWPC0Energy);
     inputTree->SetBranchAddress("MWPC1Energy", MWPC1Energy);
+    inputTree->SetBranchAddress("shortEnergy", shortEnergy);
     inputTree->SetBranchAddress("pseudoVertexX", pseudoVertexX);
     inputTree->SetBranchAddress("pseudoVertexY", pseudoVertexY);
     inputTree->SetBranchAddress("pseudoVertexZ", pseudoVertexZ);
@@ -59,6 +66,7 @@ void    GTreeTrack::SetBranches()
     outputTree->Branch("vetoEnergy", vetoEnergy, "vetoEnergy[nTracks]/D");
     outputTree->Branch("MWPC0Energy", MWPC0Energy, "MWPC0Energy[nTracks]/D");
     outputTree->Branch("MWPC1Energy", MWPC1Energy, "MWPC1Energy[nTracks]/D");
+    outputTree->Branch("shortEnergy", shortEnergy, "shortEnergy[nTracks]/D");
     outputTree->Branch("pseudoVertexX", pseudoVertexX, "pseudoVertexX[nTracks]/D");
     outputTree->Branch("pseudoVertexY", pseudoVertexY, "pseudoVertexY[nTracks]/D");
     outputTree->Branch("pseudoVertexZ", pseudoVertexZ, "pseudoVertexZ[nTracks]/D");

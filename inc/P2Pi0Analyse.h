@@ -15,12 +15,15 @@
 #include "HistoManu3.h"
 #include "GFit.h"
 #include "HistoManu.h"
+#include "GTreeParticle.h"
 
 class	P2Pi0Analyse  : public PPhysics
 {
 private:
 
 GFit	fitter;
+GFit	fitter1;
+GFit	fitter2;
 
     TH1F*	time1;
     TH1F*	time_prompt;
@@ -34,12 +37,33 @@ Double_t unten_mass, oben_mass, unten_copl, oben_copl, oben_inv, unten_inv, oben
 Double_t timebackground;
 Double_t pionmasse;
 Double_t pt1;
+Int_t runNumber;
+ofstream calfile;
+ofstream calfile1;
+TString* path11;
 
 string polsetting;
 string planesetting;
 Double_t pt;
 TH1F* test;
 
+
+    TFile *photonfile = new TFile("/disk/nobackup/001/spieker/Mainz1/a2GoAT/configfiles/uncertainties/photon_uncertainties.root","OPEN");
+    TFile *protonfile = new TFile("/disk/nobackup/001/spieker/Mainz1/a2GoAT/configfiles/uncertainties/proton_uncertainties.root","OPEN");
+	
+    TH2F *photon_CB_energy = (TH2F*)photonfile->Get("CB_E");
+    TH2F *photon_CB_theta = (TH2F*)photonfile->Get("CB_theta");
+    TH2F *photon_CB_phi = (TH2F*)photonfile->Get("CB_phi");
+    TH2F *photon_TAPS_energy = (TH2F*)photonfile->Get("TAPS_E"); 
+    TH2F *photon_TAPS_theta = (TH2F*)photonfile->Get("TAPS_theta");
+    TH2F *photon_TAPS_phi = (TH2F*)photonfile->Get("TAPS_phi");
+	
+    TH2F *proton_TAPS_energy = (TH2F*)protonfile->Get("TAPS_E");
+    TH2F *proton_TAPS_theta = (TH2F*)protonfile->Get("TAPS_theta");
+    TH2F *proton_TAPS_phi = (TH2F*)protonfile->Get("TAPS_phi");
+
+
+HistoManu3 *openangle_pi01_to_pi02_energy;
 HistoManu2 *thetaverteilung_collerated;
 HistoManu2 *thetaverteilung_collerated_taps;
 HistoManu2 *coplanarityverteilung_collerated;
@@ -66,7 +90,8 @@ HistoManu *thetaproton_mass_copl_inv_taps_collerated;
 HistoManu *thetaproton_mass_taps_collerated;
 HistoManu *thetaproton_copl_taps_collerated;
 HistoManu *thetaproton_inv_taps_collerated;
-HistoManu *thetaproton_fit_vs_rek;
+HistoManu *thetaproton_fit_vs_rek_CB;
+HistoManu *thetaproton_fit_vs_rek_TAPS;
 
 HistoManu *missingmass_collerated;
 HistoManu *missingmass_collerated_proton;
@@ -97,6 +122,8 @@ HistoManu2 *massegegenmasse_copl_collerated;
 HistoManu2 *massegegenmasse_theta_collerated;
 HistoManu2 *massegegenmasse_mass_collerated;
 HistoManu2 *massegegenmasse_mass_collerated_proton;
+HistoManu2 *massegegenmasse_allcutsandinv_collerated;
+HistoManu2 *massegegenmasse_allcuts_collerated;
 
 
 HistoManu2 *cosverteilung_collerated;
@@ -241,21 +268,26 @@ HistoManu2 *h_energy_taps_2pi0_5ped;
 HistoManu *h_energy_sum_2pi0_5ped_weightcos2pi0;
 HistoManu *h_energy_sum_2pi0_5ped_weightcosppi0;
 
+
+//for kinematic fit and so
 TH1F *triggertest;
-TH1F *CL;
-HistoManu2 *pulls_4g;
+HistoManu *CL;
+HistoManu2 *pulls_4g_CB;
+HistoManu2 *pulls_4g_TAPS;
 HistoManu2 *pulls_beam;
-HistoManu2 *pulls_proton;
+HistoManu2 *pulls_proton_CB;
+HistoManu2 *pulls_proton_TAPS;
+HistoManu *invmass_diff_rec_kin;
 
 //generated
-TH3F *cos2pi0_beamphoton_energysum_monte;
+TH2F *cos2pi0_beamphoton_monte;
 TH3F *cosppi0_beamphoton_energysum_monte;
 
 TH3F *m2pi0_beamphoton_energysum_monte;
 TH3F *mppi0_beamphoton_energysum_monte;
 
 //reconstructed
-HistoManu3 *cos2pi0_beamphoton_energysum_rek;;
+HistoManu2 *cos2pi0_beamphoton_rek;;
 HistoManu3 *cosppi0_beamphoton_energysum_rek;
 
 HistoManu3 *m2pi0_beamphoton_energysum_rek;
@@ -642,50 +674,101 @@ vec_cm.Boost(beta);
 return vec_cm;
 }
 
-
-Double_t invariantemasse(TLorentzVector teilchen1, TLorentzVector teilchen2)
+Double_t invariantemasse(const GTreeParticle *photon, const Int_t particle1,const Int_t particle2)
 {
-return (teilchen1+teilchen2).M();
+	return (photon->Particle(particle1)+photon->Particle(particle2)).M();
 }
 
-Double_t invariantemasseFehler(TLorentzVector teilchen1, TLorentzVector teilchen2)
+
+
+Double_t invariantemasseFehler(const GTreeParticle *photon, const Int_t particle1,const Int_t particle2)
 {
-Double_t E1 = teilchen1.E();
-Double_t E2 = teilchen2.E();
-Double_t E1_error = 0.03*E1;
-Double_t E2_error = 0.03*E2;
-Double_t phi1 = teilchen1.Phi();
-Double_t phi2 = teilchen2.Phi();
-Double_t phi1_error = TMath::DegToRad()*2;
-Double_t phi2_error = TMath::DegToRad()*2;
+	Double_t E1 = photon->Particle(particle1).E();
+	Double_t E2 = photon->Particle(particle2).E();
+	
+	Double_t phi1 = photon->Particle(particle1).Phi();
+	Double_t phi2 = photon->Particle(particle2).Phi();
+	
+	Double_t theta1 = photon->Particle(particle1).Theta();
+	Double_t theta2 = photon->Particle(particle2).Theta();
 
-Double_t theta1 = teilchen1.Theta();
-Double_t theta2 = teilchen2.Theta();
-Double_t theta1_error = TMath::DegToRad()*2;
-Double_t theta2_error = TMath::DegToRad()*2;
+	Double_t E1_error,E2_error,phi1_error,phi2_error,theta1_error, theta2_error;
 
-Double_t cos12 = TMath::Sin(theta1)*TMath::Sin(theta2)*TMath::Cos(phi1-phi2) + TMath::Cos(theta1)*TMath::Cos(theta2);
+	if(photon->HasCB(particle1)){
+
+		E1_error = E1*1.5*photon_CB_energy->GetBinContent(photon_CB_energy->FindBin(E1,theta1*TMath::RadToDeg()));
+		phi1_error = 0.83*TMath::DegToRad()*photon_CB_phi->GetBinContent(photon_CB_phi->FindBin(E1,theta1*TMath::RadToDeg()));
+		theta1_error = 0.68*TMath::DegToRad()*photon_CB_theta->GetBinContent(photon_CB_theta->FindBin(E1,theta1*TMath::RadToDeg()));
+
+		//if histo is not finding something
+		if(E1_error==0) E1_error=(0.02*(E1/1.0e3)*pow((E1/1.0e3),-0.36))*1.0e3*2.0;
+		if(theta1_error==0) theta1_error = 5.2*TMath::DegToRad();
+ 		if(phi1_error==0) phi1_error = 0.7*theta1_error/TMath::Sin(theta1);
+
+	}
+
+	if(photon->HasTAPS(particle1)){
+
+		E1_error = E1*1*photon_TAPS_energy->GetBinContent(photon_TAPS_energy->FindBin(E1,theta1*TMath::RadToDeg()));
+		phi1_error = 1*TMath::DegToRad();
+		theta1_error = 2.5*TMath::DegToRad();
+
+		//if histo is not finding something
+		if(E1_error==0) E1_error = ((0.018 + 0.008*TMath::Sqrt(E1/1.0e3))*(E1/1.0e3))*1.0e3*2.0;
+		if(theta1_error==0) theta1_error = 2*TMath::DegToRad();
+ 		if(phi1_error==0) phi1_error = 2*TMath::DegToRad();
+
+	}
+
+	if(photon->HasCB(particle2)){
+
+		E2_error = E2*1.5*photon_CB_energy->GetBinContent(photon_CB_energy->FindBin(E2,theta2*TMath::RadToDeg()));
+		phi2_error = 0.83*TMath::DegToRad()*photon_CB_phi->GetBinContent(photon_CB_phi->FindBin(E2,theta2*TMath::RadToDeg()));
+		theta2_error = 0.68*TMath::DegToRad()*photon_CB_theta->GetBinContent(photon_CB_theta->FindBin(E2,theta2*TMath::RadToDeg()));
+
+		//if histo is not finding something
+		if(E2_error==0) E2_error=(0.02*(E2/1.0e3)*pow((E2/1.0e3),-0.36))*1.0e3*2.0;
+		if(theta2_error==0) theta2_error = 5.2*TMath::DegToRad();
+ 		if(phi2_error==0) phi2_error = 0.7*theta2_error/TMath::Sin(theta2);
+
+	}
+
+	if(photon->HasTAPS(particle2)){
+
+		E2_error = E2*1*photon_TAPS_energy->GetBinContent(photon_TAPS_energy->FindBin(E2,theta2*TMath::RadToDeg()));
+		phi2_error = 1*TMath::DegToRad();
+		theta2_error = 2.5*TMath::DegToRad();
+
+		//if histo is not finding something
+		if(E2_error==0) E2_error = ((0.018 + 0.008*TMath::Sqrt(E2/1.0e3))*(E2/1.0e3))*1.0e3*2.0;
+		if(theta2_error==0) theta2_error = 2*TMath::DegToRad();
+ 		if(phi2_error==0) phi2_error = 2*TMath::DegToRad();
+
+	}
 
 
-Double_t Dcos12 = TMath::Sqrt(TMath::Power((TMath::Cos(theta1)*TMath::Sin(theta2)*TMath::Cos(phi1-phi2) - TMath::Sin(theta1)*TMath::Cos(theta2))*theta1_error,2) + 		     			  TMath::Power((TMath::Cos(theta2)*TMath::Sin(theta1)*TMath::Cos(phi1-phi2) - TMath::Sin(theta2)*TMath::Cos(theta1))*theta2_error,2) + 						          TMath::Power((TMath::Sin(theta1)*TMath::Sin(theta2)*TMath::Sin(phi1-phi2))*phi1_error,2) + 
-	 	  TMath::Power((TMath::Sin(theta1)*TMath::Sin(theta2)*TMath::Sin(phi1-phi2))*phi2_error,2));
-
-Double_t m12 = TMath::Sqrt(2*E1*E2*(1-cos12));
-
-Double_t Dinv = TMath::Sqrt(TMath::Power(E2*(1-cos12)*E1_error,2)+TMath::Power(E1*(1-cos12)*E2_error,2) + TMath::Power(E2*E1*Dcos12,2))/m12;
+	Double_t cos12 = TMath::Sin(theta1)*TMath::Sin(theta2)*TMath::Cos(phi1-phi2) + TMath::Cos(theta1)*TMath::Cos(theta2);
+	
+	
+	Double_t Dcos12 = TMath::Sqrt(TMath::Power((TMath::Cos(theta1)*TMath::Sin(theta2)*TMath::Cos(phi1-phi2) - TMath::Sin(theta1)*TMath::Cos(theta2))*theta1_error,2) + 		     			  TMath::Power((TMath::Cos(theta2)*TMath::Sin(theta1)*TMath::Cos(phi1-phi2) - TMath::Sin(theta2)*TMath::Cos(theta1))*theta2_error,2) + 						          TMath::Power((TMath::Sin(theta1)*TMath::Sin(theta2)*TMath::Sin(phi1-phi2))*phi1_error,2) + 
+			TMath::Power((TMath::Sin(theta1)*TMath::Sin(theta2)*TMath::Sin(phi1-phi2))*phi2_error,2));
+	
+	Double_t m12 = TMath::Sqrt(2*E1*E2*(1-cos12));
+	
+	Double_t Dinv = TMath::Sqrt(TMath::Power(E2*(1-cos12)*E1_error,2)+TMath::Power(E1*(1-cos12)*E2_error,2) + TMath::Power(E2*E1*Dcos12,2))/m12;
 
 return Dinv;
 }
 
-Double_t ChiPionPion(Double_t inv11, TLorentzVector teilchen11, TLorentzVector teilchen22, Double_t inv22, TLorentzVector teilchen33, TLorentzVector teilchen44)
+Double_t ChiPionPion(const GTreeParticle *photon,Double_t inv11, Int_t teilchen11, Int_t teilchen22, Double_t inv22, Int_t teilchen33, Int_t teilchen44)
 {
-return TMath::Power((inv11-134.9766)/invariantemasseFehler(teilchen11,teilchen22),2) +  TMath::Power((inv22-134.9766)/invariantemasseFehler(teilchen33,teilchen44),2);
+return TMath::Power((inv11-134.9766)/invariantemasseFehler(photon,teilchen11,teilchen22),2) +  TMath::Power((inv22-134.9766)/invariantemasseFehler(photon,teilchen33,teilchen44),2);
 }
 
-Double_t ChiPionEta(Double_t inv111, TLorentzVector teilchen111, TLorentzVector teilchen222, Double_t inv222, TLorentzVector teilchen333, TLorentzVector teilchen444)
-{
-return TMath::Power((inv111-134.9766)/invariantemasseFehler(teilchen111,teilchen222),2) +  TMath::Power((inv222-547.853)/invariantemasseFehler(teilchen333,teilchen444),2);
-}
+// Double_t ChiPionEta(Double_t inv111, TLorentzVector teilchen111, TLorentzVector teilchen222, Double_t inv222, TLorentzVector teilchen333, TLorentzVector teilchen444)
+// {
+// return TMath::Power((inv111-134.9766)/invariantemasseFehler(teilchen111,teilchen222),2) +  TMath::Power((inv222-547.853)/invariantemasseFehler(teilchen333,teilchen444),2);
+// }
 
 
 			

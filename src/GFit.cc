@@ -10,7 +10,6 @@ using namespace std;
 #include <sstream>
 
 
-
 GFit::GFit()	:
 	fitter("fitter")
 {
@@ -23,12 +22,12 @@ GFit::GFit()	:
     	}
 
 	fitter.LinkVariable("Be", beam.Link(), beam.LinkSigma());
-  	fitter.AddUnmeasuredVariable("PE",250);
-	fitter.LinkVariable("PA", proton.LinkProton(), proton.LinkSigmaProton());
+  	fitter.AddUnmeasuredVariable("PE",150);
+	fitter.LinkVariable("PA", proton.GetLink(), proton.GetLinkSigma());
 
 
     	APLCON::Fit_Settings_t settings = fitter.GetSettings();
- //   	settings.MaxIterations = 100;
+   	settings.MaxIterations = 100;
     	fitter.SetSettings(settings);
 }
 
@@ -51,7 +50,7 @@ void    GFit::AddConstraintsTotMomentum()
         TLorentzVector v3 = FitParticle::Make(p3, 0);
 	TLorentzVector vp = FitParticle::Make(pe[0], pa, 938.272046);
 	//TLorentzVector vp = FitParticle::Make(pa, 938.272046);
-        return vb.Px()-v0.Px()-v1.Px()-v2.Px()-v3.Px()-vp.Px();
+        return -v0.Px()-v1.Px()-v2.Px()-v3.Px()-vp.Px();
         }
     );
 
@@ -67,7 +66,7 @@ void    GFit::AddConstraintsTotMomentum()
 	TLorentzVector vp = FitParticle::Make(pe[0], pa, 938.272046);
 	//TLorentzVector vp = FitParticle::Make(pa, 938.272046);
 
-        return vb.Py()-v0.Py()-v1.Py()-v2.Py()-v3.Py()-vp.Py();
+        return -v0.Py()-v1.Py()-v2.Py()-v3.Py()-vp.Py();
         }
     );
 
@@ -114,9 +113,7 @@ void    GFit::AddConstraintsMM()
         TLorentzVector v2 = FitParticle::Make(p2, 0);
         TLorentzVector v3 = FitParticle::Make(p3, 0);
 
-	TLorentzVector proton_target(0.,0.,0.,938.272046);
-
-        return (vb + proton_target-v0-v1-v2-v3).M()-938.272046;
+        return (TLorentzVector(0.0, 0.0, vb.E(), vb.E() + 938.272046)-v0-v1-v2-v3).M()-938.272046;
         }
     );
 }

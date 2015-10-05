@@ -22,25 +22,18 @@ Do-Particle-Reconstruction: 1
 #
 #Cut-TAPS-TOF:           configfiles/cuts/TAPS_TOF.root Hadron
 
-#Do-Charged-Particle-Reconstruction: 1
+Do-Charged-Particle-Reconstruction: 1
 #Cut-dE-E-CB-Proton: 	configfiles/cuts/CB_DeltaE-E_Proton.root Proton
 #Cut-dE-E-CB-Pion: 		configfiles/cuts/CB_DeltaE-E_Pion.root Pion
 #Cut-dE-E-TAPS-Pion: 	configfiles/cuts/TAPS_DeltaE-E.root	CutPiplus
 #Cut-dE-E-TAPS-Proton: 	configfiles/cuts/TAPS_DeltaE-E.root CutProton
 #Cut-dE-E-TAPS-Electron: configfiles/cuts/TAPS_DeltaE-E.root CutElectron
 
-#Do-Meson-Reconstruction: 0
+Do-Meson-Reconstruction: 0
 #Cut-IM-Width-Pi0: 20
 #Cut-IM-Width-Eta: 44
 #Cut-IM-Width-Eta-Prime: 60
 
-TAPS-all-photons: 1
-CB-all-photons: 1
-
-charge-ignore-PID: 1
-charge-ignore-MWPC0: 1
-charge-ignore-MWPCE: 1
-charge-ignore-VETO: 1
 
 #-----------------------------------------------------------------------
 # Sorting Preferences
@@ -51,7 +44,7 @@ charge-ignore-VETO: 1
 # Sort on number of raw particle tracks (total, CB, and TAPS)
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #		    Total 	CB	TAPS
-SortRaw-NTracks:    3-		0+	0+
+SortRaw-NTracks:    5-		0+	0+
 
 
 # Sort on Trigger conditions (Crystal Ball Energy Sum)
@@ -61,11 +54,11 @@ SortRaw-NTracks:    3-		0+	0+
 
 # Sort on reconstructed particle properties
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Sort-NParticles: 	2+
+Sort-NParticles: 	5-
 
-#				Type 	Number	Theta-min 	Theta-max
-#Sort-Particle:	neutral	2		0			180
-#Sort-Particle:	charged	1- 		0			180
+#		Type 	Number	Theta-min 	Theta-max
+Sort-Particle:	neutral	2+	0		180
+Sort-Particle:	charged	1- 	0		180
 
 
 # Note: (I'll put this here while we don't have a manual)

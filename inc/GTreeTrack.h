@@ -39,10 +39,16 @@ private:
     Double_t	vetoEnergy[GTreeTrack_MAX];
     Double_t	MWPC0Energy[GTreeTrack_MAX];
     Double_t	MWPC1Energy[GTreeTrack_MAX];
+    //TAPS PSA Short-gate Energy
+    Double_t	shortEnergy[GTreeTrack_MAX];
     //Pseudo vertex information
     Double_t    pseudoVertexX[GTreeTrack_MAX];
     Double_t    pseudoVertexY[GTreeTrack_MAX];
     Double_t    pseudoVertexZ[GTreeTrack_MAX];
+
+    Double_t    targetShift;
+    Double_t    TAPSDistance;
+    Double_t    CBDistance;
 
 protected:
     virtual void    SetBranchAdresses();
@@ -75,32 +81,86 @@ public:
             Double_t        GetPhi(const Int_t index)           const	{return phi[index];}
             Double_t        GetPhiRad(const Int_t index)        const	{return phi[index] * TMath::DegToRad();}
     const	Double_t*       GetTheta()                          const	{return theta;}
-            Double_t        GetTheta(const Int_t index)         const	{return theta[index];}
-            Double_t        GetThetaRad(const Int_t index)      const	{return theta[index] * TMath::DegToRad();}
+    inline  Double_t        GetTheta(const Int_t index)         const;
+    inline  Double_t        GetThetaRad(const Int_t index)      const;
     const	Double_t*       GetTime()                           const	{return time;}
             Double_t        GetTime(const Int_t index)          const	{return time[index];}
     inline  TLorentzVector	GetVector(const Int_t index)        const;
     inline  TLorentzVector	GetVector(const Int_t index, const Double_t mass)   const;
+    inline  TVector3    	GetUnitVector(const Int_t index)        const;
     const	Double_t*       GetMWPC0Energy()                          const	{return MWPC0Energy;}
             Double_t        GetMWPC0Energy(const Int_t index)         const	{return MWPC0Energy[index];}
     const	Double_t*       GetMWPC1Energy()                          const	{return MWPC1Energy;}
             Double_t        GetMWPC1Energy(const Int_t index)         const	{return MWPC1Energy[index];}
+    const	Double_t*       GetShortEnergy()                          const	{return shortEnergy;}
+            Double_t        GetShortEnergy(const Int_t index)         const	{return shortEnergy[index];}
+            Double_t        GetPSAAngle(const Int_t index)            const	{return TMath::ATan(shortEnergy[index]/clusterEnergy[index])*TMath::RadToDeg();}
+            Double_t        GetPSARadius(const Int_t index)           const	{return TMath::Sqrt(TMath::Power(shortEnergy[index],2)+TMath::Power(clusterEnergy[index],2));}
     const	Double_t*       GetPseudoVertexX()                        const	{return pseudoVertexX;}
             Double_t        GetPseudoVertexX(const Int_t index)       const	{return pseudoVertexX[index];}
     const	Double_t*       GetPseudoVertexY()                        const	{return pseudoVertexY;}
             Double_t        GetPseudoVertexY(const Int_t index)       const	{return pseudoVertexY[index];}
     const	Double_t*       GetPseudoVertexZ()                        const	{return pseudoVertexZ;}
             Double_t        GetPseudoVertexZ(const Int_t index)       const	{return pseudoVertexZ[index];}
+    inline  Bool_t          IsNeutral(const Int_t index)              const;
+    inline  Bool_t          IsCharged(const Int_t index)              const;
+            Double_t        GetTargetShift()   const   {return targetShift;}
+            Double_t        GetTAPSDistance()  const   {return TAPSDistance;}
+            void            SetTargetShift(const Double_t shift) {targetShift = shift;}
+            void            SetTAPSDistance(const Double_t tapsd) {TAPSDistance = tapsd;}
     virtual void            Print(const Bool_t All = kFALSE)    const;
 
     friend  class GTreeParticle;
     friend  class GTreeMeson;
 };
 
-TLorentzVector	GTreeTrack::GetVector(const Int_t index) const
+Double_t GTreeTrack::GetTheta(const Int_t index) const
+{
+    if(targetShift == 0)
+    {
+        return theta[index];
+    }
+    else if(HasCB(index) && !HasTAPS(index))
+    {
+        return (TMath::RadToDeg()*TMath::ATan2((CBDistance*TMath::Sin(theta[index]*TMath::DegToRad())),((CBDistance*TMath::Cos(theta[index]*TMath::DegToRad()))-targetShift)));
+    }
+    else if(!HasCB(index) && HasTAPS(index))
+    {
+        return (TMath::RadToDeg()*TMath::ATan2((TAPSDistance*TMath::Tan(theta[index]*TMath::DegToRad())),(TAPSDistance-targetShift)));
+    }
+    else
+    {
+        std::cout << "How did I get here?" << std::endl;
+        return 0;
+    }
+}
+
+Double_t GTreeTrack::GetThetaRad(const Int_t index) const
 {
     Double_t th = theta[index] * TMath::DegToRad();
-    Double_t ph = phi[index]   * TMath::DegToRad();
+    if(targetShift == 0)
+    {
+        return th;
+    }
+    else if(HasCB(index) && !HasTAPS(index))
+    {
+        return (TMath::ATan2((CBDistance*TMath::Sin(th)),((CBDistance*TMath::Cos(th))-targetShift)));
+    }
+    else if(!HasCB(index) && HasTAPS(index))
+    {
+        return (TMath::ATan2((TAPSDistance*TMath::Tan(th)),(TAPSDistance-targetShift)));
+    }
+    else
+    {
+        std::cout << "How did I get here?" << std::endl;
+        return 0;
+    }
+}
+
+TLorentzVector	GTreeTrack::GetVector(const Int_t index) const
+{
+    Double_t th = GetThetaRad(index);
+    Double_t ph = GetPhiRad(index);
 
     Double_t Px = clusterEnergy[index]* sin(th)*cos(ph);
     Double_t Py = clusterEnergy[index]* sin(th)*sin(ph);
@@ -111,8 +171,8 @@ TLorentzVector	GTreeTrack::GetVector(const Int_t index) const
 
 TLorentzVector	GTreeTrack::GetVector(const Int_t index, const Double_t mass) const
 {
-    Double_t th = theta[index] * TMath::DegToRad();
-    Double_t ph = phi[index]   * TMath::DegToRad();
+    Double_t th = GetThetaRad(index);
+    Double_t ph = GetPhiRad(index);
 
     Double_t E 	= clusterEnergy[index] + mass;
     Double_t P 	= TMath::Sqrt(E*E - mass*mass);
@@ -121,6 +181,18 @@ TLorentzVector	GTreeTrack::GetVector(const Int_t index, const Double_t mass) con
     Double_t Pz = P* cos(th);
 
     return TLorentzVector(Px, Py, Pz, E);
+}
+
+TVector3	GTreeTrack::GetUnitVector(const Int_t index) const
+{
+    Double_t th = GetThetaRad(index);
+    Double_t ph = GetPhiRad(index);
+
+    Double_t Px = sin(th)*cos(ph);
+    Double_t Py = sin(th)*sin(ph);
+    Double_t Pz = cos(th);
+
+    return TVector3(Px, Py, Pz);
 }
 
 Int_t		GTreeTrack::GetNCB()	const
@@ -156,6 +228,22 @@ Bool_t      GTreeTrack::HasTAPS(const Int_t index) const
     if (detectors[index] & DETECTOR_BaF2) return true;
     if (detectors[index] & DETECTOR_PbWO4) return true;
     if (detectors[index] & DETECTOR_Veto) return true;
+    return false;
+}
+
+Bool_t      GTreeTrack::IsNeutral(const Int_t index) const
+{
+    if (vetoEnergy[index] > 0) return false;
+    if (MWPC0Energy[index] > 0) return false;
+    if (MWPC1Energy[index] > 0) return false;
+    return true;
+}
+
+Bool_t      GTreeTrack::IsCharged(const Int_t index) const
+{
+    if (vetoEnergy[index] > 0) return true;
+    if (MWPC0Energy[index] > 0) return true;
+    if (MWPC1Energy[index] > 0) return true;
     return false;
 }
 #endif

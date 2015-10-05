@@ -8,7 +8,7 @@
 
 Period-Macro:	100000
 
-CheckCBStability: 1 
+CheckCBStability: 1	0.7
 
 #-----------------------------------------------------------------------
 # Particle Reconstruction
@@ -57,9 +57,9 @@ SortRaw-NTracks:    5-		0+	0+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Sort-NParticles: 	5-
 
-#				Type 	Number	Theta-min 	Theta-max
-Sort-Particle:	neutral	4=		0			180
-Sort-Particle:	charged	1- 		0			180
+#			Type 		Number	Theta-min 	Theta-max
+Sort-Particle:		neutral		4=	0		180
+Sort-Particle:		charged		1- 	0		180
 
 
 # Note: (I'll put this here while we don't have a manual)

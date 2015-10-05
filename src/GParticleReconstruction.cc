@@ -504,8 +504,10 @@ Bool_t	GParticleReconstruction::ProcessEventWithoutFilling()
         else if (identified[i] == pdgDB->GetParticle("gamma")->PdgCode())
             GetPhotons()->AddParticle(GetTracks()->GetClusterEnergy(i), GetTracks()->GetTheta(i), GetTracks()->GetPhi(i), 0, GetTracks()->GetTime(i), GetTracks()->GetClusterSize(i), GetTracks()->GetCentralCrystal(i), GetTracks()->GetCentralVeto(i), GetTracks()->GetDetectors(i), GetTracks()->GetVetoEnergy(i), GetTracks()->GetMWPC0Energy(i), GetTracks()->GetMWPC1Energy(i), i);
         else
+
             GetRootinos()->AddParticle(GetTracks()->GetClusterEnergy(i), GetTracks()->GetTheta(i), GetTracks()->GetPhi(i), 0, GetTracks()->GetTime(i), GetTracks()->GetClusterSize(i), GetTracks()->GetCentralCrystal(i), GetTracks()->GetCentralVeto(i), GetTracks()->GetDetectors(i), GetTracks()->GetVetoEnergy(i), GetTracks()->GetMWPC0Energy(i), GetTracks()->GetMWPC1Energy(i), i);
-    }
+		
+    }	
 
     return kTRUE;
 }

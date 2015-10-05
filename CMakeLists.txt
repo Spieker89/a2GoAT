@@ -64,11 +64,11 @@ set(GOAT_BASE
    src/GTreeManager.cc
    src/GConfigFile.cc
    inc/HistoManu.h
-src/HistoManu.cc
+   src/HistoManu.cc
    inc/HistoManu2.h
-src/HistoManu2.cc
+   src/HistoManu2.cc
    inc/HistoManu3.h
-src/HistoManu3.cc
+   src/HistoManu3.cc
 )
 
 set(GOAT_GHIST
@@ -153,6 +153,28 @@ add_executable(pi0-analyse
    src/pi0_analyse_main.cc
    )
 target_link_libraries(pi0-analyse ${ROOT_LIBRARIES})
+
+add_executable(npiplus-analyse
+   ${GOAT_BASE}
+   ${GOAT_GHIST}
+   inc/PPhysics.h
+   src/PPhysics.cc
+   inc/NPiPlusAnalyse.h
+   src/NPiPlusAnalyse.cc
+   src/npiplus_analyse_main.cc
+   )
+target_link_libraries(npiplus-analyse ${ROOT_LIBRARIES})
+
+add_executable(threegamma-analyse
+   ${GOAT_BASE}
+   ${GOAT_GHIST}
+   inc/PPhysics.h
+   src/PPhysics.cc
+   inc/ThreeGammaAnalyse.h
+   src/ThreeGammaAnalyse.cc
+   src/threegamma_analyse_main.cc
+   )
+target_link_libraries(threegamma-analyse ${ROOT_LIBRARIES})
 
 add_executable(pi0pi0-analyse
     ${GOAT_BASE}
